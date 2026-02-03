@@ -1,35 +1,27 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
-import { TextStreamChatTransport } from "ai";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 
-const panelVariants = {
-  hiddenLeft: { opacity: 0, x: -24 },
-  hiddenRight: { opacity: 0, x: 24 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    x: 0,
-    transition: {
-      delay,
-      duration: 0.4,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
-  }),
-};
+function getAssistantTextContent(
+  messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
+): string {
+  const lastAssistant = [...messages]
+    .reverse()
+    .find((m) => m.role === "assistant");
+  if (!lastAssistant?.parts) return "";
+  return lastAssistant.parts
+    .filter(
+      (p): p is { type: string; text: string } =>
+        p.type === "text" && typeof p.text === "string"
+    )
+    .map((p) => p.text)
+    .join("");
+}
 
-const inputBarVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.35, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-};
-
-function parseDuelJson(raw: string): { dev_response: string; biz_response: string } | null {
+function parseDuelJson(raw: string): { dev: string; biz: string } | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
   try {
@@ -37,49 +29,56 @@ function parseDuelJson(raw: string): { dev_response: string; biz_response: strin
     if (
       parsed &&
       typeof parsed === "object" &&
-      "dev_response" in parsed &&
-      "biz_response" in parsed &&
-      typeof (parsed as { dev_response: unknown }).dev_response === "string" &&
-      typeof (parsed as { biz_response: unknown }).biz_response === "string"
+      "dev" in parsed &&
+      "biz" in parsed &&
+      typeof (parsed as { dev: unknown }).dev === "string" &&
+      typeof (parsed as { biz: unknown }).biz === "string"
     ) {
       return {
-        dev_response: (parsed as { dev_response: string }).dev_response,
-        biz_response: (parsed as { biz_response: string }).biz_response,
+        dev: (parsed as { dev: string }).dev,
+        biz: (parsed as { biz: string }).biz,
       };
     }
   } catch {
-    // partial or invalid JSON
+    // Fallback jeśli AI wypluje zwykły tekst
   }
   return null;
 }
 
-function getAssistantTextContent(messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]): string {
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  if (!lastAssistant?.parts) return "";
-  return lastAssistant.parts
-    .filter((p): p is { type: string; text: string } => p.type === "text" && typeof p.text === "string")
-    .map((p) => p.text)
-    .join("");
-}
-
-export function AIDuelLayout() {
+export default function AIDuelLayout() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, status, error } = useChat({
-    transport: new TextStreamChatTransport({ api: "/api/chat" }),
+  const [devResponse, setDevResponse] = useState("");
+  const [bizResponse, setBizResponse] = useState("");
+
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
-  const rawContent = useMemo(() => getAssistantTextContent(messages), [messages]);
+  const rawContent = useMemo(
+    () => getAssistantTextContent(messages),
+    [messages]
+  );
   const parsed = useMemo(() => parseDuelJson(rawContent), [rawContent]);
 
-  const lastUserMessage = useMemo(() => {
-    const user = [...messages].reverse().find((m) => m.role === "user");
-    if (!user?.parts) return null;
-    const textPart = user.parts.find((p: { type: string }) => p.type === "text");
-    return typeof (textPart as { text?: string } | undefined)?.text === "string"
-      ? (textPart as { text: string }).text
-      : null;
-  }, [messages]);
+  // Po zakończeniu streamu parsujemy JSON i ustawiamy dev/biz
+  useEffect(() => {
+    if (parsed) {
+      setDevResponse(parsed.dev);
+      setBizResponse(parsed.biz);
+    }
+  }, [parsed]);
+
+  // Efekt "pisania" w czasie rzeczywistym – podczas ładowania
+  useEffect(() => {
+    if (isLoading) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage?.role === "assistant") {
+        setDevResponse("Analyzing architecture...");
+        setBizResponse("Calculating ROI...");
+      }
+    }
+  }, [messages, isLoading]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -90,158 +89,93 @@ export function AIDuelLayout() {
   };
 
   return (
-    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-zinc-950">
-      <div className="flex min-h-0 flex-1">
-        {/* Left: Developer Persona – dark terminal */}
+    <div className="flex min-h-screen flex-col overflow-hidden bg-[#020617] font-mono text-white">
+      {/* GŁÓWNA SCENA - DWA PANELE */}
+      <div className="relative z-10 flex flex-1 flex-col md:flex-row">
+        {/* LEWY PANEL - DEV (Terminal Style) */}
         <motion.div
-          custom={0.15}
-          variants={panelVariants}
-          initial="hiddenLeft"
-          animate="visible"
-          className="flex w-1/2 flex-col overflow-hidden border-r border-zinc-800 bg-zinc-950"
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="flex-1 border-r border-gray-800/50 bg-[#0a0a0a] p-6"
         >
-          <div className="border-b border-zinc-800 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="size-3 rounded-full bg-red-500/80" />
-              <span className="size-3 rounded-full bg-amber-500/80" />
-              <span className="size-3 rounded-full bg-emerald-500/80" />
-              <span className="ml-2 font-mono text-xs text-zinc-500">
-                developer_persona
-              </span>
-            </div>
+          <div className="mb-4 flex gap-2">
+            <div className="h-3 w-3 rounded-full bg-red-500" />
+            <div className="h-3 w-3 rounded-full bg-yellow-500" />
+            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <span className="ml-2 text-xs text-gray-500">
+              developer_persona
+            </span>
           </div>
-          <div className="flex-1 overflow-auto p-4 font-mono text-sm">
-            {lastUserMessage && (
-              <div className="mb-4 text-zinc-500">
-                <span className="text-zinc-500">&gt;</span> {lastUserMessage}
-              </div>
-            )}
-            {isLoading && !parsed && (
-              <p className="text-emerald-400/90">
-                Thinking...
-                <span className="animate-pulse">▌</span>
-              </p>
-            )}
-            {parsed && (
-              <div className="prose prose-invert prose-sm max-w-none [&_pre]:bg-zinc-900 [&_code]:bg-zinc-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
-                <ReactMarkdown>{parsed.dev_response}</ReactMarkdown>
-                {isLoading && (
-                  <span className="animate-pulse text-emerald-400">▌</span>
-                )}
-              </div>
-            )}
-            {!isLoading && !parsed && !lastUserMessage && (
-              <div className="space-y-1 text-emerald-400/90">
-                <p>
-                  <span className="text-zinc-500">&gt;</span> node --version
-                </p>
-                <p className="text-zinc-400">v20.10.0</p>
-                <p>
-                  <span className="text-zinc-500">&gt;</span> npm run dev
-                </p>
-                <p className="text-zinc-400">Ready in 1.2s</p>
-                <p>
-                  <span className="text-zinc-500">&gt;</span>{" "}
-                  <span className="text-amber-300/90">_</span>
-                </p>
-                <p className="mt-6 text-zinc-500 text-xs">
-                  Type an idea above and hit Enter. Technical steps will appear
-                  here in Markdown.
-                </p>
-              </div>
-            )}
+
+          <div className="space-y-4 font-mono text-sm text-green-400 md:text-base">
+            <div>
+              <span className="text-blue-400">user@baluniak</span>
+              <span className="text-white">:</span>
+              <span className="text-blue-300">~</span>
+              <span className="text-white">$ init_protocol</span>
+            </div>
+
+            {/* Tutaj wyświetlamy odpowiedź DEVA */}
+            <div className="typing-effect min-h-[100px] whitespace-pre-wrap">
+              {devResponse || "> Waiting for input..."}
+              {isLoading && <span className="animate-pulse">_</span>}
+            </div>
           </div>
         </motion.div>
 
-        {/* Right: Business Persona – light glassmorphism */}
+        {/* PRAWY PANEL - BIZNES (Glassmorphism) */}
         <motion.div
-          custom={0.3}
-          variants={panelVariants}
-          initial="hiddenRight"
-          animate="visible"
-          className="flex w-1/2 flex-col overflow-hidden bg-zinc-900/50"
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="flex-1 bg-gradient-to-br from-gray-900 to-[#020617] p-6"
         >
-          <div
-            className="flex flex-1 flex-col overflow-auto border-l border-white/10 bg-white/5 backdrop-blur-xl"
-            style={{
-              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
-            }}
-          >
-            <div className="border-b border-white/10 px-5 py-4">
-              <h2 className="font-semibold text-white/95">Business Persona</h2>
-              <p className="mt-0.5 text-sm text-white/60">
-                Strategic view · KPIs · Stakeholder language
-              </p>
-            </div>
-            <div className="flex-1 overflow-auto p-5 text-sm text-white/80">
-              {isLoading && !parsed && (
-                <p className="leading-relaxed">
-                  Thinking...
-                  <span className="animate-pulse">▌</span>
-                </p>
-              )}
-              {parsed && (
-                <div className="whitespace-pre-wrap leading-relaxed">
-                  {parsed.biz_response}
-                  {isLoading && (
-                    <span className="animate-pulse text-white">▌</span>
-                  )}
-                </div>
-              )}
-              {!isLoading && !parsed && (
-                <>
-                  <p className="leading-relaxed">
-                    Summaries and recommendations will appear here in clear,
-                    non-technical language.
-                  </p>
-                  <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-                    <p className="text-white/70 text-xs uppercase tracking-wider">
-                      Placeholder
-                    </p>
-                    <p className="mt-2 text-white/90">
-                      Business value and monetization strategy will stream here.
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
+          <div className="mb-6 border-b border-gray-700 pb-2">
+            <h2 className="font-sans text-xl font-bold text-white">
+              Business Persona
+            </h2>
+            <p className="font-sans text-xs text-gray-400">
+              Strategic View • ROI Focus
+            </p>
+          </div>
+
+          {/* Tutaj wyświetlamy odpowiedź BIZNESU */}
+          <div className="min-h-[150px] rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+            <p className="font-sans leading-relaxed text-gray-200">
+              {bizResponse ||
+                "Summaries and recommendations will appear here in clear, non-technical language."}
+            </p>
           </div>
         </motion.div>
       </div>
 
-      {/* Fixed command-line style input */}
-      <motion.div
-        variants={inputBarVariants}
-        initial="hidden"
-        animate="visible"
-        className="absolute inset-x-0 bottom-0 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur-md"
-      >
+      {/* INPUT AREA - TO CZEGO BRAKOWAŁO */}
+      <div className="relative z-20 border-t border-gray-800 bg-[#050505] p-4">
         <form
           onSubmit={handleSubmit}
-          className="mx-auto flex max-w-4xl flex-col gap-2"
+          className="mx-auto flex max-w-4xl gap-4"
         >
-          {error && (
-            <p className="text-sm text-red-400" role="alert">
-              {error.message}
-            </p>
-          )}
-          <div className="flex items-center gap-2 font-mono text-sm">
-            <span className="text-zinc-500">&gt;</span>
+          <div className="relative flex-1">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 animate-pulse text-green-500">
+              {">"}
+            </span>
             <input
-              type="text"
+              className="w-full rounded-lg border border-gray-700 bg-[#0f1115] py-4 pl-10 pr-4 text-white transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type idea..."
+              placeholder="Wpisz pomysł na aplikację (np. Tinder dla psów)..."
               disabled={isLoading}
-              className="flex-1 min-w-0 rounded border-0 bg-transparent px-2 py-2 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-0 disabled:opacity-50"
-              aria-label="Message input"
+              aria-label="Wpisz pomysł na aplikację"
             />
           </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="rounded-lg bg-blue-600 px-6 py-2 font-bold text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
+          >
+            {isLoading ? "ANALYZING..." : "EXECUTE"}
+          </button>
         </form>
-
-      </motion.div>
-
-      <div className="h-[72px] shrink-0" aria-hidden />
+      </div>
     </div>
   );
 }
