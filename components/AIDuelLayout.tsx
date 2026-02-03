@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 
-const LETTER_DELAY_MS = 20;
+const SPLITTER = " ||| ";
 
 function getAssistantTextContent(
   messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
@@ -23,55 +23,10 @@ function getAssistantTextContent(
     .join("");
 }
 
-function parseDuelJson(raw: string): { dev: string; biz: string } | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-  try {
-    const parsed = JSON.parse(trimmed) as unknown;
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      "dev" in parsed &&
-      "biz" in parsed &&
-      typeof (parsed as { dev: unknown }).dev === "string" &&
-      typeof (parsed as { biz: unknown }).biz === "string"
-    ) {
-      return {
-        dev: (parsed as { dev: string }).dev,
-        biz: (parsed as { biz: string }).biz,
-      };
-    }
-  } catch {
-    // Fallback
-  }
-  return null;
-}
-
-function useTypewriter(text: string, enabled: boolean) {
-  const [displayed, setDisplayed] = useState("");
-  useEffect(() => {
-    if (!enabled) {
-      setDisplayed(text);
-      return;
-    }
-    setDisplayed("");
-  }, [text, enabled]);
-
-  useEffect(() => {
-    if (!enabled || !text || displayed.length >= text.length) return;
-    const t = setTimeout(() => {
-      setDisplayed((prev) => text.slice(0, prev.length + 1));
-    }, LETTER_DELAY_MS);
-    return () => clearTimeout(t);
-  }, [text, enabled, displayed]);
-  return enabled ? displayed : text;
-}
-
 function FrequencyBar({ active }: { active: boolean }) {
-  const bars = 12;
   return (
     <div className="flex h-full w-12 flex-shrink-0 flex-col items-center justify-center gap-0.5 bg-black/80 py-4">
-      {Array.from({ length: bars }).map((_, i) => (
+      {Array.from({ length: 12 }).map((_, i) => (
         <motion.div
           key={i}
           className="w-1.5 rounded-sm bg-emerald-500"
@@ -95,46 +50,38 @@ export default function AIDuelLayout() {
   const [input, setInput] = useState("");
   const [devResponse, setDevResponse] = useState("");
   const [bizResponse, setBizResponse] = useState("");
-  const [showTypewriter, setShowTypewriter] = useState(true);
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
-  const rawContent = useMemo(
-    () => getAssistantTextContent(messages),
-    [messages]
-  );
-  const parsed = useMemo(() => parseDuelJson(rawContent), [rawContent]);
 
+  // Real-time: split streamed content by ||| and show in left/right panels immediately
   useEffect(() => {
-    if (parsed) {
-      setDevResponse(parsed.dev);
-      setBizResponse(parsed.biz);
-      setShowTypewriter(true);
-    }
-  }, [parsed]);
+    const content = getAssistantTextContent(messages);
+    if (!content) return;
+    const parts = content.split(SPLITTER);
+    setDevResponse(parts[0]?.trim() ?? "");
+    setBizResponse(parts[1]?.trim() ?? "");
+  }, [messages]);
 
+  // Loading placeholder only when no streamed content yet
   useEffect(() => {
-    if (isLoading) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage?.role === "assistant") {
-        setDevResponse("ANALYZING ARCHITECTURE...");
-        setBizResponse("CALCULATING ROI...");
-        setShowTypewriter(false);
-      }
-    }
+    if (!isLoading) return;
+    const content = getAssistantTextContent(messages);
+    if (content.length > 0) return;
+    setDevResponse("ANALYZING ARCHITECTURE...");
+    setBizResponse("CALCULATING ROI...");
   }, [messages, isLoading]);
-
-  const devDisplayed = useTypewriter(devResponse, showTypewriter && !!devResponse);
-  const bizDisplayed = useTypewriter(bizResponse, showTypewriter && !!bizResponse);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const value = input.trim();
       if (!value || isLoading) return;
+      setDevResponse("");
+      setBizResponse("");
       sendMessage({ text: value });
       setInput("");
     },
@@ -157,7 +104,6 @@ export default function AIDuelLayout() {
         }}
       />
 
-      {/* CONNECTION ERROR glitch */}
       {connectionError && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -178,9 +124,7 @@ export default function AIDuelLayout() {
         </motion.div>
       )}
 
-      {/* Split screen: Left | Frequency | Right */}
       <div className="relative z-10 flex flex-1 flex-col md:flex-row">
-        {/* LEFT PANEL - DEV (Snake / Green) */}
         <motion.div
           initial={{ x: -30, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -197,17 +141,15 @@ export default function AIDuelLayout() {
             </div>
           </div>
           <div className="min-h-[120px] flex-1 whitespace-pre-wrap border border-emerald-500/20 bg-black/30 p-4 font-[var(--font-vt323)] text-base leading-relaxed text-emerald-300/95 md:min-h-[180px]">
-            {devDisplayed || "> AWAITING INPUT..."}
-            {(isLoading || (showTypewriter && devResponse)) && (
+            {devResponse || "> AWAITING INPUT..."}
+            {(isLoading || devResponse) && (
               <span className="animate-pulse">_</span>
             )}
           </div>
         </motion.div>
 
-        {/* MIDDLE - Frequency bar */}
         <FrequencyBar active={isLoading} />
 
-        {/* RIGHT PANEL - BIZ (Otacon / Blue-Amber) */}
         <motion.div
           initial={{ x: 30, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -224,16 +166,15 @@ export default function AIDuelLayout() {
             </div>
           </div>
           <div className="min-h-[120px] flex-1 whitespace-pre-wrap border border-amber-500/20 bg-black/30 p-4 font-[var(--font-vt323)] text-base leading-relaxed text-amber-200/90 md:min-h-[180px]">
-            {bizDisplayed ||
+            {bizResponse ||
               "Strategic summaries and recommendations will appear here."}
-            {(isLoading || (showTypewriter && bizResponse)) && (
+            {(isLoading || bizResponse) && (
               <span className="animate-pulse">_</span>
             )}
           </div>
         </motion.div>
       </div>
 
-      {/* Tactical command prompt input */}
       <div className="relative z-20 border-t border-emerald-500/40 bg-[#050505] p-4">
         <form
           onSubmit={handleSubmit}
