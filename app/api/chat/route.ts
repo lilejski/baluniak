@@ -1,54 +1,20 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { generateText, Output } from "ai";
-import { z } from "zod";
+import { streamText } from "ai";
 import type { NextRequest } from "next/server";
 
-const duelSchemaBase = z.object({
-  agent1: z
-    .string()
-    .describe(
-      "Technical implementation steps in Markdown: bullet points, code blocks if needed, clear steps for developers"
-    ),
-  agent2: z
-    .string()
-    .describe(
-      "Business value and monetization strategy: clear paragraphs for stakeholders, revenue potential, go-to-market angles"
-    ),
-});
+const SYSTEM_PROMPT = `You are a dual-personality AI. You must ALWAYS respond in a strict JSON format only, without markdown code blocks.
 
-const duelSchemaWithLink = duelSchemaBase.extend({
-  suggestedLink: z
-    .enum(["fotarobota", "saas-guide"])
-    .describe(
-      "Based on conversation: 'fotarobota' if topic is images/AI/photo, 'saas-guide' if topic is building/SaaS/products"
-    ),
-});
+The JSON structure is: { "dev_response": "...", "biz_response": "..." }
 
-function formatExchanges(
-  previous: Array<{ prompt: string; agent1: string; agent2: string }>
-): string {
-  return previous
-    .map(
-      (ex, i) =>
-        `--- Exchange ${i + 1} ---\nUser: ${ex.prompt}\n\nDeveloper:\n${ex.agent1.slice(0, 400)}...\n\nBusiness:\n${ex.agent2.slice(0, 400)}...`
-    )
-    .join("\n\n");
-}
+Persona 1 (dev_response): Senior Engineer. Technical, cynical, uses heavy tech jargon, focuses on code/stack/performance. Markdown allowed inside the string (bullet points, code blocks).
+
+Persona 2 (biz_response): Product Manager. Optimistic, focuses on ROI, user value, monetization, and growth. Plain text only, no markdown.
+
+Output only valid JSON with keys "dev_response" and "biz_response". No other text, no \`\`\`json wrapper.`;
+
+export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const message = typeof body?.message === "string" ? body.message.trim() : "";
-  const previousExchanges = Array.isArray(body?.previousExchanges)
-    ? body.previousExchanges
-    : [];
-
-  if (!message) {
-    return Response.json(
-      { error: "Missing or empty message" },
-      { status: 400 }
-    );
-  }
-
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return Response.json(
@@ -57,54 +23,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const isThirdExchange = previousExchanges.length === 2;
-  const schema = isThirdExchange ? duelSchemaWithLink : duelSchemaBase;
-  const conversationContext =
-    previousExchanges.length > 0
-      ? `\n\n**Conversation so far:**\n${formatExchanges(previousExchanges)}\n\n**New user message:** ${message}`
-      : `\n**User idea:** ${message}`;
+  let userContent = "";
+  try {
+    const body = await request.json();
+    const messages = Array.isArray(body?.messages) ? body.messages : [];
+    const lastUser = messages.filter(
+      (m: { role: string }) => m.role === "user"
+    ).pop();
+    if (lastUser?.parts) {
+      const textPart = lastUser.parts.find(
+        (p: { type: string }) => p.type === "text"
+      );
+      userContent = typeof textPart?.text === "string" ? textPart.text.trim() : "";
+    }
+  } catch {
+    // ignore
+  }
 
-  const promptInstructions = isThirdExchange
-    ? `
-
-This is the **final (3rd) exchange**. You must also set **suggestedLink**:
-- Use "fotarobota" if the conversation is mainly about images, AI images, photo tools, or visual/AI content.
-- Use "saas-guide" if the conversation is mainly about building a product, SaaS, startup, or software business.
-
-Return valid JSON with keys "agent1", "agent2", and "suggestedLink".`
-    : `
-
-Return only valid JSON with keys "agent1" and "agent2".`;
+  if (!userContent) {
+    return Response.json(
+      { error: "Missing or empty message" },
+      { status: 400 }
+    );
+  }
 
   try {
-    const { output } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
-      output: Output.object({
-        name: "DuelResponse",
-        description: isThirdExchange
-          ? "Two responses plus suggestedLink for Next Steps CTA."
-          : "Two responses: Agent 1 (technical), Agent 2 (business).",
-        schema,
-      }),
-      prompt: `You are two experts in a duel responding to the same user idea.${conversationContext}
-
-Respond with a JSON object:
-
-1. **agent1** (Developer/Technical persona): Write technical implementation steps in Markdown. Use bullet points, numbered steps, and code blocks where relevant. Focus on: architecture, stack choices, implementation phases, APIs, deployment. Be concrete and actionable.
-
-2. **agent2** (Business persona): Write business value and monetization strategy in plain but polished prose. Focus on: value proposition, target market, revenue streams, pricing angles, go-to-market, KPIs. No code—stakeholder language only.
-
-Keep each response concise but complete (roughly 150–300 words each).${promptInstructions}`,
+    const result = streamText({
+      model: anthropic("claude-3-5-sonnet-latest"),
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: userContent }],
     });
 
-    const response: Record<string, string> = {
-      agent1: output.agent1,
-      agent2: output.agent2,
-    };
-    if (isThirdExchange && "suggestedLink" in output) {
-      response.suggestedLink = output.suggestedLink as string;
-    }
-    return Response.json(response);
+    return result.toTextStreamResponse();
   } catch (err) {
     console.error("Chat API error:", err);
     return Response.json(
