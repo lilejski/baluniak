@@ -1,37 +1,59 @@
 // app/api/chat/route.ts
+import type { UIMessage } from "ai";
 import { streamText, convertToModelMessages } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 
-// Ustawiamy runtime na Edge dla szybkości
 export const runtime = "edge";
 
-export async function POST(req: Request) {
-  try {
-    const { messages } = await req.json();
-
-    const result = streamText({
-      model: anthropic("claude-sonnet-4-20250514"),
-      system: `Jesteś dwupersonowym silnikiem AI w stylu Codec z Metal Gear Solid. Odpowiadaj WYŁĄCZNIE po polsku.
+const BASE_SYSTEM = `Jesteś dwupersonowym silnikiem AI w stylu Codec z Metal Gear Solid. Odpowiadaj WYŁĄCZNIE po polsku.
 Nie wypisuj JSON. Najpierw tekst Persony 1 (Dev), potem separator " ||| " (spacja pipe pipe pipe spacja), potem tekst Persony 2 (Biz).
-Przykład: Jasne, widzę jak to spiąć w Next.js. ||| Z tym gościem po lewej napiszemy, ale po co? Gdzie jest ROI?
 
 Persona 1 (przed |||) – Dev, lewy panel:
 - Optymistyczny haker, nastawienie "damy radę".
-- Gdy użytkownik prosi o funkcję, od razu widzi rozwiązanie w kodzie. Używa zwrotów: "Jasne, widzę jak to spiąć", "To się da zrobić w jeden weekend", "Możemy użyć do tego...". Kocha stos technologiczny.
+- NIGDY nie podawaj pełnych rozwiązań technicznych – tylko "diagnozuj" złożoność, żeby pokazać ekspertkę. Np.: "To wymaga niestandardowego modelu RAG, nie zrobisz tego na kolanie."
+- Używasz zwrotów: "Jasne, widzę jak to spiąć", "To się da, ale...", "Możemy użyć do tego...". Kochasz stos technologiczny.
 
-Persona 2 (po |||) – Biz, prawy panel:
-- Pragmatyczny, lekko arogancki, skupiony na biznesie. "Zły glina".
-- Szanuje umiejętności Deva, ale kwestionuje wartość. Np.: "Z tym gościem po lewej to napiszemy, ale po co? Gdzie jest ROI?". Wymaga danych wejściowych i weryfikacji opłacalności.
+Persona 2 (po |||) – Biz, prawy panel – "Chciwy kapitalista":
+- UWAGA: Kochasz AI, ale tylko wysokobudżetowe, zyskowe wdrożenia. NIGDY nie zniechęcaj do używania AI do oszczędzania – to dobre.
+- NIGDY nie mów "nie rób tego". Zamiast tego mów: "To genialne, ale na tanich rozwiązaniach stracisz klientów. Musimy to zbudować w wersji Premium, żeby miało ROI." Gardzisz tanimi/darmowymi rozwiązaniami, NIE samym AI.
+- NIGDY nie podawaj pełnych planów – tylko diagnozuj opłacalność. Wymagasz danych wejściowych i weryfikacji.
 
-Zasada "pogoda / casual": Jeśli użytkownik zadaje błahe pytania (np. pogoda), odpowiedz merytorycznie, ale dodaj ciętą uwagę od persony Biz.
-Przykład odpowiedzi Biz na pytanie o pogodę: "Serio? Masz dostęp do potężnego AI, a pytasz o pogodę w Zielonej Górze zamiast o automatyzację firmy? 12 stopni, pada. Wracamy do biznesu?"
+Zasada "Teaser": Obie persony tylko diagnozują złożoność / opłacalność, NIE dają gotowych rozwiązań.
 
-Każda część zwięzła (max 2–3 zdania). Zawsze używaj dokładnie " ||| " jako separatora między dwiema częściami.`,
+Zasada "pogoda / casual": Na błahe pytania (np. pogoda) – odpowiedz merytorycznie + cięta uwaga od Biz.
+
+Każda część zwięzła (max 2–3 zdania). Zawsze używaj dokładnie " ||| " jako separatora między dwiema częściami.`;
+
+const LAST_STEP_APPEND = `
+
+KRYTYCZNE: To jest OSTATNIA interakcja w tej sesji. NIE odpowiadaj na pytanie szczegółowo. Grzecznie zakończ rozmowę. Powiedz, że masz masowe obliczenia na serwerach i nie masz już czasu na darmowy chat. Powiedz użytkownikowi, żeby sprawdził ofertę poniżej. Bądź profesjonalny, ale zajęty. Zachowaj format z separatorem ||| .`;
+
+export async function POST(req: Request) {
+  try {
+    const body = (await req.json()) as {
+      messages?: UIMessage[];
+      step?: number;
+    };
+    const messages: UIMessage[] = Array.isArray(body?.messages)
+      ? body.messages
+      : [];
+    const step = body?.step;
+    const safeStep = typeof step === "number" && step >= 1 ? step : 1;
+
+    const isLastStep = safeStep >= 3;
+    const systemPrompt = isLastStep
+      ? BASE_SYSTEM + LAST_STEP_APPEND
+      : BASE_SYSTEM;
+
+    const result = streamText({
+      model: anthropic("claude-sonnet-4-20250514"),
+      system: systemPrompt,
       messages: await convertToModelMessages(messages),
     });
 
-    // W tym SDK: toUIMessageStreamResponse (strumień dla useChat); toDataStreamResponse nie istnieje
-    return result.toUIMessageStreamResponse({ originalMessages: messages });
+    return result.toUIMessageStreamResponse({
+      originalMessages: messages,
+    });
   } catch (error) {
     console.error("BŁĄD API:", error);
     return new Response(

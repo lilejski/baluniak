@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 
 const SPLITTER = " ||| ";
+const MAX_INTERACTIONS = 3;
 
 function getAssistantTextContent(
   messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
@@ -50,9 +52,23 @@ export default function AIDuelLayout() {
   const [input, setInput] = useState("");
   const [devResponse, setDevResponse] = useState("");
   const [bizResponse, setBizResponse] = useState("");
+  const [interactionCount, setInteractionCount] = useState(0);
+  const stepRef = useRef(0);
+
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        prepareSendMessagesRequest: ({ body, ...rest }) => ({
+          ...rest,
+          body: { ...body, step: stepRef.current },
+        }),
+      }),
+    []
+  );
 
   const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport,
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -79,13 +95,15 @@ export default function AIDuelLayout() {
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const value = input.trim();
-      if (!value || isLoading) return;
+      if (!value || isLoading || interactionCount >= MAX_INTERACTIONS) return;
       setDevResponse("");
       setBizResponse("");
+      stepRef.current = interactionCount + 1;
+      setInteractionCount((c) => c + 1);
       sendMessage({ text: value });
       setInput("");
     },
-    [input, isLoading, sendMessage]
+    [input, isLoading, interactionCount, sendMessage]
   );
 
   const connectionError = !!error;
@@ -178,33 +196,53 @@ export default function AIDuelLayout() {
           </motion.div>
         </div>
 
-        {/* Input – control panel directly under consoles */}
-        <div className="border-t border-emerald-500/40 bg-[#050505] p-4">
-          <form
-            onSubmit={handleSubmit}
-            className="mx-auto flex max-w-3xl items-center gap-3"
-          >
-            <span className="text-emerald-500">&#62;</span>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Wpisz czego poszukujesz?"
-              disabled={isLoading}
-              className="flex-1 rounded-none border border-emerald-500/50 bg-black/80 px-4 py-3 font-[var(--font-vt323)] text-lg tracking-wider text-[#c0ff00] placeholder:text-emerald-900 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 disabled:opacity-60"
-              aria-label="Wpisz czego poszukujesz"
-            />
-            <motion.button
-              type="submit"
-              disabled={isLoading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-none border border-emerald-500/70 bg-emerald-950/80 px-6 py-3 font-[var(--font-vt323)] text-lg tracking-widest text-emerald-300 disabled:opacity-50"
+        {/* Input – hidden when limit reached; otherwise control panel under consoles */}
+        {interactionCount >= MAX_INTERACTIONS ? (
+          <div className="flex flex-col items-center justify-center gap-4 border-t border-emerald-500/40 bg-[#050505] py-12">
+            <p className="font-[var(--font-vt323)] text-center text-xl tracking-wider text-amber-200/90">
+              LIMIT DANYCH WYCZERPANY. ZOBACZ PEŁNĄ OFERTĘ
+            </p>
+            <Link
+              href="/projekty"
+              className="rounded border border-emerald-500/70 bg-emerald-950/80 px-8 py-4 font-[var(--font-vt323)] text-lg tracking-widest text-emerald-300 transition-colors hover:bg-emerald-900/60"
             >
-              {isLoading ? "TRANSMITUJĘ..." : "WYŚLIJ"}
-            </motion.button>
-          </form>
-        </div>
+              PROJEKTY
+            </Link>
+            <Link
+              href="/sklep"
+              className="rounded border border-amber-500/50 bg-amber-950/50 px-8 py-4 font-[var(--font-vt323)] text-lg tracking-widest text-amber-200/90 transition-colors hover:bg-amber-900/40"
+            >
+              SKLEP
+            </Link>
+          </div>
+        ) : (
+          <div className="border-t border-emerald-500/40 bg-[#050505] p-4">
+            <form
+              onSubmit={handleSubmit}
+              className="mx-auto flex max-w-3xl items-center gap-3"
+            >
+              <span className="text-emerald-500">&#62;</span>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Wpisz czego poszukujesz?"
+                disabled={isLoading}
+                className="flex-1 rounded-none border border-emerald-500/50 bg-black/80 px-4 py-3 font-[var(--font-vt323)] text-lg tracking-wider text-[#c0ff00] placeholder:text-emerald-900 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 disabled:opacity-60"
+                aria-label="Wpisz czego poszukujesz"
+              />
+              <motion.button
+                type="submit"
+                disabled={isLoading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="rounded-none border border-emerald-500/70 bg-emerald-950/80 px-6 py-3 font-[var(--font-vt323)] text-lg tracking-widest text-emerald-300 disabled:opacity-50"
+              >
+                {isLoading ? "TRANSMITUJĘ..." : "WYŚLIJ"}
+              </motion.button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
