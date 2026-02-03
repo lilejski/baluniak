@@ -212,7 +212,7 @@ export default function AIDuelLayout() {
         ) : (
           <div className="border-t border-emerald-500/40 bg-[#050505] p-4">
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleCustomSubmit}
               className="mx-auto flex max-w-3xl items-center gap-3"
             >
               <span className="text-emerald-500">&#62;</span>
