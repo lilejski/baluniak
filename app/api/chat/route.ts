@@ -9,9 +9,8 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // Konkretna wersja modelu (październik 2024 – najnowszy stabilny Sonnet 3.5)
     const result = streamText({
-      model: anthropic("claude-3-5-sonnet-20241022"),
+      model: anthropic("claude-sonnet-4-20250514"),
       system: `You are a dual-personality AI engine inside a Metal Gear Solid Codec.
 Response format: JSON ONLY. No markdown blocks.
 Structure: { "dev": "...", "biz": "..." }
