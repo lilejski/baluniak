@@ -53,22 +53,9 @@ export default function AIDuelLayout() {
   const [devResponse, setDevResponse] = useState("");
   const [bizResponse, setBizResponse] = useState("");
   const [interactionCount, setInteractionCount] = useState(0);
-  const stepRef = useRef(0);
-
-  const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: "/api/chat",
-        prepareSendMessagesRequest: ({ body, ...rest }) => ({
-          ...rest,
-          body: { ...body, step: stepRef.current },
-        }),
-      }),
-    []
-  );
 
   const { messages, sendMessage, status, error } = useChat({
-    transport,
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -91,16 +78,23 @@ export default function AIDuelLayout() {
     setBizResponse("Liczę ROI...");
   }, [messages, isLoading]);
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCustomSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const value = input.trim();
       if (!value || isLoading || interactionCount >= MAX_INTERACTIONS) return;
       setDevResponse("");
       setBizResponse("");
-      stepRef.current = interactionCount + 1;
-      setInteractionCount((c) => c + 1);
-      sendMessage({ text: value });
+      const nextStep = interactionCount + 1;
+      try {
+        await sendMessage(
+          { role: "user", content: value, parts: [{ type: "text", text: value }] } as Parameters<typeof sendMessage>[0],
+          { body: { step: nextStep } }
+        );
+        setInteractionCount(nextStep);
+      } catch {
+        // on error don't increment
+      }
       setInput("");
     },
     [input, isLoading, interactionCount, sendMessage]
