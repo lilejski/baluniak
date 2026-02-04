@@ -79,6 +79,15 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
+/* Global background: fills viewport, applied on html so it's always visible */
+html {
+  min-height: 100%;
+}
+
+html.dark {
+  background: oklch(0.09 0.005 285.823);
+}
+
 .dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
@@ -118,6 +127,45 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-screen bg-background text-foreground;
   }
+  /* Subtle gradient overlay for depth when dark (does not override page content) */
+  .dark body {
+    background: radial-gradient(
+        ellipse 120% 80% at 50% 0%,
+        oklch(0.18 0.008 285.823) 0%,
+        transparent 50%
+      ),
+      var(--background);
+  }
+}
+
+/* Infinite tech marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Glitch text effect */
+@keyframes glitch-left {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(-3px, 2px); }
+  50% { transform: translate(3px, -2px); }
+  75% { transform: translate(-2px, -1px); }
+}
+@keyframes glitch-right {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(3px, -2px); }
+  50% { transform: translate(-3px, 2px); }
+  75% { transform: translate(2px, 1px); }
+}
+.animate-glitch-left {
+  animation: glitch-left 3s ease-in-out infinite;
+}
+.animate-glitch-right {
+  animation: glitch-right 3s ease-in-out infinite;
 }

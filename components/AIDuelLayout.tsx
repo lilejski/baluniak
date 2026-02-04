@@ -98,7 +98,7 @@ function AgentWindow({
       <div className="relative min-h-[200px] flex-1 overflow-auto rounded border bg-black/30 p-3 md:min-h-[300px]">
         {showScanline && (
           <div
-            className="pointer-events-none absolute inset-0 z-10 opacity-[0.06]"
+            className="pointer-events-none absolute inset-0 z-10 opacity-[0.08]"
             style={SCANLINE_STYLE}
             aria-hidden
           />
@@ -178,13 +178,13 @@ export default function AIDuelLayout() {
   return (
     <div
       className={cn(
-        "relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0d] pt-20 font-[var(--font-vt323)] text-lg"
+        "relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0d] font-[var(--font-vt323)] text-lg"
       )}
       style={{ fontFamily: "var(--font-vt323), monospace" }}
     >
-      {/* Global CRT scanlines (subtle) */}
+      {/* Global CRT scanlines (subtle atmosphere) */}
       <div
-        className="pointer-events-none fixed inset-0 z-[100] opacity-[0.04]"
+        className="pointer-events-none fixed inset-0 z-[100] opacity-[0.05]"
         style={SCANLINE_STYLE}
         aria-hidden
       />
@@ -203,7 +203,7 @@ export default function AIDuelLayout() {
             ],
           }}
           transition={{ duration: 0.15, repeat: Infinity }}
-          className="absolute left-1/2 top-24 z-50 -translate-x-1/2 rounded border border-red-500/80 bg-black/95 px-6 py-3 font-[var(--font-vt323)] text-xl tracking-widest text-red-400"
+          className="absolute left-1/2 top-20 z-[110] -translate-x-1/2 rounded border border-red-500/80 bg-black/95 px-6 py-3 font-[var(--font-vt323)] text-xl tracking-widest text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
         >
           CONNECTION ERROR
         </motion.div>
@@ -214,16 +214,16 @@ export default function AIDuelLayout() {
         {/* Mobile: Tabs – one agent at a time (data stays when switching tabs) */}
         <div className="flex flex-1 flex-col md:hidden">
           <Tabs defaultValue="dev" className="flex min-h-0 flex-1 flex-col">
-            <TabsList className="mx-4 mt-2 grid w-[calc(100%-2rem)] grid-cols-2 rounded-lg border border-white/10 bg-black/50 p-1 backdrop-blur-sm">
+            <TabsList className="relative z-10 mx-4 mt-2 grid h-12 w-[calc(100%-2rem)] grid-cols-2 rounded-lg border-2 border-white/20 bg-zinc-900/95 p-1.5 shadow-lg backdrop-blur-md">
               <TabsTrigger
                 value="dev"
-                className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 data-[state=active]:shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                className="min-h-10 transition-colors data-[state=inactive]:!text-zinc-400 data-[state=inactive]:bg-white/5 data-[state=inactive]:hover:!text-zinc-300 data-[state=inactive]:hover:bg-white/10 data-[state=active]:!text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-400/50 data-[state=active]:bg-emerald-500/30 data-[state=active]:shadow-[0_0_16px_rgba(16,185,129,0.5),0_0_0_1px_rgba(16,185,129,0.4)] data-[state=active]:ring-2 data-[state=active]:ring-emerald-400/40"
               >
                 DEV_CHANNEL
               </TabsTrigger>
               <TabsTrigger
                 value="biz"
-                className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-200 data-[state=active]:shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+                className="min-h-10 transition-colors data-[state=inactive]:!text-zinc-400 data-[state=inactive]:bg-white/5 data-[state=inactive]:hover:!text-zinc-300 data-[state=inactive]:hover:bg-white/10 data-[state=active]:!text-amber-200 data-[state=active]:border data-[state=active]:border-amber-400/50 data-[state=active]:bg-amber-500/30 data-[state=active]:shadow-[0_0_16px_rgba(245,158,11,0.5),0_0_0_1px_rgba(245,158,11,0.4)] data-[state=active]:ring-2 data-[state=active]:ring-amber-400/40"
               >
                 BIZ_CHANNEL
               </TabsTrigger>
@@ -261,7 +261,7 @@ export default function AIDuelLayout() {
                 <CardContent className="flex min-h-0 flex-1 flex-col p-0">
                   <div className="relative flex min-h-0 flex-1 flex-col">
                     <div
-                      className="pointer-events-none absolute inset-0 z-10 opacity-[0.06]"
+                      className="pointer-events-none absolute inset-0 z-10 opacity-[0.08]"
                       style={SCANLINE_STYLE}
                       aria-hidden
                     />
@@ -302,7 +302,7 @@ export default function AIDuelLayout() {
             <p className="text-center font-[var(--font-vt323)] text-xl tracking-wider text-amber-200/90">
               LIMIT DANYCH WYCZERPANY. ZOBACZ PEŁNĄ OFERTĘ
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3 rounded-lg border border-amber-500/20 bg-black/30 px-6 py-4 shadow-[0_0_24px_rgba(245,158,11,0.08)]">
               <Link href="/projekty">
                 <Button variant="outline" className="border-emerald-500/70 bg-emerald-950/80 text-emerald-300 hover:bg-emerald-900/60">
                   PROJEKTY
@@ -317,25 +317,25 @@ export default function AIDuelLayout() {
           </div>
         </div>
       ) : (
-        <div className="sticky bottom-0 border-t border-white/10 bg-black/50 px-4 py-4 backdrop-blur-md md:py-6">
+        <div className="sticky bottom-0 border-t border-white/10 bg-black/30 px-4 py-4 backdrop-blur-xl md:py-6">
           <form
             onSubmit={handleCustomSubmit}
-            className="mx-auto flex max-w-[600px] items-center gap-2 rounded-lg border border-white/10 bg-black/60 px-2 py-2 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 md:px-3"
+            className="mx-auto flex max-w-[600px] items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 shadow-[0_0_24px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition-all duration-200 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/25 focus-within:shadow-[0_0_28px_rgba(16,185,129,0.1),inset_0_1px_0_rgba(255,255,255,0.1)] focus-within:backdrop-blur-lg md:px-4 md:py-3"
           >
-            <span className="text-emerald-500" aria-hidden>&#62;</span>
+            <span className="select-none text-lg text-emerald-400 md:text-xl" aria-hidden>&#62;</span>
             <Input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Wpisz czego poszukujesz?"
               disabled={isLoading}
-              className="min-w-0 flex-1 border-0 bg-transparent font-[var(--font-vt323)] text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0"
+              className="min-h-10 min-w-0 flex-1 border-0 bg-transparent font-[var(--font-vt323)] text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
               aria-label="Wpisz czego poszukujesz"
             />
             <Button
               type="submit"
               disabled={isLoading}
-              className="shrink-0 border border-emerald-500/70 bg-emerald-950/80 font-[var(--font-vt323)] tracking-widest text-emerald-300 hover:bg-emerald-900/60"
+              className="shrink-0 min-h-10 border border-emerald-500/60 bg-emerald-950/90 px-5 font-[var(--font-vt323)] text-sm tracking-widest text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 hover:shadow-[0_0_16px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:shadow-none md:px-6 md:text-base"
             >
               {isLoading ? "TRANSMITUJĘ..." : "WYŚLIJ"}
             </Button>

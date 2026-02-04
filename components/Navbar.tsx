@@ -37,7 +37,7 @@ export function Navbar() {
           className="flex items-center gap-2 font-bold tracking-tighter text-zinc-100 transition-colors hover:text-white"
         >
           <span
-            className="size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_var(--tw-shadow-color)] shadow-emerald-400"
+            className="size-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.9)] ring-2 ring-emerald-400/30"
             aria-hidden
           />
           BALUNIAK
@@ -70,7 +70,7 @@ export function Navbar() {
                 <Menu className="size-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="border-white/10 bg-zinc-950/95">
+            <SheetContent side="right" className="border-white/10 bg-zinc-950/95 backdrop-blur-xl">
               <SheetHeader>
                 <SheetTitle className="text-left text-zinc-100">
                   Menu
