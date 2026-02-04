@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, VT323 } from "next/font/google";
-import { SiteHeader } from "@/components/SiteHeader";
+import { Analytics } from "@vercel/analytics/next";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,10 +33,11 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${vt323.variable} min-h-screen bg-zinc-950 text-zinc-100 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${vt323.variable} font-sans min-h-screen bg-zinc-950 text-zinc-100 antialiased`}
       >
-        <SiteHeader />
-        {children}
+        <Navbar />
+        <main className="pt-16">{children}</main>
+        <Analytics />
       </body>
     </html>
   );

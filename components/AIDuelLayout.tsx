@@ -1,13 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const SPLITTER = " ||| ";
 const MAX_INTERACTIONS = 3;
+
+const SCANLINE_STYLE = {
+  backgroundImage:
+    "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.25) 2px, rgba(0,0,0,0.25) 4px)",
+};
 
 function getAssistantTextContent(
   messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
@@ -48,6 +58,66 @@ function FrequencyBar({ active }: { active: boolean }) {
   );
 }
 
+function AgentWindow({
+  title,
+  subtitle,
+  content,
+  isLoading,
+  placeholder,
+  theme,
+  showScanline = false,
+}: {
+  title: string;
+  subtitle: string;
+  content: string;
+  isLoading: boolean;
+  placeholder: string;
+  theme: "dev" | "biz";
+  showScanline?: boolean;
+}) {
+  const isDev = theme === "dev";
+  const borderCls = isDev
+    ? "border-emerald-500/30 bg-[#061006]"
+    : "border-amber-500/30 bg-[#0c0a08]";
+  const headerBorderCls = isDev ? "border-emerald-500/60" : "border-amber-500/50";
+  const textCls = isDev ? "text-emerald-400/90" : "text-amber-400/90";
+  const subCls = isDev ? "text-emerald-600" : "text-amber-600/80";
+  const contentBorderCls = isDev ? "border-emerald-500/20" : "border-amber-500/20";
+  const contentTextCls = isDev ? "text-emerald-300/95" : "text-amber-200/90";
+  const avatarCls = isDev ? "border-emerald-500/60 bg-emerald-950/80" : "border-amber-500/50 bg-amber-950/60";
+
+  return (
+    <div className={cn("flex min-h-[280px] flex-1 flex-col p-4 md:min-h-[400px]", borderCls)}>
+      <div className="mb-3 flex items-center gap-3">
+        <div className={cn("h-14 w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
+        <div>
+          <p className={cn("text-lg tracking-widest md:text-xl", textCls)}>{title}</p>
+          <p className={cn("text-xs", subCls)}>{subtitle}</p>
+        </div>
+      </div>
+      <div className="relative min-h-[200px] flex-1 overflow-auto rounded border bg-black/30 p-3 md:min-h-[300px]">
+        {showScanline && (
+          <div
+            className="pointer-events-none absolute inset-0 z-10 opacity-[0.06]"
+            style={SCANLINE_STYLE}
+            aria-hidden
+          />
+        )}
+        <div
+          className={cn(
+            "relative whitespace-pre-wrap font-[var(--font-vt323)] text-sm leading-relaxed",
+            contentBorderCls,
+            contentTextCls
+          )}
+        >
+          {content || placeholder}
+          {(isLoading || content) && <span className="animate-pulse">_</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AIDuelLayout() {
   const [input, setInput] = useState("");
   const [devResponse, setDevResponse] = useState("");
@@ -60,7 +130,6 @@ export default function AIDuelLayout() {
 
   const isLoading = status === "submitted" || status === "streaming";
 
-  // Real-time: split streamed content by ||| and show in left/right panels immediately
   useEffect(() => {
     const content = getAssistantTextContent(messages);
     if (!content) return;
@@ -69,7 +138,6 @@ export default function AIDuelLayout() {
     setBizResponse(parts[1]?.trim() ?? "");
   }, [messages]);
 
-  // Loading placeholder only when no streamed content yet
   useEffect(() => {
     if (!isLoading) return;
     const content = getAssistantTextContent(messages);
@@ -88,7 +156,11 @@ export default function AIDuelLayout() {
       const nextStep = interactionCount + 1;
       try {
         await sendMessage(
-          { role: "user", content: value, parts: [{ type: "text", text: value }] } as Parameters<typeof sendMessage>[0],
+          {
+            role: "user",
+            content: value,
+            parts: [{ type: "text", text: value }],
+          } as Parameters<typeof sendMessage>[0],
           { body: { step: nextStep } }
         );
         setInteractionCount(nextStep);
@@ -101,19 +173,20 @@ export default function AIDuelLayout() {
   );
 
   const connectionError = !!error;
+  const limitReached = interactionCount >= MAX_INTERACTIONS;
 
   return (
     <div
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0a0a0d] font-[var(--font-vt323)] text-lg text-[#c0ff00]"
+      className={cn(
+        "relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0d] pt-20 font-[var(--font-vt323)] text-lg"
+      )}
       style={{ fontFamily: "var(--font-vt323), monospace" }}
     >
-      {/* CRT Scanlines overlay */}
+      {/* Global CRT scanlines (subtle) */}
       <div
-        className="pointer-events-none fixed inset-0 z-[100] opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px)",
-        }}
+        className="pointer-events-none fixed inset-0 z-[100] opacity-[0.04]"
+        style={SCANLINE_STYLE}
+        aria-hidden
       />
 
       {connectionError && (
@@ -130,114 +203,145 @@ export default function AIDuelLayout() {
             ],
           }}
           transition={{ duration: 0.15, repeat: Infinity }}
-          className="absolute left-1/2 top-4 z-50 -translate-x-1/2 rounded border border-red-500/80 bg-black/95 px-6 py-3 font-[var(--font-vt323)] text-xl tracking-widest text-red-400"
+          className="absolute left-1/2 top-24 z-50 -translate-x-1/2 rounded border border-red-500/80 bg-black/95 px-6 py-3 font-[var(--font-vt323)] text-xl tracking-widest text-red-400"
         >
           CONNECTION ERROR
         </motion.div>
       )}
 
-      {/* Centered unit: Consoles + Input (control panel) */}
-      <div className="relative z-10 flex w-full max-w-5xl flex-col gap-0">
-        {/* Console windows – compact, fixed height */}
-        <div className="flex flex-col md:flex-row md:min-h-[350px]">
-          <motion.div
-            initial={{ x: -30, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="flex min-h-[350px] w-full flex-col border-r border-emerald-500/30 bg-[#061006] p-4 md:w-1/2 md:min-h-[400px]"
-          >
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-14 w-14 flex-shrink-0 rounded border-2 border-emerald-500/60 bg-emerald-950/80 md:h-16 md:w-16" />
-              <div>
-                <p className="text-emerald-400/90 text-lg tracking-widest md:text-xl">
-                  DEV
-                </p>
-                <p className="text-emerald-600 text-xs">CODEC CHANNEL</p>
-              </div>
-            </div>
-            <div className="min-h-[240px] flex-1 overflow-auto whitespace-pre-wrap rounded border border-emerald-500/20 bg-black/30 p-3 font-[var(--font-vt323)] text-sm leading-relaxed text-emerald-300/95 md:min-h-[300px]">
-              {devResponse || "> Czekam na input..."}
-              {(isLoading || devResponse) && (
-                <span className="animate-pulse">_</span>
-              )}
-            </div>
-          </motion.div>
-
-          <FrequencyBar active={isLoading} />
-
-          <motion.div
-            initial={{ x: 30, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="flex min-h-[350px] w-full flex-col border-l border-amber-500/30 bg-[#0c0a08] p-4 md:w-1/2 md:min-h-[400px]"
-          >
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-14 w-14 flex-shrink-0 rounded border-2 border-amber-500/50 bg-amber-950/60 md:h-16 md:w-16" />
-              <div>
-                <p className="text-amber-400/90 text-lg tracking-widest md:text-xl">
-                  BIZ
-                </p>
-                <p className="text-amber-600/80 text-xs">CODEC CHANNEL</p>
-              </div>
-            </div>
-            <div className="min-h-[240px] flex-1 overflow-auto whitespace-pre-wrap rounded border border-amber-500/20 bg-black/30 p-3 font-[var(--font-vt323)] text-sm leading-relaxed text-amber-200/90 md:min-h-[300px]">
-              {bizResponse ||
-                "Podsumowania i rekomendacje biznesowe pojawią się tutaj."}
-              {(isLoading || bizResponse) && (
-                <span className="animate-pulse">_</span>
-              )}
-            </div>
-          </motion.div>
+      {/* Main content: mobile Tabs vs desktop Grid */}
+      <div className="relative z-10 flex flex-1 flex-col">
+        {/* Mobile: Tabs – one agent at a time (data stays when switching tabs) */}
+        <div className="flex flex-1 flex-col md:hidden">
+          <Tabs defaultValue="dev" className="flex min-h-0 flex-1 flex-col">
+            <TabsList className="mx-4 mt-2 grid w-[calc(100%-2rem)] grid-cols-2 rounded-lg border border-white/10 bg-black/50 p-1 backdrop-blur-sm">
+              <TabsTrigger
+                value="dev"
+                className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300 data-[state=active]:shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+              >
+                DEV_CHANNEL
+              </TabsTrigger>
+              <TabsTrigger
+                value="biz"
+                className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-200 data-[state=active]:shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+              >
+                BIZ_CHANNEL
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="dev" className="mt-0 flex-1 overflow-auto focus-visible:outline-none">
+              <AgentWindow
+                title="DEV"
+                subtitle="CODEC CHANNEL"
+                content={devResponse}
+                isLoading={isLoading}
+                placeholder="> Czekam na input..."
+                theme="dev"
+                showScanline
+              />
+            </TabsContent>
+            <TabsContent value="biz" className="mt-0 flex-1 overflow-auto focus-visible:outline-none">
+              <AgentWindow
+                title="BIZ"
+                subtitle="CODEC CHANNEL"
+                content={bizResponse}
+                isLoading={isLoading}
+                placeholder="Podsumowania i rekomendacje biznesowe pojawią się tutaj."
+                theme="biz"
+              />
+            </TabsContent>
+          </Tabs>
         </div>
 
-        {/* Input – hidden when limit reached; otherwise control panel under consoles */}
-        {interactionCount >= MAX_INTERACTIONS ? (
-          <div className="flex flex-col items-center justify-center gap-4 border-t border-emerald-500/40 bg-[#050505] py-12">
-            <p className="font-[var(--font-vt323)] text-center text-xl tracking-wider text-amber-200/90">
+        {/* Desktop: Split view with Cards */}
+        <div className="hidden flex-1 flex-col md:flex">
+          <div className="flex min-h-0 flex-1 gap-0">
+            <div className="grid min-h-0 min-w-0 grid-cols-1 grid-rows-1 md:flex-1 md:grid-cols-[1fr_auto_1fr]">
+              <Card className="m-2 flex min-h-0 min-w-0 flex-col border-emerald-500/30 bg-[#061006]/95">
+                <CardHeader className="pb-2" />
+                <CardContent className="flex min-h-0 flex-1 flex-col p-0">
+                  <div className="relative flex min-h-0 flex-1 flex-col">
+                    <div
+                      className="pointer-events-none absolute inset-0 z-10 opacity-[0.06]"
+                      style={SCANLINE_STYLE}
+                      aria-hidden
+                    />
+                    <AgentWindow
+                      title="DEV"
+                      subtitle="CODEC CHANNEL"
+                      content={devResponse}
+                      isLoading={isLoading}
+                      placeholder="> Czekam na input..."
+                      theme="dev"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+              <FrequencyBar active={isLoading} />
+              <Card className="m-2 flex min-h-0 min-w-0 flex-col border-amber-500/30 bg-[#0c0a08]/95">
+                <CardHeader className="pb-2" />
+                <CardContent className="flex min-h-0 flex-1 flex-col p-0">
+                  <AgentWindow
+                    title="BIZ"
+                    subtitle="CODEC CHANNEL"
+                    content={bizResponse}
+                    isLoading={isLoading}
+                    placeholder="Podsumowania i rekomendacje biznesowe pojawią się tutaj."
+                    theme="biz"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Input area: separate, command-center style */}
+      {limitReached ? (
+        <div className="border-t border-white/10 bg-black/50 py-12 backdrop-blur-sm">
+          <div className="flex flex-col items-center justify-center gap-4 px-4">
+            <p className="text-center font-[var(--font-vt323)] text-xl tracking-wider text-amber-200/90">
               LIMIT DANYCH WYCZERPANY. ZOBACZ PEŁNĄ OFERTĘ
             </p>
-            <Link
-              href="/projekty"
-              className="rounded border border-emerald-500/70 bg-emerald-950/80 px-8 py-4 font-[var(--font-vt323)] text-lg tracking-widest text-emerald-300 transition-colors hover:bg-emerald-900/60"
-            >
-              PROJEKTY
-            </Link>
-            <Link
-              href="/sklep"
-              className="rounded border border-amber-500/50 bg-amber-950/50 px-8 py-4 font-[var(--font-vt323)] text-lg tracking-widest text-amber-200/90 transition-colors hover:bg-amber-900/40"
-            >
-              SKLEP
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href="/projekty">
+                <Button variant="outline" className="border-emerald-500/70 bg-emerald-950/80 text-emerald-300 hover:bg-emerald-900/60">
+                  PROJEKTY
+                </Button>
+              </Link>
+              <Link href="/sklep">
+                <Button variant="outline" className="border-amber-500/50 bg-amber-950/50 text-amber-200/90 hover:bg-amber-900/40">
+                  SKLEP
+                </Button>
+              </Link>
+            </div>
           </div>
-        ) : (
-          <div className="border-t border-emerald-500/40 bg-[#050505] p-4">
-            <form
-              onSubmit={handleCustomSubmit}
-              className="mx-auto flex max-w-3xl items-center gap-3"
+        </div>
+      ) : (
+        <div className="sticky bottom-0 border-t border-white/10 bg-black/50 px-4 py-4 backdrop-blur-md md:py-6">
+          <form
+            onSubmit={handleCustomSubmit}
+            className="mx-auto flex max-w-[600px] items-center gap-2 rounded-lg border border-white/10 bg-black/60 px-2 py-2 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 md:px-3"
+          >
+            <span className="text-emerald-500" aria-hidden>&#62;</span>
+            <Input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Wpisz czego poszukujesz?"
+              disabled={isLoading}
+              className="min-w-0 flex-1 border-0 bg-transparent font-[var(--font-vt323)] text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0"
+              aria-label="Wpisz czego poszukujesz"
+            />
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="shrink-0 border border-emerald-500/70 bg-emerald-950/80 font-[var(--font-vt323)] tracking-widest text-emerald-300 hover:bg-emerald-900/60"
             >
-              <span className="text-emerald-500">&#62;</span>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Wpisz czego poszukujesz?"
-                disabled={isLoading}
-                className="flex-1 rounded-none border border-emerald-500/50 bg-black/80 px-4 py-3 font-[var(--font-vt323)] text-lg tracking-wider text-[#c0ff00] placeholder:text-emerald-900 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 disabled:opacity-60"
-                aria-label="Wpisz czego poszukujesz"
-              />
-              <motion.button
-                type="submit"
-                disabled={isLoading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="rounded-none border border-emerald-500/70 bg-emerald-950/80 px-6 py-3 font-[var(--font-vt323)] text-lg tracking-widest text-emerald-300 disabled:opacity-50"
-              >
-                {isLoading ? "TRANSMITUJĘ..." : "WYŚLIJ"}
-              </motion.button>
-            </form>
-          </div>
-        )}
-      </div>
+              {isLoading ? "TRANSMITUJĘ..." : "WYŚLIJ"}
+            </Button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
