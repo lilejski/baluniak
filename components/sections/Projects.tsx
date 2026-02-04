@@ -11,7 +11,7 @@ const beamVariants = {
   rest: { rotate: 0 },
   hover: { rotate: 360 },
 };
-const beamTransition = { duration: 3, repeat: Infinity, ease: "linear" };
+const beamTransition = { duration: 3, repeat: Infinity, ease: "linear" } as const;
 const glowVariants = {
   rest: { opacity: 0 },
   hover: { opacity: 1 },
@@ -20,7 +20,7 @@ const tiltVariants = {
   rest: { rotateX: 0, rotateY: 0 },
   hover: { rotateX: -2, rotateY: 2 },
 };
-const tiltTransition = { type: "tween", duration: 0.2 };
+const tiltTransition = { type: "tween", duration: 0.2 } as const;
 
 const projects: Array<{
   title: string;
