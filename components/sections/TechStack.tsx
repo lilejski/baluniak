@@ -19,10 +19,20 @@ function MarqueeRow({ items }: { items: readonly string[] }) {
       {items.map((item) => (
         <Card
           key={item}
-          className="border-border bg-card text-card-foreground shrink-0 border px-4 py-2 grayscale shadow-sm transition-all duration-200 hover:grayscale-0 hover:border-emerald-500/30 hover:shadow-md"
+          className="group relative shrink-0 overflow-hidden rounded-full border border-white/10 bg-zinc-900/40 px-4 py-2 text-card-foreground shadow-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:border-emerald-400/60 hover:bg-zinc-900/70 hover:shadow-[0_0_16px_rgba(16,185,129,0.35)]"
         >
-          <CardContent className="flex items-center justify-center p-0">
-            <span className="whitespace-nowrap text-sm font-medium text-muted-foreground md:text-base">
+          {/* Subtle inner glow for the chip on hover */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 0%, rgba(56,189,248,0.18), transparent 55%)",
+              mixBlendMode: "screen",
+            }}
+          />
+          <CardContent className="relative z-10 flex items-center justify-center p-0">
+            <span className="whitespace-nowrap text-sm font-medium text-zinc-300 transition-colors group-hover:text-emerald-100 md:text-base">
               {item}
             </span>
           </CardContent>

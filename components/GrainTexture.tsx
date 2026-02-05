@@ -7,14 +7,21 @@ type GrainTextureProps = {
   opacity?: number;
   /** Extra class names for the wrapper. */
   className?: string;
+  /** Positioning mode for the overlay. Defaults to fixed (full-screen). */
+  position?: "fixed" | "absolute";
 };
 
-export function GrainTexture({ opacity = 0.04, className }: GrainTextureProps) {
+export function GrainTexture({
+  opacity = 0.04,
+  className,
+  position = "fixed",
+}: GrainTextureProps) {
   return (
     <svg
       aria-hidden
       className={cn(
-        "pointer-events-none fixed inset-0 z-0 h-full w-full",
+        "pointer-events-none inset-0 z-0 h-full w-full",
+        position === "fixed" ? "fixed" : "absolute",
         className
       )}
       style={{ opacity }}
@@ -35,7 +42,12 @@ export function GrainTexture({ opacity = 0.04, className }: GrainTextureProps) {
           result="mono"
         />
       </filter>
-      <rect width="100%" height="100%" fill="transparent" filter="url(#grain-filter)" />
+      <rect
+        width="100%"
+        height="100%"
+        fill="transparent"
+        filter="url(#grain-filter)"
+      />
     </svg>
   );
 }

@@ -1,26 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const beamVariants = {
-  rest: { rotate: 0 },
-  hover: { rotate: 360 },
-};
-const beamTransition = { duration: 3, repeat: Infinity, ease: "linear" } as const;
-const glowVariants = {
-  rest: { opacity: 0 },
-  hover: { opacity: 1 },
-};
-const tiltVariants = {
-  rest: { rotateX: 0, rotateY: 0 },
-  hover: { rotateX: -2, rotateY: 2 },
-};
-const tiltTransition = { type: "tween", duration: 0.2 } as const;
+import { SpotlightCard } from "@/components/SpotlightCard";
 
 const projects: Array<{
   title: string;
@@ -80,40 +65,15 @@ export function Projects() {
           style={{ gridAutoRows: "minmax(140px, auto)", perspective: 1200 }}
         >
           {projects.map((project) => (
-            <motion.div
+            <SpotlightCard
               key={project.title}
-              className={cn("relative overflow-hidden", project.span)}
-              initial="rest"
-              whileHover="hover"
-              variants={tiltVariants}
-              transition={tiltTransition}
-              style={{ transformStyle: "preserve-3d" }}
+              spanClassName={project.span}
+              accent="emerald"
+              className={cn(
+                project.placeholder && "border-muted bg-muted/30 opacity-90",
+                project.featured && "group"
+              )}
             >
-              {/* Border beam: rotating gradient, reveals on hover */}
-              <motion.div
-                aria-hidden
-                className="pointer-events-none absolute -inset-[2px] z-0 rounded-xl"
-                style={{
-                  background: "conic-gradient(from 0deg, transparent 0deg 180deg, rgba(16,185,129,0.4) 200deg 280deg, transparent 320deg)",
-                }}
-                variants={beamVariants}
-                transition={beamTransition}
-              />
-              {/* Subtle glow ring on hover */}
-              <motion.div
-                aria-hidden
-                className="pointer-events-none absolute -inset-[1px] z-0 rounded-xl opacity-0"
-                style={{ boxShadow: "0 0 20px 1px rgba(16,185,129,0.18)" }}
-                variants={glowVariants}
-                transition={{ duration: 0.25 }}
-              />
-              <Card
-                className={cn(
-                  "relative z-10 m-[2px] overflow-hidden border-border bg-card text-card-foreground shadow-sm backdrop-blur-sm transition-colors",
-                  project.placeholder && "border-muted bg-muted/30 opacity-90",
-                  project.featured && "group"
-                )}
-              >
               {/* Placeholder image: reveals on hover (featured card only) */}
               {project.featured && (
                 <div
@@ -136,10 +96,10 @@ export function Projects() {
                   <div>
                     <span
                       className={cn(
-                        "mb-2 inline-block rounded-md border px-2 py-0.5 text-xs font-medium",
+                        "mb-2 inline-block rounded-full border px-2.5 py-0.5 text-[0.7rem] font-medium uppercase tracking-[0.16em]",
                         project.placeholder
-                          ? "border-amber-500/30 bg-amber-950/40 text-amber-300"
-                          : "border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
+                          ? "border-amber-400/80 bg-black/80 text-amber-200 shadow-[0_0_10px_rgba(245,158,11,0.45)]"
+                          : "border-emerald-400/80 bg-black/80 text-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                       )}
                     >
                       {project.tag}
@@ -175,47 +135,24 @@ export function Projects() {
                   </div>
                 </CardContent>
               </div>
-            </Card>
-            </motion.div>
+            </SpotlightCard>
           ))}
-          {/* Bento cell: CTA to all projects (Shadcn Card base) */}
-          <motion.div
-            className="relative overflow-hidden md:col-span-2 md:row-span-1"
-            initial="rest"
-            whileHover="hover"
-            variants={tiltVariants}
-            transition={tiltTransition}
-            style={{ transformStyle: "preserve-3d" }}
+          {/* Bento cell: CTA to all projects */}
+          <SpotlightCard
+            spanClassName="md:col-span-2 md:row-span-1"
+            accent="amber"
           >
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute -inset-[2px] z-0 rounded-xl"
-              style={{
-                background: "conic-gradient(from 0deg, transparent 0deg 180deg, rgba(245,158,11,0.35) 200deg 280deg, transparent 320deg)",
-              }}
-              variants={beamVariants}
-              transition={beamTransition}
-            />
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute -inset-[1px] z-0 rounded-xl opacity-0"
-              style={{ boxShadow: "0 0 20px 1px rgba(245,158,11,0.15)" }}
-              variants={glowVariants}
-              transition={{ duration: 0.25 }}
-            />
-            <Card className="relative z-10 m-[2px] border-border bg-card text-card-foreground shadow-sm backdrop-blur-sm">
-              <CardContent className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-                <LayoutGrid className="size-10 text-muted-foreground" aria-hidden />
-                <p className="text-sm font-medium text-muted-foreground">Wszystkie projekty</p>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/projekty">
-                    Zobacz listę
-                    <ArrowRight className="ml-1 size-4" />
-                  </Link>
-                </Button>
+            <CardContent className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+              <LayoutGrid className="size-10 text-muted-foreground" aria-hidden />
+              <p className="text-sm font-medium text-muted-foreground">Wszystkie projekty</p>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/projekty">
+                  Zobacz listę
+                  <ArrowRight className="ml-1 size-4" />
+                </Link>
+              </Button>
             </CardContent>
-          </Card>
-          </motion.div>
+          </SpotlightCard>
         </div>
       </div>
     </section>

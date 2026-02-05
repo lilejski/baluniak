@@ -174,6 +174,7 @@ export default function AIDuelLayout() {
 
   const connectionError = !!error;
   const limitReached = interactionCount >= MAX_INTERACTIONS;
+  const [mobileTab, setMobileTab] = useState<"dev" | "biz">("dev");
 
   return (
     <div
@@ -211,21 +212,45 @@ export default function AIDuelLayout() {
 
       {/* Main content: mobile Tabs vs desktop Grid */}
       <div className="relative z-10 flex flex-1 flex-col">
-        {/* Mobile: Tabs – one agent at a time (data stays when switching tabs) */}
+        {/* Mobile: Tabs – one agent at a time (data stays when switching tabs) – sliding background behind active tab */}
         <div className="flex flex-1 flex-col md:hidden">
-          <Tabs defaultValue="dev" className="flex min-h-0 flex-1 flex-col">
+          <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "dev" | "biz")} className="flex min-h-0 flex-1 flex-col">
             <TabsList className="relative z-10 mx-4 mt-2 grid h-12 w-[calc(100%-2rem)] grid-cols-2 rounded-lg border-2 border-white/20 bg-zinc-900/95 p-1.5 shadow-lg backdrop-blur-md">
               <TabsTrigger
                 value="dev"
-                className="min-h-10 transition-colors data-[state=inactive]:!text-zinc-400 data-[state=inactive]:bg-white/5 data-[state=inactive]:hover:!text-zinc-300 data-[state=inactive]:hover:bg-white/10 data-[state=active]:!text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-400/50 data-[state=active]:bg-emerald-500/30 data-[state=active]:shadow-[0_0_16px_rgba(16,185,129,0.5),0_0_0_1px_rgba(16,185,129,0.4)] data-[state=active]:ring-2 data-[state=active]:ring-emerald-400/40"
+                className={cn(
+                  "relative z-10 min-h-10 border border-transparent bg-transparent transition-colors",
+                  "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
+                  "data-[state=active]:!text-emerald-200 data-[state=active]:shadow-none data-[state=active]:ring-0"
+                )}
               >
-                DEV_CHANNEL
+                {mobileTab === "dev" && (
+                  <motion.div
+                    layoutId="activeTab"
+                    aria-hidden
+                    className="absolute inset-[2px] z-0 rounded-full border border-white/20 bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.25)]"
+                    transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                  />
+                )}
+                <span className="relative z-10">DEV_CHANNEL</span>
               </TabsTrigger>
               <TabsTrigger
                 value="biz"
-                className="min-h-10 transition-colors data-[state=inactive]:!text-zinc-400 data-[state=inactive]:bg-white/5 data-[state=inactive]:hover:!text-zinc-300 data-[state=inactive]:hover:bg-white/10 data-[state=active]:!text-amber-200 data-[state=active]:border data-[state=active]:border-amber-400/50 data-[state=active]:bg-amber-500/30 data-[state=active]:shadow-[0_0_16px_rgba(245,158,11,0.5),0_0_0_1px_rgba(245,158,11,0.4)] data-[state=active]:ring-2 data-[state=active]:ring-amber-400/40"
+                className={cn(
+                  "relative z-10 min-h-10 border border-transparent bg-transparent transition-colors",
+                  "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
+                  "data-[state=active]:!text-amber-300 data-[state=active]:shadow-none data-[state=active]:ring-0"
+                )}
               >
-                BIZ_CHANNEL
+                {mobileTab === "biz" && (
+                  <motion.div
+                    layoutId="activeTab"
+                    aria-hidden
+                    className="absolute inset-[2px] z-0 rounded-full border border-white/20 bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.25)]"
+                    transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                  />
+                )}
+                <span className="relative z-10">BIZ_CHANNEL</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="dev" className="mt-0 flex-1 overflow-auto focus-visible:outline-none">

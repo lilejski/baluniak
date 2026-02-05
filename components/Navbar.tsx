@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { GrainTexture } from "@/components/GrainTexture";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -18,6 +20,23 @@ const navItems = [
   { label: "Sklep", href: "/sklep" },
   { label: "Współpraca", href: "/wspolpraca" },
 ] as const;
+
+const mobileMenuListVariants = {
+  closed: { opacity: 0, y: 8 },
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      delayChildren: 0.08,
+      staggerChildren: 0.05,
+    },
+  },
+} as const;
+
+const mobileMenuItemVariants = {
+  closed: { opacity: 0, y: 6 },
+  open: { opacity: 1, y: 0 },
+} as const;
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -70,33 +89,56 @@ export function Navbar() {
                 <Menu className="size-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="border-white/10 bg-zinc-950/95 backdrop-blur-xl">
-              <SheetHeader>
-                <SheetTitle className="text-left text-zinc-100">
-                  Menu
-                </SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 flex flex-col gap-2">
-                <Button variant="ghost" asChild className="justify-start">
-                  <Link
-                    href="/"
-                    onClick={() => setOpen(false)}
-                    className="text-zinc-300 hover:bg-white/10 hover:text-white"
+            <SheetContent side="right" className="border-white/10 bg-zinc-950/70 backdrop-blur-xl">
+              <div className="relative flex h-full flex-col">
+                {/* Local grain overlay for frosted-glass feel */}
+                <GrainTexture
+                  opacity={0.09}
+                  position="absolute"
+                  className="z-0"
+                />
+                <div className="relative z-10 flex flex-1 flex-col">
+                  <SheetHeader>
+                    <SheetTitle className="text-left text-zinc-100">
+                      Menu
+                    </SheetTitle>
+                  </SheetHeader>
+                  <motion.div
+                    className="mt-6 flex flex-col gap-2"
+                    variants={mobileMenuListVariants}
+                    initial="closed"
+                    animate={open ? "open" : "closed"}
                   >
-                    Strona główna
-                  </Link>
-                </Button>
-                {navItems.map(({ label, href }) => (
-                  <Button key={href} variant="ghost" asChild className="justify-start">
-                    <Link
-                      href={href}
-                      onClick={() => setOpen(false)}
-                      className="text-zinc-300 hover:bg-white/10 hover:text-white"
-                    >
-                      {label}
-                    </Link>
-                  </Button>
-                ))}
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button variant="ghost" asChild className="justify-start">
+                        <Link
+                          href="/"
+                          onClick={() => setOpen(false)}
+                          className="text-zinc-300 hover:bg-white/10 hover:text-white"
+                        >
+                          Strona główna
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    {navItems.map(({ label, href }) => (
+                      <motion.div key={href} variants={mobileMenuItemVariants}>
+                        <Button
+                          variant="ghost"
+                          asChild
+                          className="justify-start"
+                        >
+                          <Link
+                            href={href}
+                            onClick={() => setOpen(false)}
+                            className="text-zinc-300 hover:bg-white/10 hover:text-white"
+                          >
+                            {label}
+                          </Link>
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

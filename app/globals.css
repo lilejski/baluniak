@@ -169,3 +169,46 @@ html.dark {
 .animate-glitch-right {
   animation: glitch-right 3s ease-in-out infinite;
 }
+
+/* Cyberpunk grid beams: subtle scanning washes over the background grid */
+@keyframes cyber-grid-beam-x {
+  0% {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.65;
+  }
+  50% {
+    transform: translateX(40%);
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes cyber-grid-beam-y {
+  0% {
+    transform: translateY(-40%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  55% {
+    transform: translateY(40%);
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+}
