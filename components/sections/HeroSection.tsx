@@ -23,9 +23,9 @@ const sectionVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.4, ease: "easeOut" },
+    transition: { duration: 0.4, ease: "easeOut" as const },
   },
-};
+} as const;
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -36,7 +36,7 @@ const containerVariants = {
       delayChildren: 0.15,
     },
   },
-};
+} as const;
 
 const itemVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -45,7 +45,7 @@ const itemVariants = {
     y: 0,
     transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] },
   },
-};
+} as const;
 
 export function HeroSection() {
   return (
