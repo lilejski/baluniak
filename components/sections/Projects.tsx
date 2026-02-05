@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink, LayoutGrid } from "lucide-react";
@@ -15,17 +16,20 @@ const projects: Array<{
   tag: string;
   span: string;
   placeholder?: boolean;
-  /** Main card: show hover-reveal image */
+  /** Main card: show holographic preview image */
   featured?: boolean;
+  /** Path to local preview image (e.g. /fotarobota-preview.png) */
+  image?: string;
 }> = [
   {
-    title: "Fotarobot",
+    title: "Fotarobota",
     description: "SaaS automation tool for photographers.",
-    href: "/projekty",
+    href: "/projekty/fotarobota",
     externalUrl: "https://www.fotarobota.pl",
     tag: "Case study",
     span: "md:col-span-2 md:row-span-2",
     featured: true,
+    image: "/fotarobota-preview.png",
   },
   {
     title: "SaaS Starter Kit",
@@ -74,8 +78,21 @@ export function Projects() {
                 project.featured && "group"
               )}
             >
-              {/* Placeholder image: reveals on hover (featured card only) */}
-              {project.featured && (
+              {/* Holographic preview: image background + gradient overlay (featured with image) */}
+              {project.featured && project.image && (
+                <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
+                  <Image
+                    src={project.image}
+                    alt=""
+                    fill
+                    className="object-cover grayscale scale-95 transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" aria-hidden />
+                </div>
+              )}
+              {/* Fallback: gradient + title on hover when featured but no image */}
+              {project.featured && !project.image && (
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
