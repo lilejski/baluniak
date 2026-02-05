@@ -7,10 +7,12 @@ const MARQUEE_ITEMS = [
   "React",
   "TypeScript",
   "Vercel",
-  "Supabase",
-  "Fal.ai",
-  "Tailwind",
-  "Stripe",
+  "AI SDK",
+  "Radix UI",
+  "Tailwind CSS",
+  "Framer Motion",
+  "Zod",
+  "React Markdown",
 ] as const;
 
 function MarqueeRow({ items }: { items: readonly string[] }) {

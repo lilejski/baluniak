@@ -34,7 +34,10 @@ export function About() {
               </span>
             </p>
             <p className="text-muted-foreground text-xl leading-relaxed md:text-2xl md:leading-relaxed">
-              I don&apos;t just write code. I ship products.
+              I don&apos;t just write code—I ship products. From SaaS automation and AI workflows to full-stack apps, I focus on clean architecture, fast iteration, and outcomes that users and businesses actually feel.
+            </p>
+            <p className="mt-4 text-muted-foreground/90 text-base leading-relaxed md:text-lg">
+              Built and maintained this site with Next.js, the Vercel AI SDK, and a dual-persona chat to show both technical depth and business clarity in one place.
             </p>
           </CardContent>
         </Card>

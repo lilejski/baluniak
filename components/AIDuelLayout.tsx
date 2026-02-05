@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
@@ -80,22 +80,109 @@ function AgentWindow({
     ? "border-emerald-500/30 bg-[#061006]"
     : "border-amber-500/30 bg-[#0c0a08]";
   const headerBorderCls = isDev ? "border-emerald-500/60" : "border-amber-500/50";
-  const textCls = isDev ? "text-emerald-400/90" : "text-amber-400/90";
-  const subCls = isDev ? "text-emerald-600" : "text-amber-600/80";
+  const titleTextCls = isDev ? "text-emerald-400/90" : "text-amber-300/95";
+  const subtitleTextCls = isDev ? "text-emerald-600" : "text-amber-400/85";
   const contentBorderCls = isDev ? "border-emerald-500/20" : "border-amber-500/20";
-  const contentTextCls = isDev ? "text-emerald-300/95" : "text-amber-200/90";
+  const contentTextCls = isDev ? "text-emerald-400" : "text-amber-100";
   const avatarCls = isDev ? "border-emerald-500/60 bg-emerald-950/80" : "border-amber-500/50 bg-amber-950/60";
+
+  const titleTypographyCls = isDev
+    ? "font-[var(--font-vt323)] text-xs md:text-sm tracking-[0.38em]"
+    : "font-sans text-sm md:text-base font-semibold tracking-tight";
+
+  const subtitleTypographyCls = isDev
+    ? "font-[var(--font-vt323)] text-[0.68rem] tracking-[0.26em] uppercase"
+    : "font-sans text-[0.7rem] md:text-xs uppercase tracking-[0.22em]";
+
+  const contentTypographyCls = isDev
+    ? "font-mono text-sm leading-relaxed"
+    : "font-sans text-[0.9rem] leading-relaxed";
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll to latest content when messages stream in.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [content, isLoading]);
+
+  const devHexSnippets = [
+    "0x9F3A",
+    "0xC0DE",
+    "0xBEEF",
+    "0xA11C",
+    "0xF00D",
+    "0xDEAD",
+    "0xFEED",
+  ] as const;
 
   return (
     <div className={cn("flex min-h-[280px] flex-1 flex-col p-4 md:min-h-[400px]", borderCls)}>
       <div className="mb-3 flex items-center gap-3">
         <div className={cn("h-14 w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
         <div>
-          <p className={cn("text-lg tracking-widest md:text-xl", textCls)}>{title}</p>
-          <p className={cn("text-xs", subCls)}>{subtitle}</p>
+          <p
+            className={cn(
+              "uppercase",
+              titleTypographyCls,
+              titleTextCls
+            )}
+          >
+            {title}
+          </p>
+          <p className={cn(subtitleTypographyCls, subtitleTextCls)}>{subtitle}</p>
+          {isLoading &&
+            (isDev ? (
+              <motion.div
+                className="mt-1 flex flex-wrap gap-2"
+                initial={{ opacity: 0.4 }}
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.6, repeat: Infinity }}
+              >
+                {devHexSnippets.map((hex, idx) => (
+                  <motion.span
+                    key={hex + idx}
+                    className="font-mono text-[0.65rem] tracking-[0.22em] text-emerald-400/80"
+                    initial={{ opacity: 0.15 }}
+                    animate={{ opacity: [0.15, 1, 0.2] }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      delay: idx * 0.12,
+                    }}
+                  >
+                    {hex}
+                  </motion.span>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                className="mt-1 flex items-center gap-1 text-[0.75rem]"
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.4, repeat: Infinity }}
+              >
+                <span className="font-sans text-amber-200/90">
+                  Analyzing market
+                </span>
+                <span className="font-sans text-amber-300/90">
+                  <motion.span
+                    initial={{ opacity: 0.2 }}
+                    animate={{ opacity: [0.2, 1, 0.2] }}
+                    transition={{ duration: 0.9, repeat: Infinity }}
+                  >
+                    ...
+                  </motion.span>
+                </span>
+              </motion.div>
+            ))}
         </div>
       </div>
-      <div className="relative min-h-[200px] flex-1 overflow-auto rounded border bg-black/30 p-3 md:min-h-[300px]">
+      <div
+        ref={scrollRef}
+        className="relative min-h-[200px] flex-1 overflow-auto rounded border bg-black/30 p-3 md:min-h-[300px]"
+      >
         {showScanline && (
           <div
             className="pointer-events-none absolute inset-0 z-10 opacity-[0.08]"
@@ -105,13 +192,16 @@ function AgentWindow({
         )}
         <div
           className={cn(
-            "relative whitespace-pre-wrap font-[var(--font-vt323)] text-sm leading-relaxed",
+            "relative whitespace-pre-wrap",
+            contentTypographyCls,
             contentBorderCls,
             contentTextCls
           )}
         >
           {content || placeholder}
-          {(isLoading || content) && <span className="animate-pulse">_</span>}
+          {isDev && (isLoading || content) && (
+            <span className="animate-pulse">_</span>
+          )}
         </div>
       </div>
     </div>
@@ -142,8 +232,6 @@ export default function AIDuelLayout() {
     if (!isLoading) return;
     const content = getAssistantTextContent(messages);
     if (content.length > 0) return;
-    setDevResponse("Analizuję architekturę...");
-    setBizResponse("Liczę ROI...");
   }, [messages, isLoading]);
 
   const handleCustomSubmit = useCallback(
