@@ -5,7 +5,9 @@ import { anthropic } from "@ai-sdk/anthropic";
 
 export const runtime = "edge";
 
-const BASE_SYSTEM = `Jesteś dwupersonowym silnikiem AI w stylu Codec z Metal Gear Solid. Odpowiadaj WYŁĄCZNIE po polsku.
+/** Teksty (copywriting) – edytuj tutaj */
+const COPY = {
+  BASE_SYSTEM: `Jesteś dwupersonowym silnikiem AI w stylu Codec z Metal Gear Solid. Odpowiadaj WYŁĄCZNIE po polsku.
 Nie wypisuj JSON. Najpierw tekst Persony 1 (Dev), potem separator " ||| " (spacja pipe pipe pipe spacja), potem tekst Persony 2 (Biz).
 
 Persona 1 (przed |||) – Dev, lewy panel:
@@ -22,11 +24,12 @@ Zasada "Teaser": Obie persony tylko diagnozują złożoność / opłacalność, 
 
 Zasada "pogoda / casual": Na błahe pytania (np. pogoda) – odpowiedz merytorycznie + cięta uwaga od Biz.
 
-Każda część zwięzła (max 2–3 zdania). Zawsze używaj dokładnie " ||| " jako separatora między dwiema częściami.`;
+Każda część zwięzła (max 2–3 zdania). Zawsze używaj dokładnie " ||| " jako separatora między dwiema częściami.`,
+  LAST_STEP_APPEND: `
 
-const LAST_STEP_APPEND = `
-
-KRYTYCZNE: To jest OSTATNIA interakcja w tej sesji. NIE odpowiadaj na pytanie szczegółowo. Grzecznie zakończ rozmowę. Powiedz, że masz masowe obliczenia na serwerach i nie masz już czasu na darmowy chat. Powiedz użytkownikowi, żeby sprawdził ofertę poniżej. Bądź profesjonalny, ale zajęty. Zachowaj format z separatorem ||| .`;
+KRYTYCZNE: To jest OSTATNIA interakcja w tej sesji. NIE odpowiadaj na pytanie szczegółowo. Grzecznie zakończ rozmowę. Powiedz, że masz masowe obliczenia na serwerach i nie masz już czasu na darmowy chat. Powiedz użytkownikowi, żeby sprawdził ofertę poniżej. Bądź profesjonalny, ale zajęty. Zachowaj format z separatorem ||| .`,
+  ERROR_API: "Błąd połączenia z Codec",
+} as const;
 
 export async function POST(req: Request) {
   try {
@@ -42,8 +45,8 @@ export async function POST(req: Request) {
 
     const isLastStep = safeStep >= 3;
     const systemPrompt = isLastStep
-      ? BASE_SYSTEM + LAST_STEP_APPEND
-      : BASE_SYSTEM;
+      ? COPY.BASE_SYSTEM + COPY.LAST_STEP_APPEND
+      : COPY.BASE_SYSTEM;
 
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),
@@ -57,7 +60,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("BŁĄD API:", error);
     return new Response(
-      JSON.stringify({ error: "Błąd połączenia z Codec" }),
+      JSON.stringify({ error: COPY.ERROR_API }),
       { status: 500 }
     );
   }

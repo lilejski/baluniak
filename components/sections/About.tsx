@@ -4,7 +4,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative my-24 border-t border-white/10 bg-black/30 px-4 py-16 backdrop-blur-sm md:py-24"
+      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 backdrop-blur-sm sm:px-6 md:py-24"
       aria-labelledby="about-heading"
     >
       <div className="mx-auto max-w-5xl">

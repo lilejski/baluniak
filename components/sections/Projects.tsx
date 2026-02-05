@@ -53,7 +53,7 @@ export function Projects() {
   return (
     <section
       id="projekty"
-      className="relative my-24 border-t border-white/10 bg-black/30 px-4 py-16 backdrop-blur-sm md:py-24"
+      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 backdrop-blur-sm sm:px-6 md:py-24"
       aria-labelledby="projects-heading"
     >
       <div className="mx-auto max-w-5xl">

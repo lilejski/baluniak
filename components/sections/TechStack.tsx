@@ -3,16 +3,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 
 const MARQUEE_ITEMS = [
-  "Next.js",
+  "Next.js (App Router)",
+  "Tailwind CSS",
+  "Lucide React",
   "React",
   "TypeScript",
   "Vercel",
   "AI SDK",
   "Radix UI",
-  "Tailwind CSS",
   "Framer Motion",
-  "Zod",
-  "React Markdown",
 ] as const;
 
 function MarqueeRow({ items }: { items: readonly string[] }) {
@@ -48,7 +47,7 @@ export function TechStack() {
   return (
     <section
       id="tech-stack"
-      className="relative my-24 overflow-hidden border-t border-white/10 bg-black/30 px-4 py-16 backdrop-blur-sm md:py-24"
+      className="relative my-24 overflow-hidden border-t border-white/10 bg-black/30 px-5 py-16 backdrop-blur-sm sm:px-6 md:py-24"
       aria-labelledby="tech-stack-heading"
     >
       <div className="mx-auto max-w-5xl">

@@ -49,7 +49,7 @@ export function Navbar() {
       )}
       aria-label="Nawigacja"
     >
-      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
+      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
         {/* Logo */}
         <Link
           href="/"
