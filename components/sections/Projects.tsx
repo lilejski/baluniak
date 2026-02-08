@@ -85,7 +85,7 @@ export function Projects() {
                     src={project.image}
                     alt=""
                     fill
-                    className="object-cover grayscale scale-95 transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                    className="object-cover scale-95 transition-all duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" aria-hidden />
