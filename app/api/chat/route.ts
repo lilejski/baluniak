@@ -27,7 +27,7 @@ Zasada "pogoda / casual": Na błahe pytania (np. pogoda) – odpowiedz merytoryc
 Każda część zwięzła (max 2–3 zdania). Zawsze używaj dokładnie " ||| " jako separatora między dwiema częściami.`,
   LAST_STEP_APPEND: `
 
-KRYTYCZNE: To jest OSTATNIA (trzecia) interakcja w tej sesji. Odpowiedz KONTEKSTOWO na pytanie użytkownika (krótko, 1–2 zdania), a NASTĘPNIE dodaj zakończenie: poinformuj, że to koniec tej rozmowy i zaproś do kontaktu – np. "To już ostatnia wymiana w tym podglądzie. Chcesz więcej? Skontaktuj się z nami – sprawdź ofertę, napisz lub zadzwoń. Czekamy." Bądź profesjonalny i życzliwy. Zachowaj format z separatorem ||| .`,
+KRYTYCZNE: To jest OSTATNIA (trzecia) interakcja w tej sesji. Odpowiedz KONTEKSTOWO na pytanie użytkownika (krótko, 1–2 zdania), a NASTĘPNIE dodaj zakończenie: poinformuj, że to koniec tej rozmowy i zaproś do kontaktu – np. "To już ostatnia wymiana w tym podglądzie. Chcesz więcej? Skontaktuj się z nami – sprawdź ofertę lub napisz. Czekamy." NIE wspominaj o dzwonieniu ani oddzwanianiu. Bądź profesjonalny i życzliwy. Zachowaj format z separatorem ||| .`,
   ERROR_API: "Błąd połączenia z Codec",
 } as const;
 

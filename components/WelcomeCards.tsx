@@ -8,6 +8,8 @@ export const WELCOME_PROMPTS = [
   {
     id: "website",
     title: "Strona internetowa tego typu",
+    /** Krótki opis dla użytkownika (na karcie). Pełny prompt poniżej – tylko do AI. */
+    label: "Dowiedz się, dlaczego Next.js i mobile-first to dobry wybór.",
     prompt:
       "Wyjaśnij, dlaczego strona w Next.js to dobry wybór. Opisz plusy Next.js, podejście mobile-first i krótko polecane praktyki dla takiej strony.",
     icon: Globe,
@@ -16,6 +18,7 @@ export const WELCOME_PROMPTS = [
   {
     id: "agents",
     title: "Implementacja agentów AI na stronie",
+    label: "Po co wirtualni agenci na stronie i jak działają.",
     prompt:
       "Wyjaśnij, po co wdrażać na stronie wirtualnych agentów AI. Napisz, że nie trzeba oddzwaniać ani samemu przedstawiać oferty – zrobią to za Ciebie wirtualni agenci. Właśnie z takimi agentami użytkownik teraz rozmawia.",
     icon: Bot,
@@ -24,6 +27,7 @@ export const WELCOME_PROMPTS = [
   {
     id: "automation",
     title: "Automatyzacje",
+    label: "Korzyści z automatyzacji AI w pracy.",
     prompt:
       "Opisz korzyści z automatyzacji z użyciem AI. Wyjaśnij, że ręczne obrabianie zdjęć, pisanie tekstów i przepisywanie dokumentów papierowych to przeszłość – workflow AI wykonuje te czynności za ludzi.",
     icon: Workflow,
@@ -77,8 +81,8 @@ export function WelcomeCards({ onSelect, disabled, className }: WelcomeCardsProp
               aria-hidden
             />
             <span className="text-sm font-medium text-zinc-200">{item.title}</span>
-            <span className="line-clamp-2 text-xs leading-relaxed text-zinc-500">
-              {item.prompt}
+            <span className="text-xs leading-relaxed text-zinc-500">
+              {item.label}
             </span>
           </motion.button>
         );
