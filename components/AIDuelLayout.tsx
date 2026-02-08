@@ -30,6 +30,7 @@ const COPY = {
   submitLoadingLabel: "Generuję…",
   limitReachedMessage: "Limit wyczerpany. Zobacz pełną ofertę.",
   connectionError: "Problem z połączeniem",
+  queriesCounterLabel: "Zapytania",
 } as const;
 
 function getAssistantTextContent(
@@ -405,8 +406,13 @@ export default function AIDuelLayout() {
             {/* Mobile: input przyklejony do dołu z safe-area */}
             {!limitReached && (
               <div
-                className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/80 pt-3 backdrop-blur-md md:hidden pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+                className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/80 pt-2 backdrop-blur-md md:hidden pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))]"
               >
+                <div className="mb-2 flex justify-center">
+                  <span className="text-xs font-medium tabular-nums text-zinc-500">
+                    {COPY.queriesCounterLabel} {interactionCount}/{MAX_INTERACTIONS}
+                  </span>
+                </div>
                 <form
                   onSubmit={handleCustomSubmit}
                   className="flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 shadow-[0_0_24px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] transition-all duration-200 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/25"
@@ -470,7 +476,13 @@ placeholder={COPY.inputPlaceholder}
                 </Card>
               </div>
               {!limitReached && (
-                <div className="border-t border-white/10 px-4 py-4">
+                <>
+                  <div className="flex justify-center border-t border-white/10 py-2">
+                    <span className="text-xs font-medium tabular-nums text-zinc-500">
+                      {COPY.queriesCounterLabel} {interactionCount}/{MAX_INTERACTIONS}
+                    </span>
+                  </div>
+                  <div className="border-t border-white/10 px-4 py-4">
                   <form
                     onSubmit={handleCustomSubmit}
                     className="mx-auto flex max-w-[600px] items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 shadow-[0_0_24px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition-all duration-200 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/25 focus-within:shadow-[0_0_28px_rgba(16,185,129,0.1),inset_0_1px_0_rgba(255,255,255,0.1)] focus-within:backdrop-blur-lg md:px-4 md:py-3"
@@ -494,6 +506,7 @@ placeholder={COPY.inputPlaceholder}
                     </Button>
                   </form>
                 </div>
+                </>
               )}
             </div>
 
