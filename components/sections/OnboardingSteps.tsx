@@ -9,13 +9,37 @@ const STEP_ICONS = [MessageSquare, Cpu, GitCompare] as const;
 const STEP_ACCENTS: Array<"emerald" | "amber"> = ["emerald", "amber", "emerald"];
 
 export function OnboardingSteps() {
-  const { dict } = useLanguage();
-  const h = dict.howItWorks;
+  const { t, mounted } = useLanguage();
   const steps = [
-    { step: 1, title: h.step1Title, description: h.step1Desc },
-    { step: 2, title: h.step2Title, description: h.step2Desc },
-    { step: 3, title: h.step3Title, description: h.step3Desc },
+    { step: 1, title: t("howItWorks.step1Title"), description: t("howItWorks.step1Desc") },
+    { step: 2, title: t("howItWorks.step2Title"), description: t("howItWorks.step2Desc") },
+    { step: 3, title: t("howItWorks.step3Title"), description: t("howItWorks.step3Desc") },
   ];
+
+  if (!mounted) {
+    return (
+      <section
+        id="jak-to-dziala"
+        className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 backdrop-blur-sm sm:px-6 sm:py-16 md:py-20"
+        aria-labelledby="onboarding-heading"
+      >
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-10 h-8 w-48 animate-pulse rounded bg-zinc-700/50 sm:mb-12" aria-hidden />
+          <ol className="space-y-6 sm:space-y-8">
+            {[1, 2, 3].map((i) => (
+              <li key={i} className="flex gap-4 sm:gap-5">
+                <div className="size-11 shrink-0 rounded-xl border border-zinc-600/50 bg-zinc-800/30 sm:size-12" />
+                <div className="min-w-0 flex-1 space-y-2 pt-0.5">
+                  <div className="h-5 w-3/4 animate-pulse rounded bg-zinc-700/50" />
+                  <div className="h-4 w-full animate-pulse rounded bg-zinc-700/30" />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -28,7 +52,7 @@ export function OnboardingSteps() {
           id="onboarding-heading"
           className="mb-10 text-center text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl md:mb-12 md:text-3xl"
         >
-          {h.title}
+          {t("howItWorks.title")}
         </h2>
         <ol className="space-y-6 sm:space-y-8">
           {steps.map(({ step, title, description }, i) => {

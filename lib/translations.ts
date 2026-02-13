@@ -190,6 +190,9 @@ export const translations = {
       buttonSubmit: "Zapytaj Agentów",
       buttonSubmitting: "Generuję…",
       limitMessage: "Osiągnięto limit pytań demo.",
+      perspectiveDev: "Perspektywa DEV",
+      perspectiveBiz: "Perspektywa BIZ",
+      paramsTechnical: "Parametry techniczne",
     },
     formPlaceholders: {
       namePlaceholder: "Twoje imię lub nazwa firmy",
@@ -454,6 +457,9 @@ export const translations = {
       buttonSubmit: "Ask Agents",
       buttonSubmitting: "Generating…",
       limitMessage: "Demo question limit reached.",
+      perspectiveDev: "DEV perspective",
+      perspectiveBiz: "BIZ perspective",
+      paramsTechnical: "Technical parameters",
     },
     formPlaceholders: {
       namePlaceholder: "Your name or company name",

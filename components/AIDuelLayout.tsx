@@ -220,7 +220,7 @@ function AgentWindow({
 }
 
 export default function AIDuelLayout() {
-  const { dict, lang } = useLanguage();
+  const { dict, lang, mounted } = useLanguage();
   const COPY = dict.agents;
   const CONSOLE = dict.console;
 
@@ -298,6 +298,38 @@ export default function AIDuelLayout() {
   const connectionError = !!error;
   const [mobileTab, setMobileTab] = useState<"dev" | "biz">("dev");
 
+  if (!mounted) {
+    return (
+      <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0d] font-sans text-base">
+        <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
+          <div className="w-full max-w-5xl">
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-xl backdrop-blur-md">
+              <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
+                <div className="mb-3 h-4 w-32 animate-pulse rounded bg-zinc-700/50 sm:mb-4" aria-hidden />
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 animate-pulse rounded-lg border border-white/10 bg-zinc-800/30" aria-hidden />
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col p-4 md:flex-row md:gap-4">
+                <div className="h-[300px] flex-1 animate-pulse rounded border border-white/10 bg-zinc-800/20 md:h-[350px]" aria-hidden />
+                <div className="hidden h-[350px] w-12 flex-shrink-0 md:block" aria-hidden />
+                <div className="h-[300px] flex-1 animate-pulse rounded border border-white/10 bg-zinc-800/20 md:h-[350px]" aria-hidden />
+              </div>
+              <div className="border-t border-white/10 px-4 py-4">
+                <div className="mx-auto flex max-w-[600px] items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5">
+                  <div className="h-10 flex-1 animate-pulse rounded bg-zinc-700/30" aria-hidden />
+                  <div className="h-10 w-24 animate-pulse rounded bg-zinc-700/40" aria-hidden />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0d] font-sans text-base">
       {connectionError && (
@@ -315,7 +347,7 @@ export default function AIDuelLayout() {
       <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
         <div className="w-full max-w-5xl">
           <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-xl backdrop-blur-md">
-            {/* Welcome Cards: Quick Actions – tylko gdy brak wiadomości */}
+            {/* Welcome Cards: Quick Actions */}
             {showWelcomeCards && (
               <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
                 <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
@@ -367,7 +399,7 @@ export default function AIDuelLayout() {
                 </TabsList>
                 <TabsContent value="dev" className="mt-0 focus-visible:outline-none">
                   <AgentWindow
-                    title="DEV"
+                    title={CONSOLE.perspectiveDev}
                     subtitle={COPY.agentSubtitle}
                     description={COPY.devDescription}
                     content={devResponse}
@@ -380,7 +412,7 @@ export default function AIDuelLayout() {
                 </TabsContent>
                 <TabsContent value="biz" className="mt-0 focus-visible:outline-none">
                   <AgentWindow
-                    title="BIZ"
+                    title={CONSOLE.perspectiveBiz}
                     subtitle={COPY.agentSubtitle}
                     description={COPY.bizDescription}
                     content={bizResponse}
@@ -442,7 +474,7 @@ placeholder={CONSOLE.inputPlaceholder}
                   <CardContent className="flex min-h-0 flex-1 flex-col p-0">
                     <div className="relative flex h-[350px] flex-col">
                       <AgentWindow
-                        title="DEV"
+                        title={CONSOLE.perspectiveDev}
                         subtitle={COPY.agentSubtitle}
                         description={COPY.devDescription}
                         content={devResponse}
@@ -461,7 +493,7 @@ placeholder={CONSOLE.inputPlaceholder}
                   <CardContent className="flex min-h-0 flex-1 flex-col p-0">
                     <div className="relative flex h-[350px] flex-col">
                       <AgentWindow
-                        title="BIZ"
+                        title={CONSOLE.perspectiveBiz}
                         subtitle={COPY.agentSubtitle}
                         description={COPY.bizDescription}
                         content={bizResponse}
@@ -524,7 +556,7 @@ placeholder={CONSOLE.inputPlaceholder}
                   </Link>
                   <Link href="/sklep">
                     <Button variant="outline" className="border-amber-500/50 bg-amber-950/50 text-amber-200/90 hover:bg-amber-900/40">
-                      Sklep
+                      {dict.header.navShop}
                     </Button>
                   </Link>
                 </div>

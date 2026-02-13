@@ -21,6 +21,8 @@ type LanguageContextValue = {
   setLang: (next: Language) => void;
   t: (path: string) => string;
   dict: (typeof translations)[Language];
+  /** True after first mount; use to avoid showing wrong language before hydration. */
+  mounted: boolean;
 };
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -71,8 +73,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<LanguageContextValue>(
-    () => ({ lang: effectiveLang, setLang, t, dict }),
-    [effectiveLang, setLang, t, dict]
+    () => ({ lang: effectiveLang, setLang, t, dict, mounted }),
+    [effectiveLang, setLang, t, dict, mounted]
   );
 
   return (
