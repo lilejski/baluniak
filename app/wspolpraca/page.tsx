@@ -15,7 +15,7 @@ const fastTrackSchema = z.object({
   name: z.string().min(1, "Podaj imię lub firmę"),
   email: z.string().email("Podaj poprawny email"),
   projectType: z.enum(["mvp80", "konsultacja-ai", "audyt", "inne"], {
-    required_error: "Wybierz rodzaj współpracy",
+    message: "Wybierz rodzaj współpracy",
   }),
   message: z.string().min(1, "Opisz krótko wyzwanie"),
 });

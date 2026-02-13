@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Transition } from "framer-motion";
 import {
   Monitor,
   Cpu,
@@ -31,12 +31,25 @@ import {
 
 type SummaryPhase = "idle" | "processing" | "done" | "sent";
 
-const transition = { type: "spring" as const, stiffness: 350, damping: 30 };
-const slideIn = (dir: number) => ({
-  initial: { opacity: 0, x: 40 * -dir },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 40 * dir },
-});
+/** Framer Motion transition for step animations. */
+const transition: Transition = {
+  type: "spring",
+  stiffness: 350,
+  damping: 30,
+};
+
+/** Step slide animation props (initial, animate, exit). Typed for motion.div compatibility. */
+function slideIn(dir: number): {
+  initial: { opacity: number; x: number };
+  animate: { opacity: number; x: number };
+  exit: { opacity: number; x: number };
+} {
+  return {
+    initial: { opacity: 0, x: 40 * -dir },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 40 * dir },
+  };
+}
 
 export default function KreatorPage() {
   const [branch, setBranch] = useState<Branch | null>(null);
@@ -443,15 +456,15 @@ function StandardSteps({
   stepDirection: number;
   standard: Partial<StandardAnswers>;
   setStandard: React.Dispatch<React.SetStateAction<Partial<StandardAnswers>>>;
-  slideIn: (d: number) => { initial: object; animate: object; exit: object };
-  transition: object;
+  slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
+  transition: Transition;
 }) {
   return (
     <>
       {step === 1 && (
         <motion.div
           key="s1"
-          {...slideIn(stepDirection)}
+          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
           transition={transition}
           className="grid gap-3 sm:grid-cols-3"
         >
@@ -481,7 +494,7 @@ function StandardSteps({
       {step === 2 && (
         <motion.div
           key="s2"
-          {...slideIn(stepDirection)}
+          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
           transition={transition}
           className="space-y-3"
         >
@@ -518,7 +531,7 @@ function StandardSteps({
       {step === 3 && (
         <motion.div
           key="s3"
-          {...slideIn(stepDirection)}
+          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
           transition={transition}
           className="grid gap-3 sm:grid-cols-3"
         >
@@ -561,15 +574,15 @@ function ProfessionalSteps({
   stepDirection: number;
   professional: Partial<ProfessionalAnswers>;
   setProfessional: React.Dispatch<React.SetStateAction<Partial<ProfessionalAnswers>>>;
-  slideIn: (d: number) => { initial: object; animate: object; exit: object };
-  transition: object;
+  slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
+  transition: Transition;
 }) {
   return (
     <>
       {step === 1 && (
         <motion.div
           key="p1"
-          {...slideIn(stepDirection)}
+          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
           transition={transition}
           className="grid gap-3 sm:grid-cols-3"
         >
@@ -597,7 +610,7 @@ function ProfessionalSteps({
         </motion.div>
       )}
       {step === 2 && (
-        <motion.div key="p2" {...slideIn(stepDirection)} transition={transition}>
+        <motion.div key="p2" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">Płatności (Autopay / Stripe)?</p>
           <div className="flex gap-3">
             <button
@@ -628,7 +641,7 @@ function ProfessionalSteps({
         </motion.div>
       )}
       {step === 3 && (
-        <motion.div key="p3" {...slideIn(stepDirection)} transition={transition}>
+        <motion.div key="p3" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">Logowanie / użytkownicy?</p>
           <div className="flex gap-3">
             <button
@@ -659,7 +672,7 @@ function ProfessionalSteps({
         </motion.div>
       )}
       {step === 4 && (
-        <motion.div key="p4" {...slideIn(stepDirection)} transition={transition}>
+        <motion.div key="p4" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">Planujesz skalowanie (więcej użytkowników / ruch)?</p>
           <div className="flex gap-3">
             <button
