@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, VT323 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { BackgroundGrid } from "@/components/BackgroundGrid";
 import { GrainTexture } from "@/components/GrainTexture";
 import "./globals.css";
@@ -65,6 +66,7 @@ export default function RootLayout({
         <div className="relative z-10">
           <Navbar />
           <main className="pt-16">{children}</main>
+          <Footer />
           <Analytics />
         </div>
         {/* Film/retro grain overlay: fixed on top of whole page, pointer-events-none */}

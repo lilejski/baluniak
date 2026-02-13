@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { OnboardingSteps } from "@/components/sections/OnboardingSteps";
 import { Projects } from "@/components/sections/Projects";
 import { TechStack } from "@/components/sections/TechStack";
+import { ModularStack } from "@/components/sections/ModularStack";
 
 /** Teksty (copywriting) – sekcja nad czatem, edytuj tutaj */
 const INTRO_COPY = {
@@ -30,6 +31,7 @@ export default function Home() {
         <AIDuelLayout />
       </section>
       <TechStack />
+      <ModularStack />
       <Projects />
       <About />
     </>
