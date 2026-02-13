@@ -2,38 +2,12 @@
 
 import { motion } from "framer-motion";
 import { Globe, Bot, Workflow } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-export const WELCOME_PROMPTS = [
-  {
-    id: "website",
-    title: "Strona internetowa tego typu",
-    /** Krótki opis dla użytkownika (na karcie). Pełny prompt poniżej – tylko do AI. */
-    label: "Dowiedz się, dlaczego Next.js i mobile-first to dobry wybór.",
-    prompt:
-      "Wyjaśnij, dlaczego strona w Next.js to dobry wybór. Opisz plusy Next.js, podejście mobile-first i krótko polecane praktyki dla takiej strony.",
-    icon: Globe,
-    accent: "emerald" as const,
-  },
-  {
-    id: "agents",
-    title: "Implementacja agentów AI na stronie",
-    label: "Po co wirtualni agenci na stronie i jak działają.",
-    prompt:
-      "Wyjaśnij, po co wdrażać na stronie wirtualnych agentów AI. Napisz, że nie trzeba oddzwaniać ani samemu przedstawiać oferty – zrobią to za Ciebie wirtualni agenci. Właśnie z takimi agentami użytkownik teraz rozmawia.",
-    icon: Bot,
-    accent: "amber" as const,
-  },
-  {
-    id: "automation",
-    title: "Automatyzacje",
-    label: "Korzyści z automatyzacji AI w pracy.",
-    prompt:
-      "Opisz korzyści z automatyzacji z użyciem AI. Wyjaśnij, że ręczne obrabianie zdjęć, pisanie tekstów i przepisywanie dokumentów papierowych to przeszłość – workflow AI wykonuje te czynności za ludzi.",
-    icon: Workflow,
-    accent: "violet" as const,
-  },
-] as const;
+const CARD_ICONS = [Globe, Bot, Workflow] as const;
+const CARD_ACCENTS = ["emerald", "amber", "violet"] as const;
+const CARD_KEYS = ["website", "agents", "automation"] as const;
 
 type WelcomeCardsProps = {
   onSelect: (prompt: string) => void;
@@ -42,13 +16,21 @@ type WelcomeCardsProps = {
 };
 
 export function WelcomeCards({ onSelect, disabled, className }: WelcomeCardsProps) {
+  const { dict } = useLanguage();
+  const w = dict.welcomeCards;
+  const items = [
+    { id: CARD_KEYS[0], title: w.websiteTitle, label: w.websiteLabel, prompt: w.websitePrompt, icon: CARD_ICONS[0], accent: CARD_ACCENTS[0] },
+    { id: CARD_KEYS[1], title: w.agentsTitle, label: w.agentsLabel, prompt: w.agentsPrompt, icon: CARD_ICONS[1], accent: CARD_ACCENTS[1] },
+    { id: CARD_KEYS[2], title: w.automationTitle, label: w.automationLabel, prompt: w.automationPrompt, icon: CARD_ICONS[2], accent: CARD_ACCENTS[2] },
+  ];
+
   return (
     <div
       className={cn("grid grid-cols-1 gap-3 sm:grid-cols-3", className)}
       role="group"
-      aria-label="Szybkie akcje – przykładowe prompty"
+      aria-label={w.ariaLabel}
     >
-      {WELCOME_PROMPTS.map((item, i) => {
+      {items.map((item, i) => {
         const Icon = item.icon;
         return (
           <motion.button

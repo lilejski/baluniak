@@ -61,8 +61,8 @@ export default function WspolpracaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
+    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="mx-auto max-w-6xl px-4 py-12 pb-24 sm:px-6 lg:py-16 lg:pb-16">
         <header className="mb-10 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
             Fast-Track: Zacznijmy budować.
@@ -202,7 +202,7 @@ export default function WspolpracaPage() {
                         type="submit"
                         disabled={isSubmitting}
                         size="lg"
-                        className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500"
+                        className="min-h-12 w-full bg-emerald-600 font-semibold hover:bg-emerald-500"
                       >
                         <Send className="mr-2 size-5 shrink-0" />
                         {isSubmitting ? "Wysyłanie…" : "Wyślij i przejdź do kalendarza"}

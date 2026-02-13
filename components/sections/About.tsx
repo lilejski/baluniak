@@ -2,38 +2,9 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { HardHat, Building2, Sparkles } from "lucide-react";
+import { BarChart3, Smartphone, Zap } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-
-const BRIDGE_COPY = {
-  headline:
-    "The Bridge: Dlaczego Twoim produktem powinien zająć się inżynier z doświadczeniem w biznesie?",
-  subheadline:
-    "Nie urodziłem się w cieplarnianym biurze. Moją przewagą jest droga, którą przeszedłem.",
-  stages: [
-    {
-      id: "grit",
-      label: "Fundamenty",
-      title: "Budowa",
-      body: "Praca u podstaw. Budowa nauczyła mnie, że efekt musi być namacalny, a opóźnienia kosztują. Tu zrodził się mój pragmatyzm.",
-      icon: HardHat,
-    },
-    {
-      id: "process",
-      label: "Skala",
-      title: "Amazon / HR",
-      body: "Rozumienie systemów. Praca w Amazonie i HR pokazała mi, jak działają wielkie organizacje i czego naprawdę potrzebują ludzie. Kod to tylko narzędzie do rozwiązywania ich problemów.",
-      icon: Building2,
-    },
-    {
-      id: "speed",
-      label: "Dźwignia",
-      title: "Product Engineer",
-      body: "AI & Prototypowanie. Łączę etykę pracy z budowy z procesowym myśleniem korporacyjnym, używając AI do budowania produktów w rekordowym tempie.",
-      icon: Sparkles,
-    },
-  ],
-} as const;
 
 const cardVariants = {
   hidden: { opacity: 0, y: 24 },
@@ -47,6 +18,10 @@ const cardVariants = {
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const { dict, lang } = useLanguage();
+  const stages = dict.about.stages;
+  const icons = [BarChart3, Smartphone, Zap] as const;
+  const heatmapBg = [true, false, false];
 
   return (
     <section
@@ -56,29 +31,32 @@ export function About() {
       aria-labelledby="bridge-heading"
     >
       <div className="mx-auto max-w-5xl">
-        <header className="mb-14 text-center">
+        <motion.header
+          key={lang}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="mb-14 text-center"
+        >
           <h2
             id="bridge-heading"
             className="mb-4 text-2xl font-bold tracking-tight text-zinc-100 md:text-3xl"
           >
-            The Bridge
+            {dict.about.bridgeTitle}
           </h2>
-          <p className="mx-auto mb-3 max-w-2xl text-lg leading-relaxed text-zinc-200 text-balance md:text-xl">
-            {BRIDGE_COPY.headline}
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-zinc-200 text-balance md:text-xl">
+            {dict.about.headline}
           </p>
-          <p className="text-sm text-zinc-500 md:text-base">
-            {BRIDGE_COPY.subheadline}
+          <p className="mt-2 text-sm text-zinc-500 md:text-base">
+            {dict.about.subheadline}
           </p>
-        </header>
+        </motion.header>
 
-        {/* Cards + Bridge connector */}
         <div className="relative">
-          {/* SVG Bridge: horizontal on desktop, vertical on mobile */}
           <div
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
             aria-hidden
           >
-            {/* Desktop: horizontal line through center */}
             <svg
               className="hidden h-24 w-full md:block"
               viewBox="0 0 300 24"
@@ -104,7 +82,6 @@ export function About() {
                 </linearGradient>
               </defs>
             </svg>
-            {/* Mobile: vertical line on left */}
             <svg
               className="absolute left-6 top-0 bottom-0 w-px md:hidden"
               viewBox="0 0 2 400"
@@ -131,10 +108,10 @@ export function About() {
             </svg>
           </div>
 
-          {/* 3-col grid desktop, single col mobile (timeline) */}
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-6">
-            {BRIDGE_COPY.stages.map((stage, i) => {
-              const Icon = stage.icon;
+            {stages.map((stage, i) => {
+              const Icon = icons[i];
+              const heatmap = heatmapBg[i];
               return (
                 <motion.div
                   key={stage.id}
@@ -143,11 +120,34 @@ export function About() {
                   initial="hidden"
                   animate={isInView ? "visible" : "hidden"}
                   className={cn(
-                    "relative rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-lg backdrop-blur-sm",
+                    "relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-lg backdrop-blur-sm",
                     "md:flex md:flex-col"
                   )}
                 >
-                  <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4">
+                  {heatmap && (
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                      aria-hidden
+                    >
+                      <svg className="h-full w-full" viewBox="0 0 200 120" preserveAspectRatio="none">
+                        {[20, 45, 70, 95, 120, 145, 170].map((x, j) => (
+                          <rect
+                            key={j}
+                            x={x}
+                            y={80 - (j % 3) * 25}
+                            width="18"
+                            height={15 + (j % 4) * 12}
+                            fill="rgb(16,185,129)"
+                            rx="2"
+                          />
+                        ))}
+                        <rect x="20" y="40" width="18" height="35" fill="rgb(16,185,129)" rx="2" opacity="0.8" />
+                        <rect x="95" y="30" width="18" height="45" fill="rgb(16,185,129)" rx="2" opacity="0.9" />
+                        <rect x="170" y="25" width="18" height="50" fill="rgb(16,185,129)" rx="2" />
+                      </svg>
+                    </div>
+                  )}
+                  <div className="relative z-10 flex items-center gap-3 md:flex-col md:items-start md:gap-4">
                     <div
                       className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-950/40 text-emerald-400"
                       aria-hidden
@@ -163,7 +163,7 @@ export function About() {
                       </h3>
                     </div>
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-zinc-400 md:mt-5 md:flex-1">
+                  <p className="relative z-10 mt-4 text-sm leading-relaxed text-zinc-400 md:mt-5 md:flex-1">
                     {stage.body}
                   </p>
                 </motion.div>

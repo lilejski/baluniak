@@ -13,13 +13,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { GrainTexture } from "@/components/GrainTexture";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { label: "Projekty", href: "/projekty" },
-  { label: "O mnie", href: "/#about" },
-  { label: "Sklep", href: "/sklep" },
-] as const;
 
 const mobileMenuListVariants = {
   closed: { opacity: 0, y: 8 },
@@ -35,8 +31,16 @@ const mobileMenuItemVariants = {
   open: { opacity: 1, y: 0 },
 } as const;
 
+const navHrefs = ["/projekty", "/#about", "/sklep"] as const;
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { dict } = useLanguage();
+  const navItems = [
+    { label: dict.header.navProjects, href: navHrefs[0] },
+    { label: dict.header.navAbout, href: navHrefs[1] },
+    { label: dict.header.navShop, href: navHrefs[2] },
+  ];
 
   return (
     <header
@@ -44,10 +48,9 @@ export function Navbar() {
         "sticky top-0 z-50 h-16 w-full",
         "border-b border-white/10 bg-black/50 backdrop-blur-md"
       )}
-      aria-label="Nawigacja"
+      aria-label={dict.header.navAria}
     >
       <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
-        {/* Logo: clean, bold → BALUNIAK.COM */}
         <Link
           href="/"
           className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
@@ -55,7 +58,7 @@ export function Navbar() {
           BALUNIAK.COM
         </Link>
 
-        {/* Desktop: nav links + main CTA */}
+        {/* Desktop: nav + language + CTA */}
         <div className="hidden items-center gap-2 md:flex">
           {navItems.map(({ label, href }) => (
             <Button key={href} variant="ghost" asChild>
@@ -67,6 +70,7 @@ export function Navbar() {
               </Link>
             </Button>
           ))}
+          <LanguageSwitcher />
           <Button asChild size="default" className="ml-2">
             <Link
               href="/kreator"
@@ -77,21 +81,22 @@ export function Navbar() {
                 animate={{ opacity: [1, 0.85, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                Zbuduj MVP (80h)
+                {dict.header.cta}
               </motion.span>
             </Link>
           </Button>
         </div>
 
-        {/* Mobile: burger + sheet */}
-        <div className="flex md:hidden">
+        {/* Mobile: language + burger */}
+        <div className="flex items-center gap-1 md:hidden">
+          <LanguageSwitcher />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-zinc-300 hover:bg-white/10 hover:text-white"
-                aria-label="Otwórz menu"
+                className="min-h-12 min-w-12 text-zinc-300 hover:bg-white/10 hover:text-white"
+                aria-label={dict.header.openMenu}
               >
                 <Menu className="size-6" />
               </Button>
@@ -105,7 +110,7 @@ export function Navbar() {
                 <div className="relative z-10 flex flex-1 flex-col">
                   <SheetHeader>
                     <SheetTitle className="text-left text-zinc-100">
-                      Menu
+                      {dict.header.menu}
                     </SheetTitle>
                   </SheetHeader>
                   <motion.div
@@ -121,7 +126,7 @@ export function Navbar() {
                           onClick={() => setOpen(false)}
                           className="text-zinc-300"
                         >
-                          Strona główna
+                          {dict.header.home}
                         </Link>
                       </Button>
                     </motion.div>
@@ -138,13 +143,16 @@ export function Navbar() {
                         </Button>
                       </motion.div>
                     ))}
-                    <motion.div variants={mobileMenuItemVariants} className="mt-4 pt-4 border-t border-white/10">
-                      <Button asChild className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500">
+                    <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-white/10 pt-4">
+                      <LanguageSwitcher inSheet />
+                    </motion.div>
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500">
                         <Link
                           href="/kreator"
                           onClick={() => setOpen(false)}
                         >
-                          Zbuduj MVP (80h)
+                          {dict.header.cta}
                         </Link>
                       </Button>
                     </motion.div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, VT323 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BackgroundGrid } from "@/components/BackgroundGrid";
@@ -64,10 +65,12 @@ export default function RootLayout({
         />
         {/* Content above background */}
         <div className="relative z-10">
-          <Navbar />
-          <main className="pt-16">{children}</main>
-          <Footer />
-          <Analytics />
+          <LanguageProvider>
+            <Navbar />
+            <main className="pt-16 pb-[max(2rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+            <Footer />
+            <Analytics />
+          </LanguageProvider>
         </div>
         {/* Film/retro grain overlay: fixed on top of whole page, pointer-events-none */}
         <GrainTexture opacity={0.06} className="z-[100]" />

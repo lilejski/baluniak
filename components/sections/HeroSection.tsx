@@ -4,19 +4,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Zap, Rocket, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-
-/** Product Engineer / MVP 80h – copy */
-const HERO_COPY = {
-  badge: "Dostępny na wdrożenia MVP / AI (Luty 2026)",
-  headline: "Product Engineer. Buduję Twoje",
-  headlineAccent: "MVP w 80h",
-  headlineEnd: ".",
-  subtext:
-    "Przekładam chaos biznesowy na gotowy SaaS. Wykorzystuję AI, aby dowozić kompletne produkty w czasie, w którym inni dopiero kończą pisać specyfikację.",
-  ctaPrimary: "Rozpocznij projekt (MVP 80h)",
-  ctaSecondary: "Zobacz Fotarobota (Case Study)",
-} as const;
 
 const sectionVariants = {
   hidden: { opacity: 0 },
@@ -47,6 +36,9 @@ const itemVariants = {
 };
 
 export function HeroSection() {
+  const { dict, lang } = useLanguage();
+  const h = dict.hero;
+
   return (
     <motion.section
       id="hero"
@@ -56,7 +48,6 @@ export function HeroSection() {
       initial="hidden"
       animate="visible"
     >
-      {/* Hero-only background: subtle grid + emerald glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0"
@@ -80,21 +71,21 @@ export function HeroSection() {
       />
 
       <motion.div
+        key={lang}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.25 }}
         className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center"
         variants={containerVariants}
-        initial="hidden"
-        animate="visible"
       >
-        {/* Badge */}
         <motion.p
           variants={itemVariants}
           className="mb-5 flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/90 backdrop-blur-sm sm:text-sm"
         >
           <Zap className="size-3.5 text-emerald-400" aria-hidden />
-          {HERO_COPY.badge}
+          {h.badge}
         </motion.p>
 
-        {/* Headline: bold, tight tracking, balance */}
         <motion.h1
           id="hero-heading"
           variants={itemVariants}
@@ -103,20 +94,18 @@ export function HeroSection() {
             "sm:text-3xl md:text-4xl lg:text-5xl"
           )}
         >
-          {HERO_COPY.headline}{" "}
-          <span className="text-emerald-500">{HERO_COPY.headlineAccent}</span>
-          {HERO_COPY.headlineEnd}
+          {h.headline}{" "}
+          <span className="text-emerald-500">{h.headlineAccent}</span>
+          {h.headlineEnd}
         </motion.h1>
 
-        {/* Subheadline */}
         <motion.p
           variants={itemVariants}
           className="mb-8 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:text-base"
         >
-          {HERO_COPY.subtext}
+          {h.subtext}
         </motion.p>
 
-        {/* CTAs: stack on mobile, row on sm+ */}
         <motion.div
           variants={itemVariants}
           className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4"
@@ -128,7 +117,7 @@ export function HeroSection() {
           >
             <Link href="/kreator">
               <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
-              {HERO_COPY.ctaPrimary}
+              {h.ctaPrimary}
             </Link>
           </Button>
           <Button
@@ -138,7 +127,7 @@ export function HeroSection() {
             className="min-h-12 w-full border-white/20 bg-white/5 font-medium text-zinc-300 backdrop-blur-sm hover:bg-white/10 hover:text-zinc-100 sm:w-auto"
           >
             <Link href="/projekty">
-              {HERO_COPY.ctaSecondary}
+              {h.ctaSecondary}
               <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
             </Link>
           </Button>

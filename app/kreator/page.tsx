@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, type Transition } from "framer-motion";
 import {
   Monitor,
@@ -14,20 +14,27 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
   type Branch,
   type FunnelState,
   type StandardAnswers,
   type ProfessionalAnswers,
-  STANDARD_STEPS,
-  PROFESSIONAL_STEPS,
+  getStandardSteps,
+  getProfessionalSteps,
   getTotalSteps,
   getDefaultAnswers,
   buildConfigForApi,
   getStackSummary,
   getTimelineSummary,
+  getPriceBreakdown,
 } from "@/lib/kreator-funnel";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { Language, translations } from "@/lib/translations";
+import { ShoppingCart } from "lucide-react";
+
+type KreatorOptions = (typeof translations)[Language]["kreator"]["options"];
 
 type SummaryPhase = "idle" | "processing" | "done" | "sent";
 
@@ -51,7 +58,33 @@ function slideIn(dir: number): {
   };
 }
 
+/** Animate number toward target (count-up effect). */
+function useCountUp(target: number, durationMs = 400): number {
+  const [display, setDisplay] = useState(target);
+  const prevRef = useRef(target);
+  useEffect(() => {
+    if (prevRef.current === target) return;
+    const start = prevRef.current;
+    prevRef.current = target;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - startTime) / durationMs, 1);
+      const eased = 1 - (1 - t) * (1 - t);
+      setDisplay(Math.round(start + (target - start) * eased));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    const id = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(id);
+  }, [target, durationMs]);
+  return display;
+}
+
 export default function KreatorPage() {
+  const { dict, lang } = useLanguage();
+  const k = dict.kreator;
+  const standardSteps = getStandardSteps(lang);
+  const professionalSteps = getProfessionalSteps(lang);
+
   const [branch, setBranch] = useState<Branch | null>(null);
   const [step, setStep] = useState(0);
   const [stepDirection, setStepDirection] = useState(1);
@@ -63,12 +96,18 @@ export default function KreatorPage() {
   const offerPrintRef = useRef<HTMLDivElement>(null);
 
   const state: FunnelState = { branch, step, standard, professional };
+  const { lineItems: selectedFeatures, total: totalPrice } = useMemo(
+    () => getPriceBreakdown(state, lang),
+    [branch, standard, professional, lang]
+  );
+  const displayTotal = useCountUp(totalPrice);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const totalSteps = branch ? getTotalSteps(branch) : 0;
   const currentStepLabel =
-    branch === "standard" && step >= 1 && step <= STANDARD_STEPS.length
-      ? STANDARD_STEPS[step - 1].label
-      : branch === "professional" && step >= 1 && step <= PROFESSIONAL_STEPS.length
-        ? PROFESSIONAL_STEPS[step - 1].label
+    branch === "standard" && step >= 1 && step <= standardSteps.length
+      ? standardSteps[step - 1].label
+      : branch === "professional" && step >= 1 && step <= professionalSteps.length
+        ? professionalSteps[step - 1].label
         : "";
 
   const progressPct =
@@ -118,7 +157,7 @@ export default function KreatorPage() {
       const res = await fetch("/api/architect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config, priceRange: { min: 0, max: 0 } }),
+        body: JSON.stringify({ config, priceRange: { min: 0, max: 0 }, lang }),
       });
       if (!res.ok || !res.body) throw new Error("Architect request failed");
       const reader = res.body.getReader();
@@ -132,7 +171,7 @@ export default function KreatorPage() {
       }
       setSummaryPhase("done");
     } catch {
-      setArchitectText("Nie udało się wygenerować analizy. Możesz i tak wysłać zapytanie.");
+      setArchitectText(k.analysisFailed);
       setSummaryPhase("done");
     }
   }, [branch, step, standard, professional]);
@@ -185,8 +224,55 @@ export default function KreatorPage() {
     return () => clearTimeout(id);
   }, [summaryPhase, runArchitect]);
 
+  const priceSummaryContent = (
+    <div className="space-y-4">
+      <h3 className="text-base font-bold text-white">
+        {k.yourConfig}
+      </h3>
+      {selectedFeatures.length === 0 ? (
+        <p className="text-sm text-zinc-500">{k.selectPathToSeePrice}</p>
+      ) : (
+        <>
+          <ul className="space-y-2">
+            <AnimatePresence mode="popLayout">
+              {selectedFeatures.map((item, i) => (
+                <motion.li
+                  key={item.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 8 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex items-center justify-between gap-2 text-sm text-zinc-400"
+                >
+                  <span>{item.label}</span>
+                  <span className="shrink-0 tabular-nums">
+                    {i === 0 ? "" : "+"}{item.price.toLocaleString("pl-PL")} PLN
+                  </span>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ul>
+          <div className="border-t border-zinc-800 pt-4">
+            <motion.p
+              key={displayTotal}
+              initial={{ opacity: 0, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+              className="text-2xl font-bold tabular-nums text-emerald-500"
+            >
+              {k.sumLabel} {displayTotal.toLocaleString("pl-PL")} PLN
+            </motion.p>
+          </div>
+          <p className="text-xs text-zinc-500">
+            {k.priceDisclaimer}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen px-4 py-8">
+    <div className="min-h-screen px-4 py-8 pb-[max(8rem,calc(env(safe-area-inset-bottom)+8rem))] lg:pb-8">
       <style>{`
         @media print {
           body * { visibility: hidden; }
@@ -194,15 +280,20 @@ export default function KreatorPage() {
           #offer-print { position: absolute; left: 0; top: 0; width: 100%; background: white; color: #111; padding: 2rem; }
         }
       `}</style>
-      <div className="mx-auto max-w-3xl">
-        <h1 className="mb-2 text-2xl font-bold text-zinc-100">
-          AI Architect: Zaplanujmy Twój sukces.
-        </h1>
+      <div className={cn("mx-auto", summaryPhase === "idle" ? "max-w-6xl" : "max-w-3xl")}>
+        <motion.h1
+          key={lang}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="mb-2 text-2xl font-bold text-zinc-100"
+        >
+          {k.title}
+        </motion.h1>
         <p className="mb-6 text-sm text-zinc-500">
-          Wybierz ścieżkę, a ja przygotuję dla Ciebie wstępną architekturę i wycenę.
+          {k.subtitle}
         </p>
 
-        {/* Progress bar */}
         <div className="mb-8 h-2 overflow-hidden rounded-full bg-zinc-800">
           <motion.div
             className="h-full rounded-full bg-emerald-500"
@@ -211,11 +302,10 @@ export default function KreatorPage() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
           {summaryPhase === "processing" && (
-            <p className="mt-2 text-xs text-zinc-500">Analiza Architekta…</p>
+            <p className="mt-2 text-xs text-zinc-500">{k.progressAnalysing}</p>
           )}
         </div>
 
-        {/* Processing: terminal vibe */}
         {summaryPhase === "processing" && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -223,13 +313,13 @@ export default function KreatorPage() {
             className="mb-8 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-950 font-mono text-sm"
           >
             <div className="border-b border-zinc-700 px-4 py-2 text-zinc-500">
-              AI Architect — Processing...
+              {k.terminalTitle}
             </div>
             <div className="space-y-1 px-4 py-4 text-emerald-400/90">
-              <TerminalLine delay={0}>Analyzing requirements...</TerminalLine>
-              <TerminalLine delay={400}>Building stack recommendation...</TerminalLine>
-              <TerminalLine delay={800}>Generating timeline...</TerminalLine>
-              <TerminalLine delay={1200}>Preparing preliminary offer...</TerminalLine>
+              <TerminalLine delay={0}>{k.terminalLine1}</TerminalLine>
+              <TerminalLine delay={400}>{k.terminalLine2}</TerminalLine>
+              <TerminalLine delay={800}>{k.terminalLine3}</TerminalLine>
+              <TerminalLine delay={1200}>{k.terminalLine4}</TerminalLine>
               <motion.span
                 className="inline-block h-4 w-2 bg-emerald-500"
                 animate={{ opacity: [1, 0] }}
@@ -251,26 +341,26 @@ export default function KreatorPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-zinc-200">
                     <Zap className="size-5 text-emerald-500" />
-                    Wstępna strategia i oferta
+                    {k.offerTitle}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div>
                     <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-                      Rekomendowany stack
+                      {k.recommendedStack}
                     </h3>
-                    <p className="text-zinc-200">{getStackSummary(state)}</p>
+                    <p className="text-zinc-200">{getStackSummary(state, lang)}</p>
                   </div>
                   <div>
                     <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-                      Szacowany czas
+                      {k.estimatedTime}
                     </h3>
-                    <p className="text-zinc-200">{getTimelineSummary(state)}</p>
+                    <p className="text-zinc-200">{getTimelineSummary(state, lang)}</p>
                   </div>
                   {architectText && (
                     <div>
                       <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-                        Analiza Architekta
+                        {k.architectAnalysis}
                       </h3>
                       <div className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">
                         {architectText}
@@ -288,7 +378,7 @@ export default function KreatorPage() {
                 className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/50"
               >
                 <FileDown className="mr-2 size-5 shrink-0" />
-                Pobierz ofertę (PDF)
+                {k.downloadOffer}
               </Button>
               <Button
                 size="lg"
@@ -297,7 +387,7 @@ export default function KreatorPage() {
                 className="bg-emerald-600 hover:bg-emerald-500"
               >
                 <Send className="mr-2 size-5 shrink-0" />
-                {inquirySending ? "Wysyłanie…" : "Wyślij do Baluniaka"}
+                {inquirySending ? k.sending : k.sendToBaluniak}
               </Button>
             </div>
           </motion.div>
@@ -309,21 +399,22 @@ export default function KreatorPage() {
             <CardContent className="flex flex-col items-center py-12 text-center">
               <CheckCircle className="mb-4 size-12 text-emerald-400" />
               <p className="text-lg font-medium text-emerald-200">
-                Strategia została wysłana. Odpowiem w ciągu 24h.
+                {k.sentSuccess}
               </p>
             </CardContent>
           </Card>
         )}
 
-        {/* Wizard: Step 0 or branch steps */}
+        {/* Wizard + Price Summary (idle only) */}
         {summaryPhase === "idle" && (
-          <Card className="border-white/10 bg-zinc-900/50">
-            <CardHeader>
-              <CardTitle className="text-zinc-200">
-                {branch === null ? "Wybierz ścieżkę" : currentStepLabel}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+            <Card className="border-white/10 bg-zinc-900/50">
+              <CardHeader>
+                <CardTitle className="text-zinc-200">
+                  {branch === null ? k.choosePath : currentStepLabel}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
               <AnimatePresence mode="wait" initial={false}>
                 {branch === null && (
                   <motion.div
@@ -343,10 +434,10 @@ export default function KreatorPage() {
                       <Monitor className="size-14 text-emerald-500/90" />
                       <div className="text-center">
                         <span className="block font-semibold text-zinc-100">
-                          Ścieżka Standard (Wizytówka)
+                          {k.pathStandard}
                         </span>
                         <span className="mt-1 block text-sm text-zinc-500">
-                          Prosta strona wizytówka. Branding, szybkość, czysty design.
+                          {k.pathStandardDesc}
                         </span>
                       </div>
                     </button>
@@ -361,10 +452,10 @@ export default function KreatorPage() {
                       <Cpu className="size-14 text-emerald-500/90" />
                       <div className="text-center">
                         <span className="block font-semibold text-zinc-100">
-                          Ścieżka Professional (MVP/SaaS)
+                          {k.pathProfessional}
                         </span>
                         <span className="mt-1 block text-sm text-zinc-500">
-                          Landing + system. Konwersja, AI, płatności, skalowalność.
+                          {k.pathProfessionalDesc}
                         </span>
                       </div>
                     </button>
@@ -380,6 +471,7 @@ export default function KreatorPage() {
                     setStandard={setStandard}
                     slideIn={slideIn}
                     transition={transition}
+                    options={k.options}
                   />
                 )}
 
@@ -392,26 +484,28 @@ export default function KreatorPage() {
                     setProfessional={setProfessional}
                     slideIn={slideIn}
                     transition={transition}
+                    options={k.options}
                   />
                 )}
               </AnimatePresence>
 
-              <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={goBack} className="border-white/20">
+              <div className="flex justify-between gap-3 pt-4 lg:pt-4">
+                <Button variant="outline" size="lg" onClick={goBack} className="min-h-12 border-white/20">
                   <ArrowLeft className="mr-2 size-4" />
-                  Wstecz
+                  {k.back}
                 </Button>
                 {branch !== null && (
                   <Button
+                    size="lg"
                     onClick={goNext}
                     disabled={!canProceed && !isLastStep}
-                    className="bg-emerald-600 hover:bg-emerald-500"
+                    className="min-h-12 bg-emerald-600 hover:bg-emerald-500"
                   >
                     {isLastStep ? (
-                      "Przygotuj ofertę"
+                      k.prepareOffer
                     ) : (
                       <>
-                        Dalej
+                        {k.next}
                         <ArrowRight className="ml-2 size-4" />
                       </>
                     )}
@@ -420,6 +514,45 @@ export default function KreatorPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Desktop: sticky price summary sidebar (premium checkout feel) */}
+          <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
+            <Card className="border-zinc-800 bg-zinc-950 shadow-xl">
+              <CardContent className="p-6">
+                {priceSummaryContent}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Mobile: bottom bar + drawer */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800 bg-zinc-950 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+            <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  className="flex min-h-12 w-full items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-left"
+                  aria-label={k.openConfigAria}
+                >
+                  <span className="flex items-center gap-2 text-sm font-bold text-white">
+                    <ShoppingCart className="size-5 text-emerald-500" />
+                    {k.yourConfig}
+                  </span>
+                  <span className="text-xl font-bold tabular-nums text-emerald-500">
+                    {displayTotal.toLocaleString("pl-PL")} PLN
+                  </span>
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="border-zinc-800 bg-zinc-950">
+                <SheetHeader>
+                  <SheetTitle className="text-zinc-100">{k.yourConfig}</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 pb-8">
+                  {priceSummaryContent}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
         )}
       </div>
     </div>
@@ -451,6 +584,7 @@ function StandardSteps({
   setStandard,
   slideIn,
   transition,
+  options,
 }: {
   step: number;
   stepDirection: number;
@@ -458,7 +592,9 @@ function StandardSteps({
   setStandard: React.Dispatch<React.SetStateAction<Partial<StandardAnswers>>>;
   slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
   transition: Transition;
+  options: KreatorOptions;
 }) {
+  const o = options;
   return (
     <>
       {step === 1 && (
@@ -470,11 +606,11 @@ function StandardSteps({
         >
           {(
             [
-              { id: "wizerunek" as const, label: "Wizerunek firmy" },
-              { id: "portfolio" as const, label: "Portfolio" },
-              { id: "kontakt" as const, label: "Kontakt z klientem" },
+              { id: "wizerunek" as const, labelKey: "brandingWizerunek" as const },
+              { id: "portfolio" as const, labelKey: "brandingPortfolio" as const },
+              { id: "kontakt" as const, labelKey: "brandingKontakt" as const },
             ] as const
-          ).map(({ id, label }) => (
+            ).map(({ id, labelKey }) => (
             <button
               key={id}
               type="button"
@@ -486,7 +622,7 @@ function StandardSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
               )}
             >
-              {label}
+              {options[labelKey]}
             </button>
           ))}
         </motion.div>
@@ -520,9 +656,9 @@ function StandardSteps({
                 className="size-4 rounded accent-emerald-500"
               />
               <span className="text-sm text-zinc-200">
-                {key === "about" && "O nas"}
-                {key === "gallery" && "Galeria"}
-                {key === "contact" && "Kontakt"}
+                {key === "about" && o.sectionAbout}
+                {key === "gallery" && o.sectionGallery}
+                {key === "contact" && o.sectionContact}
               </span>
             </label>
           ))}
@@ -537,11 +673,11 @@ function StandardSteps({
         >
           {(
             [
-              { id: "asap" as const, label: "Jak najszybciej" },
-              { id: "2weeks" as const, label: "~2 tygodnie" },
-              { id: "1month" as const, label: "Do 1 miesiąca" },
+              { id: "asap" as const, labelKey: "deadlineAsap" as const },
+              { id: "2weeks" as const, labelKey: "deadline2weeks" as const },
+              { id: "1month" as const, labelKey: "deadline1month" as const },
             ] as const
-          ).map(({ id, label }) => (
+          ).map(({ id, labelKey }) => (
             <button
               key={id}
               type="button"
@@ -553,7 +689,7 @@ function StandardSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
               )}
             >
-              {label}
+              {o[labelKey]}
             </button>
           ))}
         </motion.div>
@@ -569,6 +705,7 @@ function ProfessionalSteps({
   setProfessional,
   slideIn,
   transition,
+  options,
 }: {
   step: number;
   stepDirection: number;
@@ -576,7 +713,9 @@ function ProfessionalSteps({
   setProfessional: React.Dispatch<React.SetStateAction<Partial<ProfessionalAnswers>>>;
   slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
   transition: Transition;
+  options: KreatorOptions;
 }) {
+  const o = options;
   return (
     <>
       {step === 1 && (
@@ -588,11 +727,11 @@ function ProfessionalSteps({
         >
           {(
             [
-              { id: "fal" as const, label: "Fal.ai" },
-              { id: "openai" as const, label: "OpenAI" },
-              { id: "both" as const, label: "Oba" },
+              { id: "fal" as const, labelKey: "aiFal" as const },
+              { id: "openai" as const, labelKey: "aiOpenai" as const },
+              { id: "both" as const, labelKey: "aiBoth" as const },
             ] as const
-          ).map(({ id, label }) => (
+          ).map(({ id, labelKey }) => (
             <button
               key={id}
               type="button"
@@ -604,14 +743,14 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
               )}
             >
-              {label}
+              {o[labelKey]}
             </button>
           ))}
         </motion.div>
       )}
       {step === 2 && (
         <motion.div key="p2" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">Płatności (Autopay / Stripe)?</p>
+          <p className="mb-3 text-sm text-zinc-400">{o.paymentsQuestion}</p>
           <div className="flex gap-3">
             <button
               type="button"
@@ -623,7 +762,7 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
-              Tak
+              {o.yes}
             </button>
             <button
               type="button"
@@ -635,14 +774,14 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
-              Nie
+              {o.no}
             </button>
           </div>
         </motion.div>
       )}
       {step === 3 && (
         <motion.div key="p3" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">Logowanie / użytkownicy?</p>
+          <p className="mb-3 text-sm text-zinc-400">{o.authQuestion}</p>
           <div className="flex gap-3">
             <button
               type="button"
@@ -654,7 +793,7 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
-              Tak
+              {o.yes}
             </button>
             <button
               type="button"
@@ -666,14 +805,14 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
-              Nie
+              {o.no}
             </button>
           </div>
         </motion.div>
       )}
       {step === 4 && (
         <motion.div key="p4" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">Planujesz skalowanie (więcej użytkowników / ruch)?</p>
+          <p className="mb-3 text-sm text-zinc-400">{o.scaleQuestion}</p>
           <div className="flex gap-3">
             <button
               type="button"
@@ -685,7 +824,7 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
-              Tak
+              {o.yes}
             </button>
             <button
               type="button"
@@ -697,7 +836,7 @@ function ProfessionalSteps({
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
-              Nie
+              {o.no}
             </button>
           </div>
         </motion.div>

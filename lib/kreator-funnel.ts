@@ -3,6 +3,9 @@
  * Branch "standard" = wizytówka; "professional" = MVP/SaaS.
  */
 
+import type { Language } from "./translations";
+import { translations } from "./translations";
+
 export type Branch = "standard" | "professional";
 
 export type StandardAnswers = {
@@ -38,21 +41,18 @@ const DEFAULT_PROFESSIONAL: ProfessionalAnswers = {
   scalability: true,
 };
 
-export const STANDARD_STEPS = [
-  { id: "branding", label: "Na czym ma się skupić strona?" },
-  { id: "sections", label: "Jakie sekcje?" },
-  { id: "deadline", label: "Termin realizacji" },
-] as const;
+export const STANDARD_STEP_IDS = ["branding", "sections", "deadline"] as const;
+export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "scale"] as const;
 
-export const PROFESSIONAL_STEPS = [
-  { id: "ai", label: "Integracja AI" },
-  { id: "payments", label: "Płatności" },
-  { id: "auth", label: "Użytkownicy / logowanie" },
-  { id: "scale", label: "Skalowalność" },
-] as const;
+export function getStandardSteps(lang: Language) {
+  return translations[lang].kreator.steps.standard;
+}
+export function getProfessionalSteps(lang: Language) {
+  return translations[lang].kreator.steps.professional;
+}
 
 export function getTotalSteps(branch: Branch): number {
-  return branch === "standard" ? STANDARD_STEPS.length : PROFESSIONAL_STEPS.length;
+  return branch === "standard" ? STANDARD_STEP_IDS.length : PROFESSIONAL_STEP_IDS.length;
 }
 
 export function getDefaultAnswers(branch: Branch): StandardAnswers | ProfessionalAnswers {
@@ -71,42 +71,87 @@ export function buildConfigForApi(state: FunnelState): Record<string, unknown> {
 }
 
 /** Human-readable tech stack summary for the offer card. */
-export function getStackSummary(state: FunnelState): string {
+export function getStackSummary(state: FunnelState, lang: Language = "PL"): string {
+  const k = translations[lang].kreator.stack;
   if (state.branch === "standard") {
     const s = state.standard;
-    if (!s) return "Next.js + Tailwind — strona wizytówka.";
-    const parts = ["Next.js", "Tailwind CSS", "Responsywny design"];
-    if (s.sections?.gallery) parts.push("Galeria");
-    if (s.sections?.about) parts.push("Sekcja O nas");
-    if (s.sections?.contact) parts.push("Kontakt / formularz");
+    if (!s) return k.standardBase;
+    const parts: string[] = [k.nextjs, k.tailwind, k.responsive];
+    if (s.sections?.gallery) parts.push(k.gallery);
+    if (s.sections?.about) parts.push(k.aboutSection);
+    if (s.sections?.contact) parts.push(k.contactForm);
     return parts.join(" + ") + ".";
   }
   if (state.branch === "professional") {
     const p = state.professional;
-    if (!p) return "Next.js + wybrane moduły (AI, płatności, auth).";
-    const parts = ["Next.js", "Tailwind", "TypeScript"];
-    if (p.aiIntegration === "fal") parts.push("Fal.ai");
-    else if (p.aiIntegration === "openai") parts.push("OpenAI");
-    else if (p.aiIntegration === "both") parts.push("Fal.ai + OpenAI");
-    if (p.payments) parts.push("Autopay / Stripe");
-    if (p.userAuth) parts.push("Auth (np. Supabase)");
-    if (p.scalability) parts.push("Serverless (Vercel)");
+    if (!p) return k.professionalBase;
+    const parts: string[] = [k.nextjs, k.tailwind, k.typescript];
+    if (p.aiIntegration === "fal") parts.push(k.fal);
+    else if (p.aiIntegration === "openai") parts.push(k.openai);
+    else if (p.aiIntegration === "both") parts.push(k.falOpenai);
+    if (p.payments) parts.push(k.autopayStripe);
+    if (p.userAuth) parts.push(k.authSupabase);
+    if (p.scalability) parts.push(k.serverless);
     return parts.join(" + ") + ".";
   }
   return "";
 }
 
+/** Price breakdown: base + add-ons. Standard 3500 PLN base, Professional 8500. Add-ons: AI +2000, Auth +1000, Payments +1500, Extra pages +500 each. */
+export type PriceLineItem = { id: string; label: string; price: number };
+
+export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { lineItems: PriceLineItem[]; total: number } {
+  const labels = translations[lang].kreator.priceLabels;
+  const lineItems: PriceLineItem[] = [];
+  let total = 0;
+
+  if (state.branch === "standard") {
+    lineItems.push({ id: "base", label: labels.baseStandard, price: 3500 });
+    total = 3500;
+    const s = state.standard?.sections;
+    if (s) {
+      const sectionsCount = [s.about, s.gallery, s.contact].filter(Boolean).length;
+      if (sectionsCount > 0) {
+        const extra = sectionsCount * 500;
+        lineItems.push({ id: "pages", label: `${labels.extraSections} (×${sectionsCount})`, price: extra });
+        total += extra;
+      }
+    }
+  } else if (state.branch === "professional") {
+    lineItems.push({ id: "base", label: labels.baseProfessional, price: 8500 });
+    total = 8500;
+    const p = state.professional;
+    if (p) {
+      if (p.aiIntegration) {
+        lineItems.push({ id: "ai", label: labels.ai, price: 2000 });
+        total += 2000;
+      }
+      if (p.userAuth) {
+        lineItems.push({ id: "auth", label: labels.auth, price: 1000 });
+        total += 1000;
+      }
+      if (p.payments) {
+        lineItems.push({ id: "payments", label: labels.payments, price: 1500 });
+        total += 1500;
+      }
+    }
+  }
+
+  return { lineItems, total };
+}
+
 /** Timeline text for the offer. */
-export function getTimelineSummary(state: FunnelState): string {
+export function getTimelineSummary(state: FunnelState, lang: Language = "PL"): string {
+  const t = translations[lang].kreator.timeline;
   if (state.branch === "standard") {
     const d = state.standard?.deadline;
-    if (d === "asap") return "Realizacja w ciągu 1–2 tygodni (w zależności od obłożenia).";
-    if (d === "2weeks") return "Szacowany czas: ok. 2 tygodnie.";
-    if (d === "1month") return "Szacowany czas: do 1 miesiąca.";
-    return "Szacowany czas: 2–4 tygodnie.";
+    if (d === "asap") return t.standardAsap;
+    if (d === "2weeks") return t.standard2weeks;
+    if (d === "1month") return t.standard1month;
+    return t.standardDefault;
   }
   if (state.branch === "professional") {
-    return "Model 80h MVP: pełna realizacja MVP w ok. 80 godzin roboczych (ok. 2–3 tygodnie przy stałym tempie).";
+    return t.professional;
   }
   return "";
 }

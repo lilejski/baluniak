@@ -3,42 +3,10 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Layers, Brain, Wallet, Cloud } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const BLOCKS = [
-  {
-    id: "engine",
-    title: "Szybki Frontend",
-    subtitle: "The Engine",
-    tech: "Next.js & React",
-    description: "Performance & SEO",
-    icon: Layers,
-  },
-  {
-    id: "brain",
-    title: "Inteligencja AI",
-    subtitle: "The Brain",
-    tech: "Fal.ai & OpenAI",
-    description: "Advanced AI integrations",
-    icon: Brain,
-  },
-  {
-    id: "revenue",
-    title: "Zautomatyzowane Płatności",
-    subtitle: "The Revenue",
-    tech: "Autopay & Stripe",
-    description: "Secure, instant payments",
-    icon: Wallet,
-  },
-  {
-    id: "infra",
-    title: "Błyskawiczny Deployment",
-    subtitle: "The Infrastructure",
-    tech: "Vercel & Serverless",
-    description: "Global scale, zero downtime",
-    icon: Cloud,
-  },
-] as const;
+const BLOCK_ICONS = [Layers, Brain, Wallet, Cloud] as const;
 
 const containerVariants = {
   hidden: {},
@@ -60,6 +28,8 @@ const blockVariants = {
 export function ModularStack() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
+  const { dict, lang } = useLanguage();
+  const blocks = dict.modularStack.blocks;
 
   return (
     <section
@@ -70,6 +40,7 @@ export function ModularStack() {
     >
       <div className="mx-auto max-w-5xl">
         <motion.header
+          key={lang}
           initial={{ opacity: 0, y: 12 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.4 }}
@@ -79,34 +50,31 @@ export function ModularStack() {
             id="modular-stack-heading"
             className="mb-3 text-2xl font-bold tracking-tight text-zinc-100 md:text-3xl"
           >
-            Modularna Architektura: Dlaczego 80 godzin wystarczy?
+            {dict.modularStack.heading}
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
-            Nie wyważam otwartych drzwi. Korzystam ze sprawdzonych klocków, skupiając się na unikalnej logice Twojego biznesu.
+            {dict.modularStack.subtext}
           </p>
         </motion.header>
 
-        {/* Grid: 2x2 mobile, 4 col desktop + connectors */}
         <motion.div
           className="relative grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6"
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
-          {/* Connector dots between blocks (desktop) – one system */}
           <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden>
             <span className="absolute left-[25%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
             <span className="absolute left-[50%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
             <span className="absolute left-[75%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
-            {/* Subtle connecting line through dots */}
             <div className="absolute left-[12.5%] right-[12.5%] top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
           </div>
 
-          {BLOCKS.map((block) => {
-            const Icon = block.icon;
+          {blocks.map((block, i) => {
+            const Icon = BLOCK_ICONS[i];
             return (
               <motion.div
-                key={block.id}
+                key={`stack-${i}-${lang}`}
                 variants={blockVariants}
                 className="group relative z-10"
               >

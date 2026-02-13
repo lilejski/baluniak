@@ -33,8 +33,8 @@ export default function FotarobotaCaseStudyPage() {
   const resultsInView = useInView(resultsRef, { once: true, amount: 0.15 });
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="mx-auto max-w-4xl px-5 py-8 sm:px-6 sm:py-10">
+    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))] text-zinc-100">
+      <div className="mx-auto max-w-4xl px-5 py-8 pb-16 sm:px-6 sm:py-10 sm:pb-10">
         {/* Back to Projects */}
         <motion.div
           initial={{ opacity: 0, x: -8 }}
@@ -235,7 +235,7 @@ export default function FotarobotaCaseStudyPage() {
           className="flex flex-col items-center gap-4 border-t border-zinc-800 pt-12 text-center"
         >
           <p className="text-sm text-zinc-500">Zobacz produkt na żywo</p>
-          <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-500">
+          <Button asChild size="lg" className="min-h-12 bg-emerald-600 hover:bg-emerald-500">
             <a href="https://www.fotarobota.pl" target="_blank" rel="noopener noreferrer">
               fotarobota.pl
             </a>

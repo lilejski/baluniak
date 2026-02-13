@@ -11,27 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Code2, Briefcase } from "lucide-react";
 import { WelcomeCards } from "@/components/WelcomeCards";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 const SPLITTER = " ||| ";
 const MAX_INTERACTIONS = 3;
-
-/** Teksty (copywriting) – Premium AI Tool, edytuj tutaj */
-const COPY = {
-  tabDev: "Agent Deweloperski",
-  tabBiz: "Agent Biznesowy",
-  placeholderDev: "Oczekuję na polecenie.",
-  placeholderBiz: "Podsumowania i rekomendacje pojawią się tutaj.",
-  emptyStateTitle: "Brak odpowiedzi",
-  quickActionsTitle: "Szybkie akcje",
-  inputPlaceholder: "Wpisz polecenie lub wybierz szablon…",
-  inputAriaLabel: "Pole wprowadzania polecenia",
-  submitLabel: "Wyślij",
-  submitLoadingLabel: "Generuję…",
-  limitReachedMessage: "Limit wyczerpany. Zobacz pełną ofertę.",
-  connectionError: "Problem z połączeniem",
-  queriesCounterLabel: "Zapytania",
-} as const;
 
 function getAssistantTextContent(
   messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
@@ -107,6 +91,8 @@ function AgentWindow({
   isLoading,
   placeholder,
   theme,
+  emptyStateTitle,
+  analyzingLabel,
 }: {
   title: string;
   subtitle: string;
@@ -115,6 +101,8 @@ function AgentWindow({
   isLoading: boolean;
   placeholder: string;
   theme: "dev" | "biz";
+  emptyStateTitle: string;
+  analyzingLabel: string;
 }) {
   const isDev = theme === "dev";
   const borderCls = isDev
@@ -172,7 +160,7 @@ function AgentWindow({
               transition={{ duration: 1.4, repeat: Infinity }}
             >
               <span className={isDev ? "text-emerald-300/90" : "text-amber-200/90"}>
-                {isDev ? "Analizuję" : "Analizuję"}
+                {analyzingLabel}
               </span>
               <motion.span
                 initial={{ opacity: 0.2 }}
@@ -211,7 +199,7 @@ function AgentWindow({
                 <Briefcase className="size-8 text-amber-500/60" aria-hidden />
               )}
               <p className={cn("text-xs font-medium uppercase tracking-wider", isDev ? "text-emerald-400/80" : "text-amber-400/80")}>
-                {COPY.emptyStateTitle}
+                {emptyStateTitle}
               </p>
               <p className={cn("max-w-[220px] text-[0.7rem] leading-relaxed", isDev ? "text-emerald-500/70" : "text-amber-500/70")}>
                 {placeholder}
@@ -232,6 +220,9 @@ function AgentWindow({
 }
 
 export default function AIDuelLayout() {
+  const { dict, lang } = useLanguage();
+  const COPY = dict.agents;
+
   const [input, setInput] = useState("");
   const [devResponse, setDevResponse] = useState("");
   const [bizResponse, setBizResponse] = useState("");
@@ -277,7 +268,7 @@ export default function AIDuelLayout() {
             content: value,
             parts: [{ type: "text", text: value }],
           } as Parameters<typeof sendMessage>[0],
-          { body: { step: nextStep } }
+          { body: { step: nextStep, lang } }
         );
         setInteractionCount(nextStep);
       } catch {
@@ -376,29 +367,33 @@ export default function AIDuelLayout() {
                 <TabsContent value="dev" className="mt-0 focus-visible:outline-none">
                   <AgentWindow
                     title="DEV"
-                    subtitle="Agent"
-                    description="Kod, architektura i best practices"
+                    subtitle={COPY.agentSubtitle}
+                    description={COPY.devDescription}
                     content={devResponse}
                     isLoading={isLoading}
                     placeholder={COPY.placeholderDev}
                     theme="dev"
+                    emptyStateTitle={COPY.emptyStateTitle}
+                    analyzingLabel={COPY.analyzing}
                   />
                 </TabsContent>
                 <TabsContent value="biz" className="mt-0 focus-visible:outline-none">
                   <AgentWindow
                     title="BIZ"
-                    subtitle="Agent"
-                    description="Specjalista od ofert i follow-upów"
+                    subtitle={COPY.agentSubtitle}
+                    description={COPY.bizDescription}
                     content={bizResponse}
                     isLoading={isLoading}
                     placeholder={COPY.placeholderBiz}
                     theme="biz"
+                    emptyStateTitle={COPY.emptyStateTitle}
+                    analyzingLabel={COPY.analyzing}
                   />
                 </TabsContent>
               </Tabs>
-              {/* Spacer: miejsce na fixed input, żeby treść nie chowała się pod paskiem (safe-area) */}
+              {/* Spacer: miejsce na fixed input (thumb zone), treść nie chowa się pod paskiem */}
               <div
-                className="min-h-[4.5rem] pb-[env(safe-area-inset-bottom,0px)] md:hidden"
+                className="min-h-[5.5rem] pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
                 aria-hidden
               />
             </div>
@@ -406,7 +401,7 @@ export default function AIDuelLayout() {
             {/* Mobile: input przyklejony do dołu z safe-area */}
             {!limitReached && (
               <div
-                className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/80 pt-2 backdrop-blur-md md:hidden pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+                className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/80 pt-3 backdrop-blur-md md:hidden pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))]"
               >
                 <div className="mb-2 flex justify-center">
                   <span className="text-xs font-medium tabular-nums text-zinc-500">
@@ -430,7 +425,7 @@ placeholder={COPY.inputPlaceholder}
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="shrink-0 min-h-10 border border-emerald-500/60 bg-emerald-950/90 px-5 text-sm font-medium text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 disabled:opacity-50 disabled:shadow-none"
+                      className="shrink-0 min-h-12 min-w-12 border border-emerald-500/60 bg-emerald-950/90 px-5 text-sm font-medium text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 disabled:opacity-50 disabled:shadow-none"
                     >
                       {isLoading ? COPY.submitLoadingLabel : COPY.submitLabel}
                   </Button>
@@ -447,12 +442,14 @@ placeholder={COPY.inputPlaceholder}
                     <div className="relative flex h-[350px] flex-col">
                       <AgentWindow
                         title="DEV"
-                        subtitle="Agent"
-                        description="Kod, architektura i best practices"
+                        subtitle={COPY.agentSubtitle}
+                        description={COPY.devDescription}
                         content={devResponse}
                         isLoading={isLoading}
                         placeholder={COPY.placeholderDev}
                         theme="dev"
+                        emptyStateTitle={COPY.emptyStateTitle}
+                        analyzingLabel={COPY.analyzing}
                       />
                     </div>
                   </CardContent>
@@ -464,12 +461,14 @@ placeholder={COPY.inputPlaceholder}
                     <div className="relative flex h-[350px] flex-col">
                       <AgentWindow
                         title="BIZ"
-                        subtitle="Agent"
-                        description="Specjalista od ofert i follow-upów"
+                        subtitle={COPY.agentSubtitle}
+                        description={COPY.bizDescription}
                         content={bizResponse}
                         isLoading={isLoading}
                         placeholder={COPY.placeholderBiz}
                         theme="biz"
+                        emptyStateTitle={COPY.emptyStateTitle}
+                        analyzingLabel={COPY.analyzing}
                       />
                     </div>
                   </CardContent>
