@@ -71,14 +71,14 @@ export function HeroSection() {
       />
 
       <motion.div
-        key={lang}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.25 }}
+        layout
         className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center"
         variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
         <motion.p
+          layout
           variants={itemVariants}
           className="mb-5 flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/90 backdrop-blur-sm sm:text-sm"
         >
@@ -88,6 +88,7 @@ export function HeroSection() {
 
         <motion.h1
           id="hero-heading"
+          layout
           variants={itemVariants}
           className={cn(
             "mb-5 text-2xl font-bold leading-tight tracking-tight text-zinc-100 text-balance",
@@ -100,6 +101,7 @@ export function HeroSection() {
         </motion.h1>
 
         <motion.p
+          layout
           variants={itemVariants}
           className="mb-8 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:text-base"
         >

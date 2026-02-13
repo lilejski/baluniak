@@ -32,10 +32,7 @@ export function About() {
     >
       <div className="mx-auto max-w-5xl">
         <motion.header
-          key={lang}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          layout
           className="mb-14 text-center"
         >
           <h2

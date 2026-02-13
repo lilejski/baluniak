@@ -15,10 +15,7 @@ export function Footer() {
       <div className="border-b border-zinc-800 px-5 py-10 sm:px-6 md:py-12">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
           <motion.p
-            key={lang}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
+            layout
             className="max-w-xl text-lg font-medium leading-relaxed text-zinc-200 text-balance md:text-xl"
           >
             {copy.finalNudge}
@@ -43,10 +40,7 @@ export function Footer() {
               BALUNIAK.COM
             </p>
             <motion.p
-              key={`tagline-${lang}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
+              layout
               className="text-sm leading-relaxed text-zinc-400"
             >
               {copy.brandTagline}

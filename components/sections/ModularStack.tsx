@@ -40,7 +40,7 @@ export function ModularStack() {
     >
       <div className="mx-auto max-w-5xl">
         <motion.header
-          key={lang}
+          layout
           initial={{ opacity: 0, y: 12 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.4 }}
@@ -74,7 +74,7 @@ export function ModularStack() {
             const Icon = BLOCK_ICONS[i];
             return (
               <motion.div
-                key={`stack-${i}-${lang}`}
+                key={`stack-${i}`}
                 variants={blockVariants}
                 className="group relative z-10"
               >

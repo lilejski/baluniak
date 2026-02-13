@@ -47,7 +47,7 @@ export const translations = {
     },
     about: {
       bridgeTitle: "The Bridge",
-      headline: "The Bridge: Optymalizacja oparta na danych i ergonomii.",
+      headline: "Analiza PostHog & Ergonomia: Nie zgaduję, sprawdzam dane. Projektuję pod 'Thumb Zone', bo wiem, że na mobilkach liczy się każdy milimetr zasięgu kciuka.",
       subheadline: "Buduję produkty, które konwertują – bo je mierzę.",
       stages: [
         {
@@ -66,7 +66,7 @@ export const translations = {
           id: "scale",
           label: "Doświadczenie",
           title: "Doświadczenie skalowalne",
-          body: "Budowa nauczyła mnie dowożenia, Amazon pokazał mi skalę, a własne projekty nauczyły mnie, jak łączyć to wszystko w produkt, który po prostu działa i zarabia.",
+          body: "Doświadczenie w skali i procesach ludzkich – łączę to w produkt, który po prostu działa i zarabia.",
         },
       ],
     },
@@ -86,7 +86,10 @@ export const translations = {
       choosePath: "Wybierz ścieżkę",
       yourConfig: "Twoja Konfiguracja",
       selectPathToSeePrice: "Wybierz ścieżkę, aby zobaczyć wycenę.",
+      estimatedTotal: "Suma szacunkowa",
       sumLabel: "Suma szacunkowa:",
+      basePrice: "Cena bazowa",
+      addOns: "Dodatki",
       priceDisclaimer: "Wycena końcowa może ulec zmianie po konsultacji.",
       progressAnalysing: "Analiza Architekta…",
       terminalTitle: "AI Architect — Processing...",
@@ -249,7 +252,7 @@ export const translations = {
     },
     about: {
       bridgeTitle: "The Bridge",
-      headline: "The Bridge: Data- and ergonomics-driven optimization.",
+      headline: "PostHog Analysis & Ergonomics: I don't guess, I track. I design for the 'Thumb Zone' because I know that on mobile, every millimeter of thumb reach matters for conversion.",
       subheadline: "I build products that convert – because I measure them.",
       stages: [
         {
@@ -268,7 +271,7 @@ export const translations = {
           id: "scale",
           label: "Experience",
           title: "Scalable experience",
-          body: "Construction taught me delivery, Amazon showed me scale, and my own projects taught me how to combine it all into a product that just works and earns.",
+          body: "Background in scale and human processes – I combine it into a product that just works and earns.",
         },
       ],
     },
@@ -288,7 +291,10 @@ export const translations = {
       choosePath: "Choose path",
       yourConfig: "Your configuration",
       selectPathToSeePrice: "Choose a path to see the quote.",
+      estimatedTotal: "Estimated total",
       sumLabel: "Estimated total:",
+      basePrice: "Base price",
+      addOns: "Add-ons",
       priceDisclaimer: "Final quote may change after consultation.",
       progressAnalysing: "Architect analysis…",
       terminalTitle: "AI Architect — Processing...",

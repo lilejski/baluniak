@@ -225,7 +225,7 @@ export default function KreatorPage() {
   }, [summaryPhase, runArchitect]);
 
   const priceSummaryContent = (
-    <div className="space-y-4">
+    <motion.div layout className="space-y-4">
       <h3 className="text-base font-bold text-white">
         {k.yourConfig}
       </h3>
@@ -260,7 +260,7 @@ export default function KreatorPage() {
               transition={{ duration: 0.2 }}
               className="text-2xl font-bold tabular-nums text-emerald-500"
             >
-              {k.sumLabel} {displayTotal.toLocaleString("pl-PL")} PLN
+              {k.estimatedTotal}: {displayTotal.toLocaleString("pl-PL")} PLN
             </motion.p>
           </div>
           <p className="text-xs text-zinc-500">
@@ -268,7 +268,7 @@ export default function KreatorPage() {
           </p>
         </>
       )}
-    </div>
+    </motion.div>
   );
 
   return (
@@ -282,10 +282,7 @@ export default function KreatorPage() {
       `}</style>
       <div className={cn("mx-auto", summaryPhase === "idle" ? "max-w-6xl" : "max-w-3xl")}>
         <motion.h1
-          key={lang}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          layout
           className="mb-2 text-2xl font-bold text-zinc-100"
         >
           {k.title}
