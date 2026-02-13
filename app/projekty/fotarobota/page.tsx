@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowLeft, Camera, Zap, CreditCard, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -23,6 +24,9 @@ const itemVariants = {
 };
 
 export default function FotarobotaCaseStudyPage() {
+  const { dict } = useLanguage();
+  const f = dict.fotarobotaPage;
+
   const problemRef = useRef<HTMLElement>(null);
   const solutionRef = useRef<HTMLElement>(null);
   const techRef = useRef<HTMLElement>(null);
@@ -35,7 +39,6 @@ export default function FotarobotaCaseStudyPage() {
   return (
     <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))] text-zinc-100">
       <div className="mx-auto max-w-4xl px-5 py-8 pb-16 sm:px-6 sm:py-10 sm:pb-10">
-        {/* Back to Projects */}
         <motion.div
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
@@ -45,12 +48,11 @@ export default function FotarobotaCaseStudyPage() {
           <Button variant="ghost" size="sm" asChild className="text-zinc-400 hover:text-zinc-200">
             <Link href="/projekty" className="inline-flex items-center gap-2">
               <ArrowLeft className="size-4" />
-              Powrót do projektów
+              {f.backToProjects}
             </Link>
           </Button>
         </motion.div>
 
-        {/* HERO */}
         <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -58,16 +60,15 @@ export default function FotarobotaCaseStudyPage() {
           className="mb-12 sm:mb-16"
         >
           <h1 className="mb-4 text-3xl font-bold tracking-tight text-zinc-100 text-balance sm:text-4xl md:text-5xl">
-            Fotarobota: AI-Powered Photo Transformation
+            {f.heroTitle}
           </h1>
           <p className="mb-2 text-lg text-zinc-400 text-balance sm:text-xl">
-            Od pomysłu do działającego SaaS w 2 tygodnie.
+            {f.heroSubline}
           </p>
           <p className="text-sm text-zinc-500">
-            Rewolucja w branży zdjęć produktowych: profesjonalne portrety w kilka sekund zamiast wielogodzinnych sesji.
+            {f.heroSubtext}
           </p>
 
-          {/* 16:9 Video Demo placeholder */}
           <div
             className="mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_0_40px_rgba(16,185,129,0.12)]"
             style={{ aspectRatio: "16/9" }}
@@ -75,8 +76,8 @@ export default function FotarobotaCaseStudyPage() {
             <div className="flex h-full w-full items-center justify-center bg-zinc-900">
               <div className="text-center">
                 <Camera className="mx-auto size-14 text-zinc-600" aria-hidden />
-                <p className="mt-3 text-sm font-medium text-zinc-500">Demo wideo (placeholder)</p>
-                <p className="mt-1 text-xs text-zinc-600">Wstaw tutaj embed lub link do wideo</p>
+                <p className="mt-3 text-sm font-medium text-zinc-500">{f.videoPlaceholderTitle}</p>
+                <p className="mt-1 text-xs text-zinc-600">{f.videoPlaceholderSub}</p>
               </div>
             </div>
           </div>
@@ -234,7 +235,7 @@ export default function FotarobotaCaseStudyPage() {
           transition={{ delay: 0.3 }}
           className="flex flex-col items-center gap-4 border-t border-zinc-800 pt-12 text-center"
         >
-          <p className="text-sm text-zinc-500">Zobacz produkt na żywo</p>
+          <p className="text-sm text-zinc-500">{f.viewProductLive}</p>
           <Button asChild size="lg" className="min-h-12 bg-emerald-600 hover:bg-emerald-500">
             <a href="https://www.fotarobota.pl" target="_blank" rel="noopener noreferrer">
               fotarobota.pl

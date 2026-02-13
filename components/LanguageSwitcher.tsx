@@ -43,7 +43,11 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
     >
       <button
         type="button"
-        onClick={() => setLang("PL")}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setLang("PL");
+        }}
         className={cn(
           "flex size-9 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
           lang === "PL"
@@ -57,7 +61,11 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
       </button>
       <button
         type="button"
-        onClick={() => setLang("EN")}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setLang("EN");
+        }}
         className={cn(
           "flex size-9 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
           lang === "EN"

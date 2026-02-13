@@ -5,51 +5,54 @@ import Image from "next/image";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink, LayoutGrid } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/SpotlightCard";
 
-const projects: Array<{
+const projectMeta: Array<{
+  titleKey: "fotarobota" | "saasStarter" | "aiAutomations";
   title: string;
-  description: string;
   href: string;
   externalUrl?: string;
-  tag: string;
   span: string;
   placeholder?: boolean;
-  /** Main card: show holographic preview image */
   featured?: boolean;
-  /** Path to local preview image (e.g. /fotarobota-preview.png) */
   image?: string;
 }> = [
   {
+    titleKey: "fotarobota",
     title: "Fotarobota",
-    description: "SaaS automation tool for photographers.",
     href: "/projekty/fotarobota",
     externalUrl: "https://www.fotarobota.pl",
-    tag: "Case study",
     span: "md:col-span-2 md:row-span-2",
     featured: true,
     image: "/fotarobota-preview.png",
   },
   {
+    titleKey: "saasStarter",
     title: "SaaS Starter Kit",
-    description: "Next.js 15 Boilerplate.",
     href: "/projekty",
-    tag: "Wkrótce",
     span: "md:col-span-1 md:row-span-1",
     placeholder: true,
   },
   {
+    titleKey: "aiAutomations",
     title: "AI Automations",
-    description: "Custom workflows.",
     href: "/projekty",
-    tag: "Wkrótce",
     span: "md:col-span-1 md:row-span-1",
     placeholder: true,
   },
 ];
 
 export function Projects() {
+  const { dict } = useLanguage();
+  const p = dict.projects;
+  const descriptions: Record<string, string> = {
+    fotarobota: p.fotarobotaDesc,
+    saasStarter: "Next.js 15 Boilerplate.",
+    aiAutomations: "Custom workflows.",
+  };
+
   return (
     <section
       id="projekty"
@@ -61,14 +64,14 @@ export function Projects() {
           id="projects-heading"
           className="mb-10 text-2xl font-semibold tracking-tight text-zinc-100 md:text-3xl"
         >
-          Projekty
+          {p.sectionTitle}
         </h2>
         {/* Bento grid: CSS Grid with varied cell spans; perspective for 3D tilt */}
         <div
           className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-5"
           style={{ gridAutoRows: "minmax(140px, auto)", perspective: 1200 }}
         >
-          {projects.map((project) => (
+          {projectMeta.map((project) => (
             <SpotlightCard
               key={project.title}
               spanClassName={project.span}
@@ -78,7 +81,6 @@ export function Projects() {
                 project.featured && "group"
               )}
             >
-              {/* Holographic preview: image background + gradient overlay (featured with image) */}
               {project.featured && project.image && (
                 <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
                   <Image
@@ -119,7 +121,7 @@ export function Projects() {
                           : "border-emerald-400/80 bg-black/80 text-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                       )}
                     >
-                      {project.tag}
+                      {project.placeholder ? p.comingSoon : p.caseStudyTag}
                     </span>
                     <CardTitle className="mt-2 text-lg leading-none font-semibold text-card-foreground md:text-xl">
                       {project.title}
@@ -128,7 +130,7 @@ export function Projects() {
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-between space-y-4">
                   <CardDescription className="text-muted-foreground text-sm">
-                    {project.description}
+                    {descriptions[project.titleKey]}
                   </CardDescription>
                   <div className="flex flex-wrap gap-3">
                     {project.externalUrl && (
@@ -138,14 +140,14 @@ export function Projects() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Visit
+                          {p.visit}
                           <ExternalLink className="ml-1 size-4" />
                         </a>
                       </Button>
                     )}
                     <Button variant="outline" size="sm" asChild>
                       <Link href={project.href}>
-                        {project.placeholder ? "Wkrótce" : "Zobacz case study"}
+                        {project.placeholder ? p.comingSoon : p.caseStudyBtn}
                         <ArrowRight className="ml-1 size-4" />
                       </Link>
                     </Button>
@@ -154,17 +156,16 @@ export function Projects() {
               </div>
             </SpotlightCard>
           ))}
-          {/* Bento cell: CTA to all projects */}
           <SpotlightCard
             spanClassName="md:col-span-2 md:row-span-1"
             accent="amber"
           >
             <CardContent className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
               <LayoutGrid className="size-10 text-muted-foreground" aria-hidden />
-              <p className="text-sm font-medium text-muted-foreground">Wszystkie projekty</p>
+              <p className="text-sm font-medium text-muted-foreground">{p.allProjects}</p>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/projekty">
-                  Zobacz listę
+                  {p.viewList}
                   <ArrowRight className="ml-1 size-4" />
                 </Link>
               </Button>

@@ -2,39 +2,21 @@
 
 import { motion } from "framer-motion";
 import { MessageSquare, Cpu, GitCompare } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const steps: Array<{
-  step: number;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  accent: "emerald" | "amber";
-}> = [
-  {
-    step: 1,
-    title: "Wpisz pytanie",
-    description: "Jedno pole—np. „Jak zbudować API w Next.js?” lub „Ile to będzie kosztować?”",
-    icon: MessageSquare,
-    accent: "emerald",
-  },
-  {
-    step: 2,
-    title: "DEV i BIZ odpowiadają",
-    description: "Techniczna perspektywa (kod, architektura) i biznesowa (koszty, ryzyko, rekomendacje).",
-    icon: Cpu,
-    accent: "amber",
-  },
-  {
-    step: 3,
-    title: "Porównaj i decyduj",
-    description: "Masz obie odpowiedzi obok siebie. Jedna wgląd—dwa punkty widzenia.",
-    icon: GitCompare,
-    accent: "emerald",
-  },
-];
+const STEP_ICONS = [MessageSquare, Cpu, GitCompare] as const;
+const STEP_ACCENTS: Array<"emerald" | "amber"> = ["emerald", "amber", "emerald"];
 
 export function OnboardingSteps() {
+  const { dict } = useLanguage();
+  const h = dict.howItWorks;
+  const steps = [
+    { step: 1, title: h.step1Title, description: h.step1Desc },
+    { step: 2, title: h.step2Title, description: h.step2Desc },
+    { step: 3, title: h.step3Title, description: h.step3Desc },
+  ];
+
   return (
     <section
       id="jak-to-dziala"
@@ -46,42 +28,43 @@ export function OnboardingSteps() {
           id="onboarding-heading"
           className="mb-10 text-center text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl md:mb-12 md:text-3xl"
         >
-          Jak to działa
+          {h.title}
         </h2>
         <ol className="space-y-6 sm:space-y-8">
-          {steps.map(({ step, title, description, icon: Icon, accent }, i) => (
-            <motion.li
-              key={step}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.35, delay: i * 0.08 }}
-              className="flex gap-4 sm:gap-5"
-            >
-              <div
-                className={cn(
-                  "flex size-11 shrink-0 items-center justify-center rounded-xl border sm:size-12",
-                  accent === "emerald"
-                    ? "border-emerald-500/40 bg-emerald-950/50 text-emerald-400"
-                    : "border-amber-500/40 bg-amber-950/30 text-amber-400"
-                )}
-                aria-hidden
+          {steps.map(({ step, title, description }, i) => {
+            const Icon = STEP_ICONS[i];
+            const accent = STEP_ACCENTS[i];
+            return (
+              <motion.li
+                key={step}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.35, delay: i * 0.08 }}
+                className="flex gap-4 sm:gap-5"
               >
-                <Icon className="size-5 sm:size-6" />
-              </div>
-              <div className="min-w-0 flex-1 pt-0.5">
-                <p className="mb-1 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:text-sm">
-                  Krok {step}
-                </p>
-                <h3 className="mb-2 text-lg font-semibold text-zinc-100 sm:text-xl">
-                  {title}
-                </h3>
-                <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
-                  {description}
-                </p>
-              </div>
-            </motion.li>
-          ))}
+                <div
+                  className={cn(
+                    "flex size-11 shrink-0 items-center justify-center rounded-xl border sm:size-12",
+                    accent === "emerald"
+                      ? "border-emerald-500/40 bg-emerald-950/50 text-emerald-400"
+                      : "border-amber-500/40 bg-amber-950/30 text-amber-400"
+                  )}
+                  aria-hidden
+                >
+                  <Icon className="size-5 sm:size-6" />
+                </div>
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <h3 className="mb-2 text-lg font-semibold text-zinc-100 sm:text-xl">
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+                    {description}
+                  </p>
+                </div>
+              </motion.li>
+            );
+          })}
         </ol>
       </div>
     </section>

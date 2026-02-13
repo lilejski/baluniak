@@ -46,9 +46,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (!mounted || typeof document === "undefined") return;
     document.documentElement.lang = lang === "PL" ? "pl" : "en";
-  }, [lang]);
+  }, [lang, mounted]);
 
   const setLang = useCallback((next: Language) => {
     setLangState(next);
@@ -59,19 +59,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const effectiveLang = mounted ? lang : "PL";
   const t = useCallback(
-    (path: string) => tRaw(mounted ? lang : "PL", path),
-    [lang, mounted]
+    (path: string) => tRaw(effectiveLang, path),
+    [effectiveLang]
   );
 
   const dict = useMemo(
-    () => translations[lang],
-    [lang]
+    () => translations[effectiveLang],
+    [effectiveLang]
   );
 
   const value = useMemo<LanguageContextValue>(
-    () => ({ lang, setLang, t, dict }),
-    [lang, setLang, t, dict]
+    () => ({ lang: effectiveLang, setLang, t, dict }),
+    [effectiveLang, setLang, t, dict]
   );
 
   return (

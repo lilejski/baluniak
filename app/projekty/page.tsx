@@ -1,13 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ProjektyPage() {
+  const { dict } = useLanguage();
+  const proj = dict.projektyPage;
+  const p = dict.projects;
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-2xl font-semibold text-zinc-100">Projekty</h1>
+      <h1 className="text-2xl font-semibold text-zinc-100">{proj.title}</h1>
       <p className="mt-2 text-zinc-500">
-        Wybrane realizacje i case study.
+        {proj.subtitle}
       </p>
 
       {/* Segment: Fotarobota */}
@@ -16,7 +23,7 @@ export default function ProjektyPage() {
           <div className="relative aspect-video md:aspect-auto md:min-h-[280px]">
             <Image
               src="/fotarobota-preview.png"
-              alt="Fotarobota — zautomatyzowane zdjęcia produktowe"
+              alt="Fotarobota"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -26,13 +33,13 @@ export default function ProjektyPage() {
           </div>
           <div className="flex flex-col justify-center p-6 md:p-8">
             <span className="mb-2 inline-block w-fit rounded-full border border-emerald-400/60 bg-emerald-950/40 px-3 py-1 text-xs font-medium uppercase tracking-wider text-emerald-300">
-              Case study
+              {proj.caseStudyTag}
             </span>
             <h2 className="text-xl font-semibold text-zinc-100 md:text-2xl">
               Fotarobota
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Strona internetowa będąca zautomatyzowanym narzędziem do tworzenia zdjęć produktowych, zasilana sztuczną inteligencją.
+              {p.fotarobotaDesc}
             </p>
             <a
               href="https://www.fotarobota.pl"
@@ -49,7 +56,7 @@ export default function ProjektyPage() {
 
       <p className="mt-8 text-center text-sm text-zinc-500">
         <Link href="/#projekty" className="text-zinc-400 hover:text-zinc-300">
-          ← Wróć do sekcji Projekty na stronie głównej
+          {dict.fotarobotaPage.backToProjectsHome}
         </Link>
       </p>
     </main>
