@@ -222,6 +222,7 @@ function AgentWindow({
 export default function AIDuelLayout() {
   const { dict, lang } = useLanguage();
   const COPY = dict.agents;
+  const CONSOLE = dict.console;
 
   const [input, setInput] = useState("");
   const [devResponse, setDevResponse] = useState("");
@@ -417,7 +418,7 @@ export default function AIDuelLayout() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-placeholder={COPY.inputPlaceholder}
+placeholder={CONSOLE.inputPlaceholder}
                       disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
                       aria-label={COPY.inputAriaLabel}
@@ -427,7 +428,7 @@ placeholder={COPY.inputPlaceholder}
                       disabled={isLoading}
                       className="shrink-0 min-h-12 min-w-12 border border-emerald-500/60 bg-emerald-950/90 px-5 text-sm font-medium text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 disabled:opacity-50 disabled:shadow-none"
                     >
-                      {isLoading ? COPY.submitLoadingLabel : COPY.submitLabel}
+                      {isLoading ? CONSOLE.buttonSubmitting : CONSOLE.buttonSubmit}
                   </Button>
                 </form>
               </div>
@@ -491,7 +492,7 @@ placeholder={COPY.inputPlaceholder}
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={COPY.inputPlaceholder}
+                      placeholder={CONSOLE.inputPlaceholder}
                       disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
                       aria-label={COPY.inputAriaLabel}
@@ -501,7 +502,7 @@ placeholder={COPY.inputPlaceholder}
                       disabled={isLoading}
                       className="shrink-0 min-h-10 border border-emerald-500/60 bg-emerald-950/90 px-5 text-sm font-medium text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 hover:shadow-[0_0_16px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:shadow-none md:px-6 md:text-base"
                     >
-                      {isLoading ? COPY.submitLoadingLabel : COPY.submitLabel}
+                      {isLoading ? CONSOLE.buttonSubmitting : CONSOLE.buttonSubmit}
                     </Button>
                   </form>
                 </div>
@@ -513,7 +514,7 @@ placeholder={COPY.inputPlaceholder}
             {limitReached && (
               <div className="border-t border-white/10 px-4 py-8">
                 <p className="text-center text-base font-medium text-zinc-300">
-                  {COPY.limitReachedMessage}
+                  {CONSOLE.limitMessage}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                   <Link href="/projekty">

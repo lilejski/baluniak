@@ -7,6 +7,7 @@ import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Zap, Send, MessageSquare, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 const CAL_COM_LINK = "baluniak/30min";
@@ -30,8 +31,10 @@ const PROJECT_TYPE_OPTIONS: { value: FastTrackFormData["projectType"]; label: st
 ];
 
 export default function WspolpracaPage() {
+  const { dict } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const calRef = useRef<HTMLDivElement>(null);
+  const fp = dict.formPlaceholders;
 
   const {
     register,
@@ -129,7 +132,7 @@ export default function WspolpracaPage() {
                             "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
                             errors.name ? "border-rose-500/50" : "border-zinc-700"
                           )}
-                          placeholder="Jan Kowalski lub Acme Sp. z o.o."
+                          placeholder={fp.namePlaceholder}
                         />
                         {errors.name && (
                           <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>
@@ -148,7 +151,7 @@ export default function WspolpracaPage() {
                             "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
                             errors.email ? "border-rose-500/50" : "border-zinc-700"
                           )}
-                          placeholder="jan@firma.pl"
+                          placeholder={fp.emailPlaceholder}
                         />
                         {errors.email && (
                           <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>
@@ -191,7 +194,7 @@ export default function WspolpracaPage() {
                             "w-full resize-none rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
                             errors.message ? "border-rose-500/50" : "border-zinc-700"
                           )}
-                          placeholder="Opisz w 2–3 zdaniach, nad czym chcesz pracować."
+                          placeholder={fp.messagePlaceholder}
                         />
                         {errors.message && (
                           <p className="mt-1 text-xs text-rose-400">{errors.message.message}</p>
