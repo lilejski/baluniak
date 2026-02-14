@@ -56,20 +56,24 @@ CRITICAL: This is the LAST (third) interaction in this session. Answer the user'
 } as const;
 
 export async function POST(req: Request) {
+  let body: { messages?: UIMessage[]; step?: number; lang?: "PL" | "EN" } = {};
   try {
-    const body = (await req.json()) as {
-      messages?: UIMessage[];
-      step?: number;
-      lang?: "PL" | "EN";
-    };
-    const messages: UIMessage[] = Array.isArray(body?.messages)
-      ? body.messages
-      : [];
-    const step = body?.step;
-    const safeStep = typeof step === "number" && step >= 1 ? step : 1;
-    const lang = body?.lang === "EN" ? "EN" : "PL";
-    const COPY = lang === "EN" ? COPY_EN : COPY_PL;
+    body = (await req.json()) as typeof body;
+  } catch (parseErr) {
+    console.error("[chat] Invalid JSON body:", parseErr);
+    return new Response(
+      JSON.stringify({ error: COPY_PL.ERROR_API }),
+      { status: 400 }
+    );
+  }
 
+  const messages: UIMessage[] = Array.isArray(body?.messages) ? body.messages : [];
+  const step = body?.step;
+  const safeStep = typeof step === "number" && step >= 1 ? step : 1;
+  const lang = body?.lang === "EN" ? "EN" : "PL";
+  const COPY = lang === "EN" ? COPY_EN : COPY_PL;
+
+  try {
     const isLastStep = safeStep >= 3;
     const systemPrompt = isLastStep
       ? COPY.BASE_SYSTEM + COPY.LAST_STEP_APPEND
@@ -85,10 +89,9 @@ export async function POST(req: Request) {
       originalMessages: messages,
     });
   } catch (error) {
-    console.error("BŁĄD API:", error);
-    return new Response(
-      JSON.stringify({ error: COPY_PL.ERROR_API }),
-      { status: 500 }
-    );
+    console.error("[chat] API error:", error);
+    return new Response(JSON.stringify({ error: COPY.ERROR_API }), {
+      status: 500,
+    });
   }
 }

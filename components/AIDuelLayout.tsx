@@ -18,12 +18,18 @@ const SPLITTER = " ||| ";
 const MAX_INTERACTIONS = 3;
 
 function getAssistantTextContent(
-  messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
+  messages: {
+    role: string;
+    parts?: Array<{ type: string; text?: string }>;
+    content?: string;
+  }[]
 ): string {
   const lastAssistant = [...messages]
     .reverse()
     .find((m) => m.role === "assistant");
-  if (!lastAssistant?.parts) return "";
+  if (!lastAssistant) return "";
+  if (typeof lastAssistant.content === "string") return lastAssistant.content;
+  if (!lastAssistant.parts?.length) return "";
   return lastAssistant.parts
     .filter(
       (p): p is { type: string; text: string } =>
@@ -45,10 +51,17 @@ function isNeedMoreDataResponse(content: string): boolean {
 
 /** Czy w historii jest jakakolwiek treść od użytkownika (niepuste wiadomości) */
 function hasUserContent(
-  messages: { role: string; parts?: Array<{ type: string; text?: string }> }[]
+  messages: {
+    role: string;
+    parts?: Array<{ type: string; text?: string }>;
+    content?: string;
+  }[]
 ): boolean {
   return messages.some((m) => {
-    if (m.role !== "user" || !m.parts) return false;
+    if (m.role !== "user") return false;
+    if (typeof (m as { content?: string }).content === "string")
+      return (m as { content: string }).content.trim().length > 0;
+    if (!m.parts?.length) return false;
     const text = m.parts
       .filter(
         (p): p is { type: string; text: string } =>
@@ -244,8 +257,13 @@ export default function AIDuelLayout() {
       return;
     }
     const parts = content.split(SPLITTER);
-    setDevResponse(parts[0]?.trim() ?? "");
-    setBizResponse(parts[1]?.trim() ?? "");
+    const dev = parts[0]?.trim() ?? "";
+    const biz = parts[1]?.trim() ?? "";
+    setDevResponse(dev);
+    setBizResponse(biz);
+    if (process.env.NODE_ENV === "development" && content && biz === "" && parts.length === 1) {
+      console.debug("[AIDuel] No BIZ segment in response (missing ' ||| '). Full length:", content.length);
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -272,12 +290,14 @@ export default function AIDuelLayout() {
           { body: { step: nextStep, lang } }
         );
         setInteractionCount(nextStep);
-      } catch {
-        // on error don't increment
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("[AIDuel] sendMessage error:", err);
+        }
       }
       setInput("");
     },
-    [input, isLoading, interactionCount, sendMessage]
+    [input, isLoading, interactionCount, sendMessage, lang]
   );
 
   const inputRefMobile = useRef<HTMLInputElement>(null);
@@ -450,8 +470,8 @@ export default function AIDuelLayout() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-placeholder={CONSOLE.inputPlaceholder}
-                      disabled={isLoading}
+                    placeholder={CONSOLE.inputPlaceholder}
+                    disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
                       aria-label={COPY.inputAriaLabel}
                     />

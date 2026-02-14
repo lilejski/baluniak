@@ -61,7 +61,7 @@ const techIcons: Record<string, ComponentType<{ className?: string }>> = {
 };
 
 export function Projects() {
-  const { dict, localeSegment } = useLanguage();
+  const { dict, localeSegment, lang } = useLanguage();
   const p = dict.projects;
   const descriptions: Record<string, string> = {
     fotarobota: p.fotarobotaDesc,
@@ -74,6 +74,7 @@ export function Projects() {
   return (
     <section
       id="projekty"
+      key={`projects-${lang}`}
       className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="projects-heading"
     >
