@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CAL_ORIGIN = "https://cal.com";
 const CAL_LINK = "łukasz-bałuniak-wafkto/30min";
@@ -26,12 +27,20 @@ function CalEmbedFallback({ message, email }: { message: string; email: string }
 }
 
 export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
+  const { lang } = useLanguage();
+  const calLocale = lang === "PL" ? "pl" : "en";
+
   const [mounted, setMounted] = useState(false);
   const [loadError, setLoadError] = useState(false);
   type CalComponentProps = {
     calLink: string;
     calOrigin: string;
-    config?: { theme?: string; primaryColor?: string };
+    config?: {
+      theme?: string;
+      primaryColor?: string;
+      locale?: string;
+      hideEventTypeDetails?: boolean;
+    };
   };
   const [CalComponent, setCalComponent] = useState<React.ComponentType<CalComponentProps> | null>(null);
 
@@ -84,11 +93,14 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
       style={{ minHeight: "700px" }}
     >
       <CalComponent
+        key={lang}
         calLink={CAL_LINK}
         calOrigin={CAL_ORIGIN}
         config={{
           theme: "dark",
           primaryColor: PRIMARY_COLOR,
+          locale: calLocale,
+          hideEventTypeDetails: false,
         }}
       />
     </div>
