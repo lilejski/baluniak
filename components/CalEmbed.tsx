@@ -28,11 +28,12 @@ function CalEmbedFallback({ message, email }: { message: string; email: string }
 export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
   const [mounted, setMounted] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [CalComponent, setCalComponent] = useState<React.ComponentType<{
+  type CalComponentProps = {
     calLink: string;
     calOrigin: string;
     config?: { theme?: string; primaryColor?: string };
-  }> | null>(null);
+  };
+  const [CalComponent, setCalComponent] = useState<React.ComponentType<CalComponentProps> | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -43,7 +44,7 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
     let cancelled = false;
     import("@calcom/embed-react")
       .then((mod) => {
-        if (!cancelled) setCalComponent(() => mod.default);
+        if (!cancelled) setCalComponent(() => mod.default as React.ComponentType<CalComponentProps>);
       })
       .catch(() => {
         if (!cancelled) setLoadError(true);
