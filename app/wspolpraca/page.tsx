@@ -1,40 +1,54 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Zap, Send, MessageSquare, CheckCircle } from "lucide-react";
+import { Calendar, Send, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CalEmbed } from "@/components/CalEmbed";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const CAL_COM_LINK = "baluniak/30min";
+const PROJECT_TYPE_VALUES = ["mvp80", "konsultacja-ai", "audyt", "inne"] as const;
+type ProjectType = (typeof PROJECT_TYPE_VALUES)[number];
 
-const fastTrackSchema = z.object({
-  name: z.string().min(1, "Podaj imię lub firmę"),
-  email: z.string().email("Podaj poprawny email"),
-  projectType: z.enum(["mvp80", "konsultacja-ai", "audyt", "inne"], {
-    message: "Wybierz rodzaj współpracy",
-  }),
-  message: z.string().min(1, "Opisz krótko wyzwanie"),
-});
-
-type FastTrackFormData = z.infer<typeof fastTrackSchema>;
-
-const PROJECT_TYPE_OPTIONS: { value: FastTrackFormData["projectType"]; label: string }[] = [
-  { value: "mvp80", label: "MVP w 80h" },
-  { value: "konsultacja-ai", label: "Konsultacja AI" },
-  { value: "audyt", label: "Audyt Produktu" },
-  { value: "inne", label: "Inne" },
-];
+function getProjectTypeOptions(w: {
+  projectTypeMvp80: string;
+  projectTypeKonsultacjaAi: string;
+  projectTypeAudyt: string;
+  projectTypeInne: string;
+}): { value: ProjectType; label: string }[] {
+  return [
+    { value: "mvp80", label: w.projectTypeMvp80 },
+    { value: "konsultacja-ai", label: w.projectTypeKonsultacjaAi },
+    { value: "audyt", label: w.projectTypeAudyt },
+    { value: "inne", label: w.projectTypeInne },
+  ];
+}
 
 export default function WspolpracaPage() {
-  const { dict } = useLanguage();
+  const { dict, lang } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const calRef = useRef<HTMLDivElement>(null);
   const fp = dict.formPlaceholders;
+  const w = dict.wspolpraca;
+
+  const fastTrackSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, w.errorName),
+        email: z.string().email(w.errorEmail),
+        projectType: z.enum(PROJECT_TYPE_VALUES, { message: w.errorProjectType }),
+        message: z.string().min(1, w.errorMessage),
+      }),
+    [w.errorName, w.errorEmail, w.errorProjectType, w.errorMessage]
+  );
+
+  type FastTrackFormData = z.infer<typeof fastTrackSchema>;
+
+  const projectTypeOptions = useMemo(() => getProjectTypeOptions(w), [w]);
 
   const {
     register,
@@ -68,10 +82,10 @@ export default function WspolpracaPage() {
       <div className="mx-auto max-w-6xl px-4 py-12 pb-24 sm:px-6 lg:py-16 lg:pb-16">
         <header className="mb-10 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
-            Fast-Track: Zacznijmy budować.
+            {w.pageTitle}
           </h1>
           <p className="mt-3 text-zinc-400 sm:text-lg">
-            Wybierz termin w kalendarzu lub zostaw krótką wiadomość. Od startu Twojego projektu dzieli Cię 30 sekund.
+            {w.pageSubtitle}
           </p>
         </header>
 
@@ -84,7 +98,7 @@ export default function WspolpracaPage() {
                 <span className="size-2 rounded-full bg-zinc-600" />
                 <span className="size-2 rounded-full bg-zinc-600" />
                 <span className="ml-2 text-xs font-medium text-zinc-500">
-                  Fast-Track Contact
+                  {w.formTitle}
                 </span>
               </div>
               <div className="p-5 sm:p-6">
@@ -106,10 +120,10 @@ export default function WspolpracaPage() {
                         <CheckCircle className="size-8 text-emerald-400" />
                       </motion.div>
                       <p className="text-lg font-medium text-zinc-100">
-                        Zgłoszenie wysłane.
+                        {w.successTitle}
                       </p>
                       <p className="mt-1 text-sm text-zinc-500">
-                        Przejdź do kalendarza poniżej i zarezerwuj termin.
+                        {w.successHint}
                       </p>
                     </motion.div>
                   ) : (
@@ -120,10 +134,11 @@ export default function WspolpracaPage() {
                       exit={{ opacity: 0 }}
                       onSubmit={handleSubmit(onSubmit)}
                       className="space-y-5"
+                      key={lang}
                     >
                       <div>
                         <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          Imię / Firma
+                          {w.labelName}
                         </label>
                         <input
                           id="name"
@@ -141,7 +156,7 @@ export default function WspolpracaPage() {
 
                       <div>
                         <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          Email
+                          {w.labelEmail}
                         </label>
                         <input
                           id="email"
@@ -160,7 +175,7 @@ export default function WspolpracaPage() {
 
                       <div>
                         <label htmlFor="projectType" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          W czym mogę pomóc?
+                          {w.labelHowCanIHelp}
                         </label>
                         <select
                           id="projectType"
@@ -170,8 +185,8 @@ export default function WspolpracaPage() {
                             errors.projectType ? "border-rose-500/50" : "border-zinc-700"
                           )}
                         >
-                          <option value="">— wybierz —</option>
-                          {PROJECT_TYPE_OPTIONS.map(({ value, label }) => (
+                          <option value="">{w.selectPlaceholder}</option>
+                          {projectTypeOptions.map(({ value, label }) => (
                             <option key={value} value={value}>
                               {label}
                             </option>
@@ -184,7 +199,7 @@ export default function WspolpracaPage() {
 
                       <div>
                         <label htmlFor="message" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          Krótki opis wyzwania
+                          {w.labelMessage}
                         </label>
                         <textarea
                           id="message"
@@ -208,11 +223,11 @@ export default function WspolpracaPage() {
                         className="min-h-12 w-full bg-emerald-600 font-semibold hover:bg-emerald-500"
                       >
                         <Send className="mr-2 size-5 shrink-0" />
-                        {isSubmitting ? "Wysyłanie…" : "Wyślij i przejdź do kalendarza"}
+                        {isSubmitting ? w.submitting : w.submitButton}
                       </Button>
 
                       <p className="text-center text-xs text-zinc-500">
-                        Gwarantowana odpowiedź w 12h lub darmowa konsultacja.
+                        {w.guarantee}
                       </p>
                     </motion.form>
                   )}
@@ -227,15 +242,13 @@ export default function WspolpracaPage() {
               <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
                 <Calendar className="size-4 text-emerald-500" />
                 <span className="text-sm font-medium text-zinc-300">
-                  Zarezerwuj termin bezpośrednio
+                  {w.calendarTitle}
                 </span>
               </div>
               <div className="relative min-h-[500px] w-full">
-                <iframe
-                  title="Cal.com — rezerwacja 30 min"
-                  src={`https://cal.com/${CAL_COM_LINK}?theme=dark`}
-                  className="h-[600px] w-full border-0"
-                  style={{ minHeight: "500px" }}
+                <CalEmbed
+                  fallbackMessage={w.calendarLoadError}
+                  fallbackEmail={dict.footer.email}
                 />
               </div>
             </div>
