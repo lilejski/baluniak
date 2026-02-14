@@ -68,7 +68,8 @@ export function Projects() {
     saasStarter: p.saasStarterDesc,
     aiAutomations: p.aiAutomationsDesc,
   };
-  const hasNarrative = (key: string) => key === "fotarobota";
+  /** Projects with Problem/Solution/Result copy (typed keys, no Record cast). */
+  const hasNarrative = (key: string): key is "fotarobota" => key === "fotarobota";
 
   return (
     <section
@@ -154,7 +155,7 @@ export function Projects() {
                             {p.problemLabel}
                           </span>
                           <p className="mt-0.5 text-muted-foreground">
-                            {(p as Record<string, string>)[`${project.titleKey}Problem`]}
+                            {p.fotarobotaProblem}
                           </p>
                         </div>
                         <div>
@@ -162,7 +163,7 @@ export function Projects() {
                             {p.solutionLabel}
                           </span>
                           <p className="mt-0.5 text-muted-foreground">
-                            {(p as Record<string, string>)[`${project.titleKey}Solution`]}
+                            {p.fotarobotaSolution}
                           </p>
                         </div>
                         <div>
@@ -170,7 +171,7 @@ export function Projects() {
                             {p.resultLabel}
                           </span>
                           <p className="mt-0.5 text-muted-foreground">
-                            {(p as Record<string, string>)[`${project.titleKey}Result`]}
+                            {p.fotarobotaResult}
                           </p>
                         </div>
                         <div>
@@ -178,28 +179,26 @@ export function Projects() {
                             {p.metricsLabel}
                           </span>
                           <p className="mt-0.5 text-muted-foreground">
-                            {(p as Record<string, string>)[`${project.titleKey}Metrics`]}
+                            {p.fotarobotaMetrics}
                           </p>
                         </div>
                       </div>
-                      {Array.isArray((p as Record<string, unknown>)[`${project.titleKey}Tech`]) && (
-                        <div className="flex flex-wrap gap-2">
-                          {((p as Record<string, string[]>)[`${project.titleKey}Tech`] as string[]).map((key) => {
-                            const Icon = techIcons[key];
-                            const label = p.techLabels?.[key as keyof typeof p.techLabels] ?? key;
-                            return (
-                              <span
-                                key={key}
-                                className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-zinc-300"
-                                title={label}
-                              >
-                                {Icon ? <Icon className="size-3.5 shrink-0 opacity-80" /> : null}
-                                <span>{label}</span>
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {p.fotarobotaTech.map((key) => {
+                          const Icon = techIcons[key];
+                          const label = p.techLabels[key] ?? key;
+                          return (
+                            <span
+                              key={key}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-zinc-300"
+                              title={label}
+                            >
+                              {Icon ? <Icon className="size-3.5 shrink-0 opacity-80" /> : null}
+                              <span>{label}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
                     </>
                   ) : (
                     <CardDescription className="text-muted-foreground text-sm">
