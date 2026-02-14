@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const projects = [
   {
@@ -14,6 +17,7 @@ const projects = [
 ] as const;
 
 export function ProjectsSection() {
+  const { localeSegment } = useLanguage();
   return (
     <section
       id="projekty"
@@ -47,7 +51,7 @@ export function ProjectsSection() {
                   </CardDescription>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="outline" size="sm" asChild className="border-white/20 text-zinc-200 hover:bg-white/10 hover:text-zinc-100">
-                      <Link href={project.href}>
+                      <Link href={`/${localeSegment}${project.href}`}>
                         Zobacz case study
                         <ArrowRight className="ml-1 size-4" />
                       </Link>
@@ -69,7 +73,7 @@ export function ProjectsSection() {
         </ul>
         <div className="mt-8 text-center">
           <Button variant="outline" asChild className="border-white/20 text-zinc-300 hover:bg-white/10 hover:text-zinc-100">
-            <Link href="/projekty">Wszystkie projekty</Link>
+            <Link href={`/${localeSegment}/projekty`}>Wszystkie projekty</Link>
           </Button>
         </div>
       </div>

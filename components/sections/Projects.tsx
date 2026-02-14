@@ -1,10 +1,19 @@
 "use client";
 
+import type { ComponentType } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ExternalLink, LayoutGrid } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart2,
+  Cloud,
+  Cpu,
+  ExternalLink,
+  LayoutGrid,
+  Layout,
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -44,19 +53,27 @@ const projectMeta: Array<{
   },
 ];
 
+const techIcons: Record<string, ComponentType<{ className?: string }>> = {
+  nextjs: Layout,
+  falai: Cpu,
+  vercel: Cloud,
+  posthog: BarChart2,
+};
+
 export function Projects() {
-  const { dict } = useLanguage();
+  const { dict, localeSegment } = useLanguage();
   const p = dict.projects;
   const descriptions: Record<string, string> = {
     fotarobota: p.fotarobotaDesc,
-    saasStarter: "Next.js 15 Boilerplate.",
-    aiAutomations: "Custom workflows.",
+    saasStarter: p.saasStarterDesc,
+    aiAutomations: p.aiAutomationsDesc,
   };
+  const hasNarrative = (key: string) => key === "fotarobota";
 
   return (
     <section
       id="projekty"
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 backdrop-blur-sm sm:px-6 md:py-24"
+      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="projects-heading"
     >
       <div className="mx-auto max-w-5xl">
@@ -129,9 +146,66 @@ export function Projects() {
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-between space-y-4">
-                  <CardDescription className="text-muted-foreground text-sm">
-                    {descriptions[project.titleKey]}
-                  </CardDescription>
+                  {hasNarrative(project.titleKey) ? (
+                    <>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <span className="font-semibold uppercase tracking-wider text-zinc-500">
+                            {p.problemLabel}
+                          </span>
+                          <p className="mt-0.5 text-muted-foreground">
+                            {(p as Record<string, string>)[`${project.titleKey}Problem`]}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-semibold uppercase tracking-wider text-zinc-500">
+                            {p.solutionLabel}
+                          </span>
+                          <p className="mt-0.5 text-muted-foreground">
+                            {(p as Record<string, string>)[`${project.titleKey}Solution`]}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-semibold uppercase tracking-wider text-zinc-500">
+                            {p.resultLabel}
+                          </span>
+                          <p className="mt-0.5 text-muted-foreground">
+                            {(p as Record<string, string>)[`${project.titleKey}Result`]}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-semibold uppercase tracking-wider text-zinc-500">
+                            {p.metricsLabel}
+                          </span>
+                          <p className="mt-0.5 text-muted-foreground">
+                            {(p as Record<string, string>)[`${project.titleKey}Metrics`]}
+                          </p>
+                        </div>
+                      </div>
+                      {Array.isArray((p as Record<string, unknown>)[`${project.titleKey}Tech`]) && (
+                        <div className="flex flex-wrap gap-2">
+                          {((p as Record<string, string[]>)[`${project.titleKey}Tech`] as string[]).map((key) => {
+                            const Icon = techIcons[key];
+                            const label = p.techLabels?.[key as keyof typeof p.techLabels] ?? key;
+                            return (
+                              <span
+                                key={key}
+                                className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-zinc-300"
+                                title={label}
+                              >
+                                {Icon ? <Icon className="size-3.5 shrink-0 opacity-80" /> : null}
+                                <span>{label}</span>
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <CardDescription className="text-muted-foreground text-sm">
+                      {descriptions[project.titleKey]}
+                    </CardDescription>
+                  )}
                   <div className="flex flex-wrap gap-3">
                     {project.externalUrl && (
                       <Button variant="default" size="sm" asChild className="bg-emerald-600 text-white hover:bg-emerald-500">
@@ -146,8 +220,8 @@ export function Projects() {
                       </Button>
                     )}
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={project.href}>
-                        {project.placeholder ? p.comingSoon : p.caseStudyBtn}
+                      <Link href={`/${localeSegment}${project.href}`}>
+                        {project.placeholder ? p.comingSoon : p.caseStudyCta}
                         <ArrowRight className="ml-1 size-4" />
                       </Link>
                     </Button>
@@ -164,7 +238,7 @@ export function Projects() {
               <LayoutGrid className="size-10 text-muted-foreground" aria-hidden />
               <p className="text-sm font-medium text-muted-foreground">{p.allProjects}</p>
               <Button variant="outline" size="sm" asChild>
-                <Link href="/projekty">
+                <Link href={`/${localeSegment}/projekty`}>
                   {p.viewList}
                   <ArrowRight className="ml-1 size-4" />
                 </Link>

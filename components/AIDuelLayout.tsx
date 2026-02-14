@@ -220,7 +220,7 @@ function AgentWindow({
 }
 
 export default function AIDuelLayout() {
-  const { dict, lang, mounted } = useLanguage();
+  const { dict, lang, mounted, localeSegment } = useLanguage();
   const COPY = dict.agents;
   const CONSOLE = dict.console;
 
@@ -549,12 +549,12 @@ placeholder={CONSOLE.inputPlaceholder}
                   {CONSOLE.limitMessage}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                  <Link href="/projekty">
+                  <Link href={`/${localeSegment}/projekty`}>
                     <Button variant="outline" className="border-emerald-500/70 bg-emerald-950/80 text-emerald-300 hover:bg-emerald-900/60">
                       {dict.projects.sectionTitle}
                     </Button>
                   </Link>
-                  <Link href="/sklep">
+                  <Link href={`/${localeSegment}/sklep`}>
                     <Button variant="outline" className="border-amber-500/50 bg-amber-950/50 text-amber-200/90 hover:bg-amber-900/40">
                       {dict.header.navShop}
                     </Button>

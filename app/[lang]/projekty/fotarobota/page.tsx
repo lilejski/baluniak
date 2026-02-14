@@ -24,7 +24,7 @@ const itemVariants = {
 };
 
 export default function FotarobotaCaseStudyPage() {
-  const { dict } = useLanguage();
+  const { dict, localeSegment } = useLanguage();
   const f = dict.fotarobotaPage;
 
   const problemRef = useRef<HTMLElement>(null);
@@ -46,7 +46,7 @@ export default function FotarobotaCaseStudyPage() {
           className="mb-8"
         >
           <Button variant="ghost" size="sm" asChild className="text-zinc-400 hover:text-zinc-200">
-            <Link href="/projekty" className="inline-flex items-center gap-2">
+            <Link href={`/${localeSegment}/projekty`} className="inline-flex items-center gap-2">
               <ArrowLeft className="size-4" />
               {f.backToProjects}
             </Link>
@@ -83,7 +83,6 @@ export default function FotarobotaCaseStudyPage() {
           </div>
         </motion.header>
 
-        {/* WYZWANIE (The Problem) */}
         <motion.section
           ref={problemRef}
           initial="hidden"
@@ -119,7 +118,6 @@ export default function FotarobotaCaseStudyPage() {
           </div>
         </motion.section>
 
-        {/* ARCHITEKTURA AI (The AI Solution) */}
         <motion.section
           ref={solutionRef}
           initial="hidden"
@@ -148,7 +146,6 @@ export default function FotarobotaCaseStudyPage() {
           </motion.div>
         </motion.section>
 
-        {/* TECH STACK */}
         <motion.section
           ref={techRef}
           initial="hidden"
@@ -191,7 +188,6 @@ export default function FotarobotaCaseStudyPage() {
           </div>
         </motion.section>
 
-        {/* EFEKTY BIZNESOWE (Business Results) */}
         <motion.section
           ref={resultsRef}
           initial="hidden"
@@ -228,7 +224,6 @@ export default function FotarobotaCaseStudyPage() {
           </motion.div>
         </motion.section>
 
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

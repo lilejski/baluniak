@@ -27,7 +27,7 @@ export function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 backdrop-blur-sm sm:px-6 md:py-24"
+      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="bridge-heading"
     >
       <div className="mx-auto max-w-5xl">

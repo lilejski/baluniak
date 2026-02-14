@@ -6,7 +6,7 @@ import { ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ProjektyPage() {
-  const { dict } = useLanguage();
+  const { dict, localeSegment } = useLanguage();
   const proj = dict.projektyPage;
   const p = dict.projects;
 
@@ -55,7 +55,7 @@ export default function ProjektyPage() {
       </article>
 
       <p className="mt-8 text-center text-sm text-zinc-500">
-        <Link href="/#projekty" className="text-zinc-400 hover:text-zinc-300">
+        <Link href={`/${localeSegment}/#projekty`} className="text-zinc-400 hover:text-zinc-300">
           {dict.fotarobotaPage.backToProjectsHome}
         </Link>
       </p>

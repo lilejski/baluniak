@@ -78,8 +78,8 @@ export default function WspolpracaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))]">
-      <div className="mx-auto max-w-6xl px-4 py-12 pb-24 sm:px-6 lg:py-16 lg:pb-16">
+    <div className="min-h-screen bg-zinc-950 pb-[max(3rem,env(safe-area-inset-bottom))]">
+      <div className="mx-auto max-w-6xl px-4 py-12 pb-28 sm:px-6 sm:pb-24 lg:py-16 lg:pb-16">
         <header className="mb-10 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
             {w.pageTitle}
@@ -90,7 +90,6 @@ export default function WspolpracaPage() {
         </header>
 
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
-          {/* LEFT: Fast-Track Contact Form — Terminal / Dashboard feel */}
           <div className="order-2 lg:order-1">
             <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-xl">
               <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
@@ -235,7 +234,6 @@ export default function WspolpracaPage() {
             </div>
           </div>
 
-          {/* RIGHT: Cal.com Direct Booking */}
           <div ref={calRef} className="order-1 lg:order-2 min-w-0 flex-1">
             <div className="relative overflow-visible rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-[0_0_60px_rgba(16,185,129,0.08)]">
               <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">

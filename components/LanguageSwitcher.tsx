@@ -49,7 +49,7 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
           setLang("PL");
         }}
         className={cn(
-          "flex size-9 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+          "flex min-h-12 min-w-12 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:min-h-9 md:min-w-9",
           lang === "PL"
             ? "bg-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
             : "opacity-70 hover:opacity-100 hover:bg-white/10"
@@ -67,7 +67,7 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
           setLang("EN");
         }}
         className={cn(
-          "flex size-9 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+          "flex min-h-12 min-w-12 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:min-h-9 md:min-w-9",
           lang === "EN"
             ? "bg-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
             : "opacity-70 hover:opacity-100 hover:bg-white/10"

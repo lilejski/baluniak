@@ -35,11 +35,11 @@ const navHrefs = ["/projekty", "/#about", "/sklep"] as const;
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const { dict } = useLanguage();
+  const { dict, localeSegment } = useLanguage();
   const navItems = [
-    { label: dict.header.navProjects, href: navHrefs[0] },
-    { label: dict.header.navAbout, href: navHrefs[1] },
-    { label: dict.header.navShop, href: navHrefs[2] },
+    { label: dict.header.navProjects, href: `/${localeSegment}${navHrefs[0]}` },
+    { label: dict.header.navAbout, href: `/${localeSegment}${navHrefs[1]}` },
+    { label: dict.header.navShop, href: `/${localeSegment}${navHrefs[2]}` },
   ];
 
   return (
@@ -52,7 +52,7 @@ export function Navbar() {
     >
       <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
         <Link
-          href="/"
+          href={`/${localeSegment}`}
           className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
         >
           BALUNIAK.COM
@@ -73,7 +73,7 @@ export function Navbar() {
           <LanguageSwitcher />
           <Button asChild size="default" className="ml-2">
             <Link
-              href="/kreator"
+              href={`/${localeSegment}/kreator`}
               className="bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500"
             >
               <motion.span
@@ -87,8 +87,8 @@ export function Navbar() {
           </Button>
         </div>
 
-        {/* Mobile: language + burger */}
-        <div className="flex items-center gap-1 md:hidden">
+        {/* Mobile: language + burger (thumb-friendly spacing) */}
+        <div className="flex items-center gap-3 md:hidden">
           <LanguageSwitcher />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -122,7 +122,7 @@ export function Navbar() {
                     <motion.div variants={mobileMenuItemVariants}>
                       <Button variant="ghost" asChild className="w-full justify-start">
                         <Link
-                          href="/"
+                          href={`/${localeSegment}`}
                           onClick={() => setOpen(false)}
                           className="text-zinc-300"
                         >
@@ -149,7 +149,7 @@ export function Navbar() {
                     <motion.div variants={mobileMenuItemVariants}>
                       <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500">
                         <Link
-                          href="/kreator"
+                          href={`/${localeSegment}/kreator`}
                           onClick={() => setOpen(false)}
                         >
                           {dict.header.cta}

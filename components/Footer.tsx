@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Footer() {
-  const { dict, lang } = useLanguage();
+  const { dict, localeSegment } = useLanguage();
   const copy = dict.footer;
 
   return (
-    <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950">
+    <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
       <div className="border-b border-zinc-800 px-5 py-10 sm:px-6 md:py-12">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
           <motion.p
@@ -25,7 +25,7 @@ export function Footer() {
             size="lg"
             className="min-h-12 bg-emerald-600 px-8 text-base font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-500"
           >
-            <Link href="/kreator">
+            <Link href={`/${localeSegment}/kreator`}>
               {copy.ctaLabel}
               <ArrowRight className="ml-2 size-5 shrink-0" />
             </Link>
@@ -58,12 +58,12 @@ export function Footer() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
               {copy.navTitle}
             </p>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {copy.nav.map(({ label, href }) => (
                 <li key={href}>
                   <Link
-                    href={href}
-                    className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+                    href={`/${localeSegment}${href}`}
+                    className="inline-flex min-h-12 min-w-[48px] items-center text-sm text-zinc-400 transition-colors hover:text-zinc-200 md:min-h-0 md:min-w-0"
                   >
                     {label}
                   </Link>
@@ -82,7 +82,7 @@ export function Footer() {
                   href={copy.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+                  className="inline-flex min-h-12 min-w-[48px] items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-200 md:min-h-0 md:min-w-0"
                 >
                   <Linkedin className="size-4 shrink-0" />
                   LinkedIn
@@ -91,14 +91,14 @@ export function Footer() {
               <li>
                 <a
                   href={`mailto:${copy.email}`}
-                  className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+                  className="inline-flex min-h-12 min-w-[48px] items-center text-sm text-zinc-400 transition-colors hover:text-zinc-200 md:min-h-0 md:min-w-0"
                 >
                   {copy.email}
                 </a>
               </li>
               <li className="pt-2">
                 <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-500">
-                  <Link href="/wspolpraca">
+                  <Link href={`/${localeSegment}/wspolpraca`}>
                     <Calendar className="mr-2 size-4 shrink-0" />
                     {copy.consultationLabel}
                   </Link>

@@ -21,13 +21,19 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 min-h-[2.25rem] px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 min-h-[2rem]",
+        default:
+          "h-9 min-h-[2.25rem] px-4 py-2 has-[>svg]:px-3 max-md:min-h-12",
+        xs:
+          "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3 max-md:min-h-12 max-md:min-w-[3rem]",
+        sm:
+          "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 min-h-[2rem] max-md:min-h-12",
         lg: "h-12 min-h-12 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9 min-h-9 min-w-9",
-        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-8 min-h-8 min-w-8",
+        icon:
+          "size-9 min-h-9 min-w-9 max-md:min-h-12 max-md:min-w-12 max-md:size-12",
+        "icon-xs":
+          "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3 max-md:min-h-12 max-md:min-w-12",
+        "icon-sm":
+          "size-8 min-h-8 min-w-8 max-md:min-h-12 max-md:min-w-12",
         "icon-lg": "size-12 min-h-12 min-w-12",
       },
     },

@@ -20,7 +20,7 @@ export function OnboardingSteps() {
     return (
       <section
         id="jak-to-dziala"
-        className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 backdrop-blur-sm sm:px-6 sm:py-16 md:py-20"
+        className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 sm:py-16 md:py-20 md:pb-20"
         aria-labelledby="onboarding-heading"
       >
         <div className="mx-auto max-w-3xl">
@@ -44,7 +44,7 @@ export function OnboardingSteps() {
   return (
     <section
       id="jak-to-dziala"
-      className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 backdrop-blur-sm sm:px-6 sm:py-16 md:py-20"
+      className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 sm:py-16 md:py-20 md:pb-20"
       aria-labelledby="onboarding-heading"
     >
       <div className="mx-auto max-w-3xl">

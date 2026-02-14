@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const navItems = [
   { label: "Strona główna", href: "/" },
@@ -11,6 +12,7 @@ const navItems = [
 ] as const;
 
 export function SiteHeader() {
+  const { localeSegment } = useLanguage();
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
       <nav
@@ -18,7 +20,7 @@ export function SiteHeader() {
         aria-label="Menu główne"
       >
         <Link
-          href="/"
+          href={`/${localeSegment}`}
           className="font-semibold text-zinc-100 transition-colors hover:text-white"
         >
           baluniak
@@ -27,7 +29,7 @@ export function SiteHeader() {
           {navItems.map(({ label, href }) => (
             <li key={href}>
               <Link
-                href={href}
+                href={`/${localeSegment}${href}`}
                 className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
               >
                 {label}

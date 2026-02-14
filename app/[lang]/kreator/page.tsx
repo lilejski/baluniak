@@ -34,6 +34,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, translations } from "@/lib/translations";
 import { ShoppingCart } from "lucide-react";
 
+const PLN_TO_USD = 0.25;
+
+function formatPrice(pln: number, lang: Language, currencyCode: string): string {
+  const value = lang === "PL" ? pln : Math.round(pln * PLN_TO_USD);
+  const locale = lang === "PL" ? "pl-PL" : "en-US";
+  return `${value.toLocaleString(locale)} ${currencyCode}`;
+}
+
 type KreatorOptions = (typeof translations)[Language]["kreator"]["options"];
 
 type SummaryPhase = "idle" | "processing" | "done" | "sent";
@@ -59,7 +67,7 @@ function slideIn(dir: number): {
 }
 
 /** Animate number toward target (count-up effect). */
-function useCountUp(target: number, durationMs = 400): number {
+function useCountUp(target: number, durationMs = 600): number {
   const [display, setDisplay] = useState(target);
   const prevRef = useRef(target);
   useEffect(() => {
@@ -69,7 +77,7 @@ function useCountUp(target: number, durationMs = 400): number {
     const startTime = performance.now();
     const tick = (now: number) => {
       const t = Math.min((now - startTime) / durationMs, 1);
-      const eased = 1 - (1 - t) * (1 - t);
+      const eased = 1 - (1 - t) ** 2;
       setDisplay(Math.round(start + (target - start) * eased));
       if (t < 1) requestAnimationFrame(tick);
     };
@@ -224,6 +232,7 @@ export default function KreatorPage() {
     return () => clearTimeout(id);
   }, [summaryPhase, runArchitect]);
 
+  const currencyCode = k.currencyCode as string;
   const priceSummaryContent = (
     <motion.div layout className="space-y-4">
       <h3 className="text-base font-bold text-white">
@@ -246,7 +255,8 @@ export default function KreatorPage() {
                 >
                   <span>{item.label}</span>
                   <span className="shrink-0 tabular-nums">
-                    {i === 0 ? "" : "+"}{item.price.toLocaleString("pl-PL")} PLN
+                    {i === 0 ? "" : "+"}
+                    {formatPrice(item.price, lang, currencyCode)}
                   </span>
                 </motion.li>
               ))}
@@ -254,13 +264,13 @@ export default function KreatorPage() {
           </ul>
           <div className="border-t border-zinc-800 pt-4">
             <motion.p
-              key={displayTotal}
+              key={`${displayTotal}-${lang}`}
               initial={{ opacity: 0, scale: 1.02 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className="text-2xl font-bold tabular-nums text-emerald-500"
             >
-              {k.estimatedTotal}: {displayTotal.toLocaleString("pl-PL")} PLN
+              {k.estimatedTotal}: {formatPrice(displayTotal, lang, currencyCode)}
             </motion.p>
           </div>
           <p className="text-xs text-zinc-500">
@@ -326,7 +336,7 @@ export default function KreatorPage() {
           </motion.div>
         )}
 
-        {/* Final offer (done) */}
+        {/* Preliminary Strategy (done) */}
         {summaryPhase === "done" && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -334,14 +344,45 @@ export default function KreatorPage() {
             className="space-y-6"
           >
             <div id="offer-print" ref={offerPrintRef} className="space-y-6 print:block">
-              <Card className="border-white/10 bg-zinc-900/50">
+              <Card className="border-emerald-500/20 bg-zinc-900/50 shadow-[0_0_40px_rgba(16,185,129,0.08)]">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-zinc-200">
-                    <Zap className="size-5 text-emerald-500" />
+                  <CardTitle className="flex items-center gap-2 text-xl text-zinc-100">
+                    <Zap className="size-6 text-emerald-500" />
                     {k.offerTitle}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Chosen features + final price */}
+                  <div>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500">
+                      {k.chosenFeatures}
+                    </h3>
+                    <ul className="space-y-2">
+                      {selectedFeatures.map((item, i) => (
+                        <li
+                          key={item.id}
+                          className="flex items-center justify-between gap-2 text-sm text-zinc-300"
+                        >
+                          <span>{item.label}</span>
+                          <span className="tabular-nums">
+                            {i === 0 ? "" : "+"}
+                            {formatPrice(item.price, lang, currencyCode)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-4 border-t border-zinc-700 pt-4">
+                      <motion.p
+                        key={`final-${displayTotal}-${lang}`}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        className="text-2xl font-bold tabular-nums text-emerald-400"
+                      >
+                        {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
+                      </motion.p>
+                    </div>
+                  </div>
                   <div>
                     <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
                       {k.recommendedStack}
@@ -370,18 +411,18 @@ export default function KreatorPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center print:hidden">
               <Button
                 size="lg"
-                variant="outline"
                 onClick={downloadOfferPdf}
-                className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/50"
+                className="min-h-12 bg-emerald-600 px-8 font-semibold shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-500"
               >
                 <FileDown className="mr-2 size-5 shrink-0" />
-                {k.downloadOffer}
+                {k.downloadPdf}
               </Button>
               <Button
                 size="lg"
+                variant="outline"
                 onClick={sendToBaluniak}
                 disabled={inquirySending}
-                className="bg-emerald-600 hover:bg-emerald-500"
+                className="min-h-12 border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/50"
               >
                 <Send className="mr-2 size-5 shrink-0" />
                 {inquirySending ? k.sending : k.sendToBaluniak}
@@ -424,7 +465,7 @@ export default function KreatorPage() {
                       type="button"
                       onClick={() => chooseBranch("standard")}
                       className={cn(
-                        "flex flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
+                        "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
                         "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
                       )}
                     >
@@ -442,7 +483,7 @@ export default function KreatorPage() {
                       type="button"
                       onClick={() => chooseBranch("professional")}
                       className={cn(
-                        "flex flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
+                        "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
                         "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
                       )}
                     >
@@ -535,7 +576,7 @@ export default function KreatorPage() {
                     {k.yourConfig}
                   </span>
                   <span className="text-xl font-bold tabular-nums text-emerald-500">
-                    {displayTotal.toLocaleString("pl-PL")} PLN
+                    {formatPrice(displayTotal, lang, currencyCode)}
                   </span>
                 </button>
               </SheetTrigger>

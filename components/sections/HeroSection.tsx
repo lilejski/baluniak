@@ -36,7 +36,7 @@ const itemVariants = {
 };
 
 export function HeroSection() {
-  const { dict, lang } = useLanguage();
+  const { dict, lang, localeSegment } = useLanguage();
   const h = dict.hero;
 
   return (
@@ -72,7 +72,7 @@ export function HeroSection() {
 
       <motion.div
         layout
-        className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center"
+        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-start text-center md:justify-center"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -103,21 +103,24 @@ export function HeroSection() {
         <motion.p
           layout
           variants={itemVariants}
-          className="mb-8 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:text-base"
+          className="mb-6 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:mb-8 sm:text-base"
         >
           {h.subtext}
         </motion.p>
 
+        {/* Spacer: on mobile pushes CTAs into bottom 30% (thumb zone) */}
+        <div className="flex-1 min-h-[15vh] md:hidden" aria-hidden />
+
         <motion.div
           variants={itemVariants}
-          className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4"
+          className="mt-auto flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4 md:mt-0"
         >
           <Button
             asChild
             size="lg"
             className="min-h-12 w-full border border-emerald-500/60 bg-emerald-950/90 px-6 text-sm font-semibold tracking-tight text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
           >
-            <Link href="/kreator">
+            <Link href={`/${localeSegment}/kreator`}>
               <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
               {h.ctaPrimary}
             </Link>
@@ -128,7 +131,7 @@ export function HeroSection() {
             size="lg"
             className="min-h-12 w-full border-white/20 bg-white/5 font-medium text-zinc-300 backdrop-blur-sm hover:bg-white/10 hover:text-zinc-100 sm:w-auto"
           >
-            <Link href="/projekty">
+            <Link href={`/${localeSegment}/projekty`}>
               {h.ctaSecondary}
               <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
             </Link>
