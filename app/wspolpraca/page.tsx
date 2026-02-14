@@ -128,13 +128,12 @@ export default function WspolpracaPage() {
                     </motion.div>
                   ) : (
                     <motion.form
-                      key="form"
+                      key={`form-${lang}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onSubmit={handleSubmit(onSubmit)}
                       className="space-y-5"
-                      key={lang}
                     >
                       <div>
                         <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
