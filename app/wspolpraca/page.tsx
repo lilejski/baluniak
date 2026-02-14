@@ -236,15 +236,15 @@ export default function WspolpracaPage() {
           </div>
 
           {/* RIGHT: Cal.com Direct Booking */}
-          <div ref={calRef} className="order-1 lg:order-2">
-            <div className="relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-[0_0_60px_rgba(16,185,129,0.08)]">
+          <div ref={calRef} className="order-1 lg:order-2 min-w-0 flex-1">
+            <div className="relative overflow-visible rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-[0_0_60px_rgba(16,185,129,0.08)]">
               <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
                 <Calendar className="size-4 text-emerald-500" />
                 <span className="text-sm font-medium text-zinc-300">
                   {w.calendarTitle}
                 </span>
               </div>
-              <div className="relative min-h-[500px] w-full">
+              <div className="relative min-h-[700px] w-full">
                 <CalEmbed
                   fallbackMessage={w.calendarLoadError}
                   fallbackEmail={dict.footer.email}

@@ -57,8 +57,8 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
   if (!mounted) {
     return (
       <div
-        className="h-[600px] w-full animate-pulse rounded-lg bg-zinc-800/30"
-        style={{ minHeight: "500px" }}
+        className="min-h-[700px] w-full animate-pulse rounded-lg bg-zinc-800/30"
+        style={{ minHeight: "700px" }}
         aria-hidden
       />
     );
@@ -71,15 +71,18 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
   if (!CalComponent) {
     return (
       <div
-        className="h-[600px] w-full animate-pulse rounded-lg bg-zinc-800/30"
-        style={{ minHeight: "500px" }}
+        className="min-h-[700px] w-full animate-pulse rounded-lg bg-zinc-800/30"
+        style={{ minHeight: "700px" }}
         aria-hidden
       />
     );
   }
 
   return (
-    <div className="cal-embed-container h-[600px] w-full overflow-hidden rounded-lg" style={{ minHeight: "500px" }}>
+    <div
+      className="cal-embed-container min-h-[700px] w-full overflow-auto rounded-lg [&_iframe]:min-h-[700px] [&_iframe]:w-full"
+      style={{ minHeight: "700px" }}
+    >
       <CalComponent
         calLink={CAL_LINK}
         calOrigin={CAL_ORIGIN}
