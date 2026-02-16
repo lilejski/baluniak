@@ -358,6 +358,7 @@ export const translations = {
       errorEmail: "Podaj poprawny email",
       errorProjectType: "Wybierz rodzaj współpracy",
       errorMessage: "Opisz krótko wyzwanie",
+      sendError: "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.",
     },
   },
   EN: {
@@ -712,6 +713,7 @@ export const translations = {
       errorEmail: "Please enter a valid email",
       errorProjectType: "Please select a collaboration type",
       errorMessage: "Please briefly describe your challenge",
+      sendError: "Send failed. Try again or email directly.",
     },
   },
 } as const;

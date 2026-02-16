@@ -53,6 +53,7 @@ export default function WspolpracaPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FastTrackFormData>({
     resolver: zodResolver(fastTrackSchema),
@@ -62,19 +63,25 @@ export default function WspolpracaPage() {
   });
 
   const onSubmit = async (data: FastTrackFormData) => {
-    const res = await fetch("/api/fast-track", {
+    const subjectLabel = projectTypeOptions.find((o) => o.value === data.projectType)?.label ?? data.projectType ?? "";
+    const res = await fetch("/api/send-contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: data.name,
-        email: data.email,
-        projectType: data.projectType,
-        message: data.message,
+        name: data.name.trim(),
+        email: data.email.trim(),
+        subject: subjectLabel,
+        message: data.message.trim(),
       }),
     });
-    if (!res.ok) throw new Error("Send failed");
-    setSubmitted(true);
-    calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const json = (await res.json()) as { success?: boolean; error?: string };
+    if (res.ok && json.success) {
+      setSubmitted(true);
+      reset({ name: "", email: "", projectType: undefined, message: "" });
+      calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      alert(json.error ?? w.sendError ?? "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.");
+    }
   };
 
   return (
