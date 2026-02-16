@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const navItems = [
   { label: "Strona główna", href: "/" },
-  { label: "Projekty", href: "/projekty" },
+  { label: "Projekty", href: "#projekty" },
   { label: "Kreator", href: "/kreator" },
   { label: "Sklep", href: "/sklep" },
   { label: "Współpraca", href: "/wspolpraca" },

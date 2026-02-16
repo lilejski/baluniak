@@ -21,6 +21,7 @@ import {
   type FunnelState,
   type StandardAnswers,
   type ProfessionalAnswers,
+  type AdvancedModules,
   getStandardSteps,
   getProfessionalSteps,
   getTotalSteps,
@@ -29,6 +30,7 @@ import {
   getStackSummary,
   getTimelineSummary,
   getPriceBreakdown,
+  ADVANCED_MODULE_IDS,
 } from "@/lib/kreator-funnel";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, translations } from "@/lib/translations";
@@ -98,15 +100,16 @@ export default function KreatorPage() {
   const [stepDirection, setStepDirection] = useState(1);
   const [standard, setStandard] = useState<Partial<StandardAnswers>>({});
   const [professional, setProfessional] = useState<Partial<ProfessionalAnswers>>({});
+  const [modules, setModules] = useState<Partial<AdvancedModules>>({});
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
   const [architectText, setArchitectText] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
   const offerPrintRef = useRef<HTMLDivElement>(null);
 
-  const state: FunnelState = { branch, step, standard, professional };
+  const state: FunnelState = { branch, step, standard, professional, modules };
   const { lineItems: selectedFeatures, total: totalPrice } = useMemo(
     () => getPriceBreakdown(state, lang),
-    [branch, standard, professional, lang]
+    [branch, standard, professional, modules, lang]
   );
   const displayTotal = useCountUp(totalPrice);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -159,7 +162,17 @@ export default function KreatorPage() {
     setStep((s) => s + 1);
   }, [branch, step, totalSteps]);
 
+  const apiDoneRef = useRef(false);
+  const logSequenceCompleteRef = useRef(false);
+
+  const tryTransitionToDone = useCallback(() => {
+    if (apiDoneRef.current && logSequenceCompleteRef.current) {
+      setSummaryPhase("done");
+    }
+  }, []);
+
   const runArchitect = useCallback(async () => {
+    apiDoneRef.current = false;
     const config = buildConfigForApi(state);
     try {
       const res = await fetch("/api/architect", {
@@ -177,12 +190,14 @@ export default function KreatorPage() {
         text += decoder.decode(value, { stream: true });
         setArchitectText(text);
       }
-      setSummaryPhase("done");
+      apiDoneRef.current = true;
+      tryTransitionToDone();
     } catch {
       setArchitectText(k.analysisFailed);
-      setSummaryPhase("done");
+      apiDoneRef.current = true;
+      tryTransitionToDone();
     }
-  }, [branch, step, standard, professional]);
+  }, [branch, step, standard, professional, tryTransitionToDone]);
 
   const sendToBaluniak = useCallback(async () => {
     const config = buildConfigForApi(state);
@@ -212,25 +227,61 @@ export default function KreatorPage() {
   const isLastStep = branch !== null && step >= totalSteps;
   const canProceed =
     branch === "standard"
-      ? step === 1 || step === 2 || (step === 3 && standard.deadline)
+      ? step === 1 || step === 2 || (step === 3 && standard.deadline) || step === 4
       : branch === "professional"
         ? step === 1 ||
           step === 2 ||
           step === 3 ||
-          (step === 4 && professional.scalability !== undefined)
+          (step === 4 && professional.scalability !== undefined) ||
+          step === 5
         : false;
 
+  const [visibleLogIndex, setVisibleLogIndex] = useState(-1);
+  const terminalScrollRef = useRef<HTMLDivElement>(null);
   const processingStarted = useRef(false);
+
   useEffect(() => {
     if (summaryPhase !== "processing") {
       processingStarted.current = false;
+      logSequenceCompleteRef.current = false;
+      apiDoneRef.current = false;
+      setVisibleLogIndex(-1);
       return;
     }
     if (processingStarted.current) return;
     processingStarted.current = true;
-    const id = setTimeout(() => runArchitect(), 3200);
-    return () => clearTimeout(id);
+    runArchitect();
   }, [summaryPhase, runArchitect]);
+
+  const logQueueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (summaryPhase !== "processing") return;
+    const stepsCount = 5;
+    const runNext = (index: number) => {
+      setVisibleLogIndex(index);
+      if (index >= stepsCount) {
+        logSequenceCompleteRef.current = true;
+        tryTransitionToDone();
+        return;
+      }
+      const delay = 800 + Math.random() * 700;
+      logQueueTimeoutRef.current = setTimeout(() => runNext(index + 1), delay);
+    };
+    const firstId = setTimeout(() => runNext(0), 400);
+    logQueueTimeoutRef.current = firstId;
+    return () => {
+      if (logQueueTimeoutRef.current) {
+        clearTimeout(logQueueTimeoutRef.current);
+        logQueueTimeoutRef.current = null;
+      }
+    };
+  }, [summaryPhase, tryTransitionToDone]);
+
+  useEffect(() => {
+    if (summaryPhase !== "processing" || !terminalScrollRef.current) return;
+    const el = terminalScrollRef.current;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [summaryPhase, visibleLogIndex]);
 
   const currencyCode = k.currencyCode as string;
   const priceSummaryContent = (
@@ -314,26 +365,14 @@ export default function KreatorPage() {
         </div>
 
         {summaryPhase === "processing" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-8 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-950 font-mono text-sm"
-          >
-            <div className="border-b border-zinc-700 px-4 py-2 text-zinc-500">
-              {k.terminalTitle}
-            </div>
-            <div className="space-y-1 px-4 py-4 text-emerald-400/90">
-              <TerminalLine delay={0}>{k.terminalLine1}</TerminalLine>
-              <TerminalLine delay={400}>{k.terminalLine2}</TerminalLine>
-              <TerminalLine delay={800}>{k.terminalLine3}</TerminalLine>
-              <TerminalLine delay={1200}>{k.terminalLine4}</TerminalLine>
-              <motion.span
-                className="inline-block h-4 w-2 bg-emerald-500"
-                animate={{ opacity: [1, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity }}
-              />
-            </div>
-          </motion.div>
+          <ProcessingTerminal
+            title={k.terminalTitle}
+            steps={[k.terminalLine1, k.terminalLine2, k.terminalLine3, k.terminalLine4, k.terminalLine5]}
+            visibleLogIndex={visibleLogIndex}
+            processingLabel={k.processingLabel}
+            scrollRef={terminalScrollRef}
+            isProcessing={true}
+          />
         )}
 
         {/* Preliminary Strategy (done) */}
@@ -500,7 +539,7 @@ export default function KreatorPage() {
                   </motion.div>
                 )}
 
-                {branch === "standard" && step >= 1 && (
+                {branch === "standard" && step >= 1 && step <= 3 && (
                   <StandardSteps
                     key="standard"
                     step={step}
@@ -513,13 +552,24 @@ export default function KreatorPage() {
                   />
                 )}
 
-                {branch === "professional" && step >= 1 && (
+                {branch === "professional" && step >= 1 && step <= 4 && (
                   <ProfessionalSteps
                     key="professional"
                     step={step}
                     stepDirection={stepDirection}
                     professional={professional}
                     setProfessional={setProfessional}
+                    slideIn={slideIn}
+                    transition={transition}
+                    options={k.options}
+                  />
+                )}
+
+                {((branch === "standard" && step === 4) || (branch === "professional" && step === 5)) && (
+                  <ModulesStep
+                    key="modules"
+                    modules={modules}
+                    setModules={setModules}
                     slideIn={slideIn}
                     transition={transition}
                     options={k.options}
@@ -597,20 +647,85 @@ export default function KreatorPage() {
   );
 }
 
-function TerminalLine({
-  children,
-  delay,
+function ProcessingTerminal({
+  title,
+  steps,
+  visibleLogIndex,
+  processingLabel,
+  scrollRef,
+  isProcessing,
 }: {
-  children: React.ReactNode;
-  delay: number;
+  title: string;
+  steps: string[];
+  visibleLogIndex: number;
+  processingLabel: string;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  isProcessing: boolean;
 }) {
+  const hasLines = visibleLogIndex >= 0;
+  const allLinesShown = visibleLogIndex >= steps.length;
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: delay / 1000, duration: 0.2 }}
+      className="mb-8 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-950 font-mono text-sm"
     >
-      &gt; {children}
+      <div className="flex items-center justify-between border-b border-zinc-700 px-4 py-2 text-zinc-500">
+        <span>{title}</span>
+        {isProcessing && (
+          <motion.span
+            className="text-xs text-emerald-400/90"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            {processingLabel}
+          </motion.span>
+        )}
+      </div>
+      <div
+        ref={scrollRef}
+        className="max-h-[220px] space-y-1 overflow-y-auto px-4 py-4 text-emerald-400/90 scroll-smooth"
+      >
+        {!hasLines && (
+          <motion.p
+            className="text-xs text-zinc-500"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.2, repeat: Infinity }}
+          >
+            {processingLabel}
+          </motion.p>
+        )}
+        {steps.slice(0, Math.max(0, visibleLogIndex + 1)).map((line, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center gap-0.5"
+          >
+            <span>&gt; {line}</span>
+            {i === visibleLogIndex && !allLinesShown && (
+              <motion.span
+                className="inline-block w-3 text-emerald-400"
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, ease: "steps(2)" }}
+                aria-hidden
+              >
+                _
+              </motion.span>
+            )}
+          </motion.div>
+        ))}
+        {allLinesShown && (
+          <motion.p
+            className="pt-1 text-xs text-zinc-500"
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 1.2, repeat: Infinity }}
+          >
+            {processingLabel}
+          </motion.p>
+        )}
+      </div>
     </motion.div>
   );
 }
@@ -880,5 +995,73 @@ function ProfessionalSteps({
         </motion.div>
       )}
     </>
+  );
+}
+
+const MODULE_OPTION_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof KreatorOptions> = {
+  seo: "moduleSeo",
+  cms: "moduleCms",
+  i18n: "moduleI18n",
+  analytics: "moduleAnalytics",
+  legal: "moduleLegal",
+};
+
+const MODULE_SUBTITLE_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof KreatorOptions> = {
+  seo: "moduleSeoSubtitle",
+  cms: "moduleCmsSubtitle",
+  i18n: "moduleI18nSubtitle",
+  analytics: "moduleAnalyticsSubtitle",
+  legal: "moduleLegalSubtitle",
+};
+
+function ModulesStep({
+  modules,
+  setModules,
+  slideIn,
+  transition,
+  options,
+}: {
+  modules: Partial<AdvancedModules>;
+  setModules: React.Dispatch<React.SetStateAction<Partial<AdvancedModules>>>;
+  slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
+  transition: Transition;
+  options: KreatorOptions;
+}) {
+  return (
+    <motion.div
+      key="modules"
+      {...(slideIn(1) as React.ComponentProps<typeof motion.div>)}
+      transition={transition}
+      className="space-y-3"
+    >
+      {ADVANCED_MODULE_IDS.map((id) => {
+        const subtitle = options[MODULE_SUBTITLE_KEYS[id]];
+        return (
+          <label
+            key={id}
+            className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-zinc-800/50 px-4 py-3 transition-colors hover:border-white/20"
+          >
+            <input
+              type="checkbox"
+              checked={modules[id] ?? false}
+              onChange={(e) =>
+                setModules((m) => ({ ...m, [id]: e.target.checked }))
+              }
+              className="mt-0.5 size-4 shrink-0 rounded accent-emerald-500"
+            />
+            <div className="min-w-0 flex-1">
+              <span className="text-sm font-medium text-zinc-200">
+                {options[MODULE_OPTION_KEYS[id]] ?? id}
+              </span>
+              {subtitle && (
+                <p className="mt-0.5 text-xs text-zinc-500" title={subtitle}>
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          </label>
+        );
+      })}
+    </motion.div>
   );
 }

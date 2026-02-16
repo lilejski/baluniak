@@ -120,7 +120,7 @@ export function HeroSection() {
             size="lg"
             className="min-h-12 w-full border border-emerald-500/60 bg-emerald-950/90 px-6 text-sm font-semibold tracking-tight text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
           >
-            <Link href={`/${localeSegment}/kreator`}>
+            <Link href={`/${localeSegment}#kreator`}>
               <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
               {h.ctaPrimary}
             </Link>
@@ -131,7 +131,7 @@ export function HeroSection() {
             size="lg"
             className="min-h-12 w-full border-white/20 bg-white/5 font-medium text-zinc-300 backdrop-blur-sm hover:bg-white/10 hover:text-zinc-100 sm:w-auto"
           >
-            <Link href={`/${localeSegment}/projekty`}>
+            <Link href={`/${localeSegment}#projekty`}>
               {h.ctaSecondary}
               <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
             </Link>

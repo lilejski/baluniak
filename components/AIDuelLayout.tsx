@@ -569,7 +569,7 @@ export default function AIDuelLayout() {
                   {CONSOLE.limitMessage}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                  <Link href={`/${localeSegment}/projekty`}>
+                  <Link href={`/${localeSegment}#projekty`}>
                     <Button variant="outline" className="border-emerald-500/70 bg-emerald-950/80 text-emerald-300 hover:bg-emerald-900/60">
                       {dict.projects.sectionTitle}
                     </Button>

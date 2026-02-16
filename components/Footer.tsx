@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Linkedin, ArrowRight } from "lucide-react";
+import { Github, Linkedin, Twitter, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -11,103 +11,122 @@ export function Footer() {
   const copy = dict.footer;
 
   return (
-    <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
-      <div className="border-b border-zinc-800 px-5 py-10 sm:px-6 md:py-12">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
-          <motion.p
-            layout
-            className="max-w-xl text-lg font-medium leading-relaxed text-zinc-200 text-balance md:text-xl"
+    <>
+      {/* Pre-Footer CTA */}
+      <section
+        className="relative z-10 border-t border-white/10 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
+        aria-labelledby="prefooter-cta-heading"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <h2
+            id="prefooter-cta-heading"
+            className="text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl"
           >
-            {copy.finalNudge}
-          </motion.p>
-          <Button
-            asChild
-            size="lg"
-            className="min-h-12 bg-emerald-600 px-8 text-base font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-500"
-          >
-            <Link href={`/${localeSegment}/kreator`}>
-              {copy.ctaLabel}
-              <ArrowRight className="ml-2 size-5 shrink-0" />
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6 md:py-14">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
-          <div className="space-y-4">
-            <p className="font-bold tracking-tight text-zinc-100">
-              BALUNIAK.COM
-            </p>
-            <motion.p
-              layout
-              className="text-sm leading-relaxed text-zinc-400"
+            {copy.preCtaHeader}
+          </h2>
+          <p className="mt-3 text-base leading-relaxed text-zinc-400 sm:text-lg">
+            {copy.preCtaSubtext}
+          </p>
+          <div className="mt-8 flex justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="min-h-14 min-w-[220px] bg-emerald-600 px-8 text-base font-semibold text-white shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:shadow-[0_0_28px_rgba(16,185,129,0.4)]"
             >
-              {copy.brandTagline}
-            </motion.p>
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/30 px-3 py-1.5 text-xs font-medium text-emerald-300">
-              <span
-                className="size-2 animate-pulse rounded-full bg-emerald-400"
-                aria-hidden
-              />
-              {copy.statusLabel}
-            </span>
+              <Link href={`/${localeSegment}#kreator`}>
+                {copy.preCtaButton}
+                <ArrowRight className="ml-2 size-5 shrink-0" />
+              </Link>
+            </Button>
           </div>
+        </div>
+      </section>
 
-          <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              {copy.navTitle}
-            </p>
-            <ul className="space-y-1">
-              {copy.nav.map(({ label, href }) => (
-                <li key={href}>
-                  <Link
-                    href={`/${localeSegment}${href}`}
-                    className="inline-flex min-h-12 min-w-[48px] items-center text-sm text-zinc-400 transition-colors hover:text-zinc-200 md:min-h-0 md:min-w-0"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* Footer — 3-column grid */}
+      <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 md:py-14">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+            {/* Col 1: Brand + tagline */}
+            <div className="space-y-3">
+              <p className="font-bold tracking-tight text-zinc-100">
+                BALUNIAK.COM
+              </p>
+              <p className="text-sm font-medium text-emerald-400/90">
+                {copy.productEngineerTagline}
+              </p>
+              <motion.p
+                layout
+                className="text-sm leading-relaxed text-zinc-500"
+              >
+                {copy.brandTagline}
+              </motion.p>
+            </div>
 
-          <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              {copy.contactTitle}
-            </p>
-            <ul className="space-y-3">
-              <li>
+            {/* Col 2: Quick Links */}
+            <div>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                {copy.navTitle}
+              </p>
+              <ul className="space-y-2">
+                {copy.quickLinks.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={`/${localeSegment}${item.href}`}
+                      className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 3: Social + Email */}
+            <div>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                {copy.contactTitle}
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <a
+                  href={copy.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                  aria-label="GitHub"
+                >
+                  <Github className="size-5" />
+                </a>
+                <a
+                  href={copy.xUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                  aria-label="X (Twitter)"
+                >
+                  <Twitter className="size-5" />
+                </a>
                 <a
                   href={copy.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 min-w-[48px] items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-200 md:min-h-0 md:min-w-0"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                  aria-label="LinkedIn"
                 >
-                  <Linkedin className="size-4 shrink-0" />
-                  LinkedIn
+                  <Linkedin className="size-5" />
                 </a>
-              </li>
-              <li>
+              </div>
+              <p className="mt-4">
                 <a
                   href={`mailto:${copy.email}`}
-                  className="inline-flex min-h-12 min-w-[48px] items-center text-sm text-zinc-400 transition-colors hover:text-zinc-200 md:min-h-0 md:min-w-0"
+                  className="text-sm text-zinc-400 transition-colors hover:text-emerald-400"
                 >
                   {copy.email}
                 </a>
-              </li>
-              <li className="pt-2">
-                <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-500">
-                  <Link href={`/${localeSegment}/wspolpraca`}>
-                    <Calendar className="mr-2 size-4 shrink-0" />
-                    {copy.consultationLabel}
-                  </Link>
-                </Button>
-              </li>
-            </ul>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+    </>
   );
 }

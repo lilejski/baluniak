@@ -21,11 +21,33 @@ export type ProfessionalAnswers = {
   scalability: boolean;
 };
 
+/** Advanced modules (checkboxes) – shared by both branches. */
+export type AdvancedModules = {
+  seo: boolean;
+  cms: boolean;
+  i18n: boolean;
+  analytics: boolean;
+  legal: boolean;
+};
+
+export const ADVANCED_MODULE_IDS = ["seo", "cms", "i18n", "analytics", "legal"] as const;
+export type AdvancedModuleId = (typeof ADVANCED_MODULE_IDS)[number];
+
+/** Price in PLN for each advanced module. */
+export const ADVANCED_MODULE_PRICES: Record<AdvancedModuleId, number> = {
+  seo: 500,
+  cms: 2000,
+  i18n: 1000,
+  analytics: 300,
+  legal: 200,
+};
+
 export type FunnelState = {
   branch: Branch | null;
   step: number;
   standard?: Partial<StandardAnswers>;
   professional?: Partial<ProfessionalAnswers>;
+  modules?: Partial<AdvancedModules>;
 };
 
 const DEFAULT_STANDARD: StandardAnswers = {
@@ -41,8 +63,8 @@ const DEFAULT_PROFESSIONAL: ProfessionalAnswers = {
   scalability: true,
 };
 
-export const STANDARD_STEP_IDS = ["branding", "sections", "deadline"] as const;
-export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "scale"] as const;
+export const STANDARD_STEP_IDS = ["branding", "sections", "deadline", "modules"] as const;
+export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "scale", "modules"] as const;
 
 export function getStandardSteps(lang: Language) {
   return translations[lang].kreator.steps.standard;
@@ -61,13 +83,17 @@ export function getDefaultAnswers(branch: Branch): StandardAnswers | Professiona
 
 /** Build a config object to send to architect API (and for offer summary). */
 export function buildConfigForApi(state: FunnelState): Record<string, unknown> {
-  if (state.branch === "standard" && state.standard) {
-    return { branch: "standard", ...state.standard };
-  }
-  if (state.branch === "professional" && state.professional) {
-    return { branch: "professional", ...state.professional };
-  }
-  return { branch: state.branch };
+  const base =
+    state.branch === "standard" && state.standard
+      ? { branch: "standard" as const, ...state.standard }
+      : state.branch === "professional" && state.professional
+        ? { branch: "professional" as const, ...state.professional }
+        : { branch: state.branch };
+  const selectedModules =
+    state.modules && typeof state.modules === "object"
+      ? ADVANCED_MODULE_IDS.filter((id) => state.modules![id])
+      : [];
+  return { ...base, advancedModules: selectedModules };
 }
 
 /** Human-readable tech stack summary for the offer card. */
@@ -133,6 +159,19 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
       if (p.payments) {
         lineItems.push({ id: "payments", label: labels.payments, price: 1500 });
         total += 1500;
+      }
+    }
+  }
+
+  const mods = state.modules;
+  if (mods && typeof mods === "object") {
+    const moduleLabels: Record<AdvancedModuleId, string> = labels.modules ?? {} as Record<AdvancedModuleId, string>;
+    for (const id of ADVANCED_MODULE_IDS) {
+      if (mods[id]) {
+        const price = ADVANCED_MODULE_PRICES[id];
+        const label = moduleLabels[id] ?? id;
+        lineItems.push({ id: `module_${id}`, label, price });
+        total += price;
       }
     }
   }

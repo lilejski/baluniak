@@ -31,16 +31,19 @@ const mobileMenuItemVariants = {
   open: { opacity: 1, y: 0 },
 } as const;
 
-const navHrefs = ["/projekty", "/#about", "/sklep"] as const;
+const navItemsConfig = [
+  { labelKey: "navProjects" as const, hash: "#projekty" },
+  { labelKey: "navAbout" as const, hash: "#about" },
+  { labelKey: "navShop" as const, path: "/sklep" },
+] as const;
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const { dict, localeSegment } = useLanguage();
-  const navItems = [
-    { label: dict.header.navProjects, href: `/${localeSegment}${navHrefs[0]}` },
-    { label: dict.header.navAbout, href: `/${localeSegment}${navHrefs[1]}` },
-    { label: dict.header.navShop, href: `/${localeSegment}${navHrefs[2]}` },
-  ];
+  const navItems = navItemsConfig.map((item) => ({
+    label: dict.header[item.labelKey],
+    href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
+  }));
 
   return (
     <header
@@ -58,7 +61,7 @@ export function Navbar() {
           BALUNIAK.COM
         </Link>
 
-        {/* Desktop: nav + language + CTA */}
+        {/* Desktop: nav + language + Book Call + Build MVP */}
         <div className="hidden items-center gap-2 md:flex">
           {navItems.map(({ label, href }) => (
             <Button key={href} variant="ghost" asChild>
@@ -71,9 +74,14 @@ export function Navbar() {
             </Button>
           ))}
           <LanguageSwitcher />
-          <Button asChild size="default" className="ml-2">
+          <Button asChild size="default" className="border-0 bg-amber-500 font-semibold text-zinc-950 shadow-[0_0_18px_rgba(245,158,11,0.4)] hover:bg-amber-400 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)]">
+            <Link href={`/${localeSegment}/wspolpraca`}>
+              {dict.header.bookCall}
+            </Link>
+          </Button>
+          <Button asChild size="default" className="ml-1">
             <Link
-              href={`/${localeSegment}/kreator`}
+              href={`/${localeSegment}#kreator`}
               className="bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500"
             >
               <motion.span
@@ -147,9 +155,19 @@ export function Navbar() {
                       <LanguageSwitcher inSheet />
                     </motion.div>
                     <motion.div variants={mobileMenuItemVariants}>
+                      <Button asChild size="lg" className="w-full border-0 bg-amber-500 font-semibold text-zinc-950 shadow-[0_0_18px_rgba(245,158,11,0.4)] hover:bg-amber-400">
+                        <Link
+                          href={`/${localeSegment}/wspolpraca`}
+                          onClick={() => setOpen(false)}
+                        >
+                          {dict.header.bookCall}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    <motion.div variants={mobileMenuItemVariants}>
                       <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500">
                         <Link
-                          href={`/${localeSegment}/kreator`}
+                          href={`/${localeSegment}#kreator`}
                           onClick={() => setOpen(false)}
                         >
                           {dict.header.cta}
