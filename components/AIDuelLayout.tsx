@@ -15,7 +15,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 const SPLITTER = " ||| ";
-const MAX_INTERACTIONS = 3;
+const MAX_INTERACTIONS = 15;
+const RATE_LIMIT_MS = 2000;
 
 function getAssistantTextContent(
   messages: {
@@ -71,6 +72,22 @@ function hasUserContent(
       .join("");
     return text.trim().length > 0;
   });
+}
+
+/** Extract plain text from a message for serialization (chatHistory). */
+function getMessageText(
+  m: { role: string; parts?: Array<{ type: string; text?: string }>; content?: string }
+): string {
+  if (typeof (m as { content?: string }).content === "string")
+    return (m as { content: string }).content;
+  if (!m.parts?.length) return "";
+  return m.parts
+    .filter(
+      (p): p is { type: string; text: string } =>
+        p.type === "text" && typeof p.text === "string"
+    )
+    .map((p) => p.text)
+    .join("");
 }
 
 function FrequencyBar({ active }: { active: boolean }) {
@@ -241,6 +258,12 @@ export default function AIDuelLayout() {
   const [devResponse, setDevResponse] = useState("");
   const [bizResponse, setBizResponse] = useState("");
   const [interactionCount, setInteractionCount] = useState(0);
+  const [briefModalOpen, setBriefModalOpen] = useState(false);
+  const [briefEmail, setBriefEmail] = useState("");
+  const [briefSending, setBriefSending] = useState(false);
+  const [briefSent, setBriefSent] = useState(false);
+  const [briefToastVisible, setBriefToastVisible] = useState(false);
+  const lastSendTimeRef = useRef<number>(0);
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
@@ -277,6 +300,9 @@ export default function AIDuelLayout() {
       e.preventDefault();
       const value = input.trim();
       if (!value || isLoading || interactionCount >= MAX_INTERACTIONS) return;
+      const now = Date.now();
+      if (now - lastSendTimeRef.current < RATE_LIMIT_MS) return;
+      lastSendTimeRef.current = now;
       setDevResponse("");
       setBizResponse("");
       const nextStep = interactionCount + 1;
@@ -314,6 +340,42 @@ export default function AIDuelLayout() {
 
   const limitReached = interactionCount >= MAX_INTERACTIONS;
   const showWelcomeCards = interactionCount === 0 && !isLoading && !limitReached;
+  const showGenerateBriefButton = interactionCount >= 3 && !briefSent;
+
+  const handleSendBrief = useCallback(async () => {
+    const email = briefEmail.trim();
+    if (!email) return;
+    setBriefSending(true);
+    try {
+      const chatHistory = messages.map((m) => ({
+        role: m.role,
+        content: getMessageText(m),
+      }));
+      const res = await fetch("/api/finalize-workshop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chatHistory,
+          userEmail: email,
+          userContactInfo: {},
+        }),
+      });
+      const data = (await res.json()) as { success?: boolean; error?: string };
+      if (res.ok && data.success) {
+        setBriefSent(true);
+        setBriefModalOpen(false);
+        setBriefEmail("");
+        setBriefToastVisible(true);
+        setTimeout(() => setBriefToastVisible(false), 4000);
+      } else {
+        alert(data.error ?? COPY.briefModalError);
+      }
+    } catch {
+      alert(COPY.briefModalError);
+    } finally {
+      setBriefSending(false);
+    }
+  }, [briefEmail, messages, COPY.briefModalError]);
 
   const connectionError = !!error;
   const [mobileTab, setMobileTab] = useState<"dev" | "biz">("dev");
@@ -363,10 +425,29 @@ export default function AIDuelLayout() {
         </motion.div>
       )}
 
+      {briefToastVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          className="fixed left-1/2 top-24 z-[110] -translate-x-1/2 rounded-lg border border-emerald-500/50 bg-emerald-950/95 px-5 py-3 text-sm font-medium text-emerald-100 shadow-lg"
+          role="status"
+          aria-live="polite"
+        >
+          {COPY.briefSuccessToast}
+        </motion.div>
+      )}
+
       {/* Compact console: centered module (agents + input in one device) */}
       <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
         <div className="w-full max-w-5xl">
           <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-xl backdrop-blur-md">
+            {/* Workshop mode banner */}
+            <div className="border-b border-white/10 bg-emerald-950/30 px-4 py-2.5 text-center">
+              <p className="text-xs font-medium text-emerald-200/95 sm:text-sm">
+                {COPY.workshopBanner}
+              </p>
+            </div>
             {/* Welcome Cards: Quick Actions */}
             {showWelcomeCards && (
               <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
@@ -458,7 +539,7 @@ export default function AIDuelLayout() {
               >
                 <div className="mb-2 flex justify-center">
                   <span className="text-xs font-medium tabular-nums text-zinc-500">
-                    {COPY.queriesCounterLabel} {interactionCount}/{MAX_INTERACTIONS}
+                    {COPY.workshopProgress.replace("{current}", String(interactionCount)).replace("{max}", String(MAX_INTERACTIONS))}
                   </span>
                 </div>
                 <form
@@ -470,7 +551,7 @@ export default function AIDuelLayout() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={CONSOLE.inputPlaceholder}
+                    placeholder={isLoading ? CONSOLE.buttonSubmitting : CONSOLE.inputPlaceholder}
                     disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
                       aria-label={COPY.inputAriaLabel}
@@ -531,7 +612,7 @@ export default function AIDuelLayout() {
                 <>
                   <div className="flex justify-center border-t border-white/10 py-2">
                     <span className="text-xs font-medium tabular-nums text-zinc-500">
-                      {COPY.queriesCounterLabel} {interactionCount}/{MAX_INTERACTIONS}
+                      {COPY.workshopProgress.replace("{current}", String(interactionCount)).replace("{max}", String(MAX_INTERACTIONS))}
                     </span>
                   </div>
                   <div className="border-t border-white/10 px-4 py-4">
@@ -544,7 +625,7 @@ export default function AIDuelLayout() {
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={CONSOLE.inputPlaceholder}
+                      placeholder={isLoading ? CONSOLE.buttonSubmitting : CONSOLE.inputPlaceholder}
                       disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
                       aria-label={COPY.inputAriaLabel}
@@ -582,9 +663,78 @@ export default function AIDuelLayout() {
                 </div>
               </div>
             )}
+
+            {/* Sticky action bar: Generate Brief (after 3+ messages) */}
+            {showGenerateBriefButton && (
+              <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/90 px-4 py-3 backdrop-blur-md">
+                <div className="mx-auto flex max-w-[600px] justify-center">
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={() => setBriefModalOpen(true)}
+                    className="min-h-11 bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:bg-emerald-500"
+                  >
+                    ✅ {COPY.generateBriefButton}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Brief modal: email + send */}
+      {briefModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="brief-modal-title"
+        >
+          <div className="w-full max-w-md rounded-xl border border-white/20 bg-zinc-900 p-6 shadow-2xl">
+            <h2 id="brief-modal-title" className="text-lg font-semibold text-zinc-100">
+              {COPY.briefModalTitle}
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              {COPY.workshopBanner}
+            </p>
+            <div className="mt-4">
+              <label htmlFor="brief-email" className="mb-1.5 block text-xs font-medium text-zinc-400">
+                {COPY.briefModalEmailLabel}
+              </label>
+              <Input
+                id="brief-email"
+                type="email"
+                value={briefEmail}
+                onChange={(e) => setBriefEmail(e.target.value)}
+                placeholder={COPY.briefModalEmailPlaceholder}
+                className="h-11 border-zinc-700 bg-zinc-800 text-zinc-100"
+                autoFocus
+                disabled={briefSending}
+              />
+            </div>
+            <div className="mt-6 flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 border-zinc-600"
+                onClick={() => setBriefModalOpen(false)}
+                disabled={briefSending}
+              >
+                {COPY.briefModalCancel}
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500"
+                onClick={handleSendBrief}
+                disabled={!briefEmail.trim() || briefSending}
+              >
+                {briefSending ? COPY.briefGenerating : COPY.briefModalSubmit}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
