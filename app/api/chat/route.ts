@@ -96,7 +96,7 @@ const ERROR_MSG = {
 } as const;
 
 export async function POST(req: Request) {
-  let body: { messages?: UIMessage[]; step?: number; lang?: string; language?: string } = {};
+  let body: { messages?: UIMessage[]; step?: number } = {};
   try {
     body = (await req.json()) as typeof body;
   } catch (parseErr) {
@@ -104,10 +104,12 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: ERROR_MSG.PL }), { status: 400 });
   }
 
+  const url = new URL(req.url);
+  const lang = normalizeLang(url.searchParams.get("lang") ?? "pl");
+
   const messages: UIMessage[] = Array.isArray(body?.messages) ? body.messages : [];
   const step = body?.step;
   const safeStep = typeof step === "number" && step >= 1 ? step : 1;
-  const lang = normalizeLang(body?.language ?? body?.lang);
   const systemPrompt = buildSystemPrompt(lang, safeStep >= 3);
 
   try {

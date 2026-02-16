@@ -266,8 +266,7 @@ export default function AIDuelLayout() {
   const lastSendTimeRef = useRef<number>(0);
 
   const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
-    body: { lang },
+    transport: new DefaultChatTransport({ api: `/api/chat?lang=${lang}` }),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -314,7 +313,7 @@ export default function AIDuelLayout() {
             content: value,
             parts: [{ type: "text", text: value }],
           } as Parameters<typeof sendMessage>[0],
-          { body: { step: nextStep, lang } }
+          { body: { step: nextStep } }
         );
         setInteractionCount(nextStep);
       } catch (err) {
@@ -324,7 +323,7 @@ export default function AIDuelLayout() {
       }
       setInput("");
     },
-    [input, isLoading, interactionCount, sendMessage, lang]
+    [input, isLoading, interactionCount, sendMessage]
   );
 
   const inputRefMobile = useRef<HTMLInputElement>(null);
