@@ -36,8 +36,8 @@ export type AdvancedModuleId = (typeof ADVANCED_MODULE_IDS)[number];
 /** Price in PLN for each advanced module. */
 export const ADVANCED_MODULE_PRICES: Record<AdvancedModuleId, number> = {
   seo: 500,
-  cms: 2000,
-  i18n: 1000,
+  cms: 900,
+  i18n: 1200,
   analytics: 300,
   legal: 200,
 };
@@ -132,8 +132,8 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
   let total = 0;
 
   if (state.branch === "standard") {
-    lineItems.push({ id: "base", label: labels.baseStandard, price: 3500 });
-    total = 3500;
+    lineItems.push({ id: "base", label: labels.baseStandard, price: 2200 });
+    total = 2200;
     const s = state.standard?.sections;
     if (s) {
       const sectionsCount = [s.about, s.gallery, s.contact].filter(Boolean).length;
@@ -144,13 +144,13 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
       }
     }
   } else if (state.branch === "professional") {
-    lineItems.push({ id: "base", label: labels.baseProfessional, price: 8500 });
-    total = 8500;
+    lineItems.push({ id: "base", label: labels.baseProfessional, price: 6500 });
+    total = 6500;
     const p = state.professional;
     if (p) {
       if (p.aiIntegration) {
-        lineItems.push({ id: "ai", label: labels.ai, price: 2000 });
-        total += 2000;
+        lineItems.push({ id: "ai", label: labels.ai, price: 1500 });
+        total += 1500;
       }
       if (p.userAuth) {
         lineItems.push({ id: "auth", label: labels.auth, price: 1000 });

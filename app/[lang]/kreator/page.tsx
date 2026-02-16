@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
@@ -104,6 +105,8 @@ export default function KreatorPage() {
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
   const [architectText, setArchitectText] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
   const offerPrintRef = useRef<HTMLDivElement>(null);
 
   const state: FunnelState = { branch, step, standard, professional, modules };
@@ -111,7 +114,10 @@ export default function KreatorPage() {
     () => getPriceBreakdown(state, lang),
     [branch, standard, professional, modules, lang]
   );
-  const displayTotal = useCountUp(totalPrice);
+  const [isPortfolioDiscount, setIsPortfolioDiscount] = useState(true);
+  const discountAmount = isPortfolioDiscount ? Math.round(0.1 * totalPrice) : 0;
+  const finalTotal = totalPrice - discountAmount;
+  const displayTotal = useCountUp(finalTotal);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const totalSteps = branch ? getTotalSteps(branch) : 0;
   const currentStepLabel =
@@ -213,10 +219,10 @@ export default function KreatorPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clientName: "",
-          clientEmail: "",
+          clientName: clientName.trim(),
+          clientEmail: clientEmail.trim(),
           projectType,
-          budgetRange: { min: 0, max: totalPrice },
+          budgetRange: { min: 0, max: finalTotal },
           config,
           architectSummary: architectText,
         }),
@@ -232,7 +238,7 @@ export default function KreatorPage() {
     } finally {
       setInquirySending(false);
     }
-  }, [branch, step, standard, professional, modules, architectText, totalPrice, k]);
+  }, [branch, step, standard, professional, modules, architectText, totalPrice, finalTotal, clientName, clientEmail, k]);
 
   const downloadOfferPdf = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -329,16 +335,48 @@ export default function KreatorPage() {
             </AnimatePresence>
           </ul>
           <div className="border-t border-zinc-800 pt-4">
-            <motion.p
-              key={`${displayTotal}-${lang}`}
-              initial={{ opacity: 0, scale: 1.02 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className="text-2xl font-bold tabular-nums text-emerald-500"
-            >
-              {k.estimatedTotal}: {formatPrice(displayTotal, lang, currencyCode)}
-            </motion.p>
+            <label className="mb-3 flex cursor-pointer items-start gap-2">
+              <input
+                type="checkbox"
+                checked={isPortfolioDiscount}
+                onChange={(e) => setIsPortfolioDiscount(e.target.checked)}
+                className="mt-1 size-4 rounded border-zinc-600 accent-emerald-500"
+              />
+              <span className="text-xs text-zinc-400">{k.portfolioDiscountLabel}</span>
+            </label>
+            {discountAmount > 0 ? (
+              <>
+                <p className="text-sm tabular-nums text-zinc-500 line-through">
+                  {k.estimatedTotal}: {formatPrice(totalPrice, lang, currencyCode)}
+                </p>
+                <motion.p
+                  key={`${displayTotal}-${lang}`}
+                  initial={{ opacity: 0, scale: 1.02 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="text-2xl font-bold tabular-nums text-emerald-500"
+                >
+                  {k.estimatedTotal}: {formatPrice(displayTotal, lang, currencyCode)}
+                </motion.p>
+                <span className="mt-1 inline-block rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">
+                  {k.savingsBadge.replace("{amount}", String(discountAmount))}
+                </span>
+              </>
+            ) : (
+              <motion.p
+                key={`${displayTotal}-${lang}`}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="text-2xl font-bold tabular-nums text-emerald-500"
+              >
+                {k.estimatedTotal}: {formatPrice(displayTotal, lang, currencyCode)}
+              </motion.p>
+            )}
           </div>
+          <p className="text-xs text-zinc-500">
+            {k.billingNote}
+          </p>
           <p className="text-xs text-zinc-500">
             {k.priceDisclaimer}
           </p>
@@ -426,15 +464,47 @@ export default function KreatorPage() {
                       ))}
                     </ul>
                     <div className="mt-4 border-t border-zinc-700 pt-4">
-                      <motion.p
-                        key={`final-${displayTotal}-${lang}`}
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className="text-2xl font-bold tabular-nums text-emerald-400"
-                      >
-                        {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
-                      </motion.p>
+                      <label className="mb-3 flex cursor-pointer items-start gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isPortfolioDiscount}
+                          onChange={(e) => setIsPortfolioDiscount(e.target.checked)}
+                          className="mt-1 size-4 rounded border-zinc-600 accent-emerald-500"
+                        />
+                        <span className="text-xs text-zinc-400">{k.portfolioDiscountLabel}</span>
+                      </label>
+                      {discountAmount > 0 ? (
+                        <>
+                          <p className="text-sm tabular-nums text-zinc-500 line-through">
+                            {k.sumLabel} {formatPrice(totalPrice, lang, currencyCode)}
+                          </p>
+                          <motion.p
+                            key={`final-${displayTotal}-${lang}`}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            className="text-2xl font-bold tabular-nums text-emerald-400"
+                          >
+                            {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
+                          </motion.p>
+                          <span className="mt-1 inline-block rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">
+                            {k.savingsBadge.replace("{amount}", String(discountAmount))}
+                          </span>
+                        </>
+                      ) : (
+                        <motion.p
+                          key={`final-${displayTotal}-${lang}`}
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                          className="text-2xl font-bold tabular-nums text-emerald-400"
+                        >
+                          {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
+                        </motion.p>
+                      )}
+                      <p className="mt-2 text-xs text-zinc-500">
+                        {k.billingNote}
+                      </p>
                     </div>
                   </div>
                   <div>
@@ -462,6 +532,44 @@ export default function KreatorPage() {
                 </CardContent>
               </Card>
             </div>
+            <div className="rounded-xl border border-white/10 bg-zinc-900/30 px-4 py-4 print:hidden">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+                {k.contactSectionTitle}
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label htmlFor="kreator-client-name" className="mb-1 block text-xs font-medium text-zinc-500">
+                    {k.contactNameLabel} <span className="text-red-400" aria-hidden>*</span>
+                  </label>
+                  <Input
+                    id="kreator-client-name"
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder={k.contactNamePlaceholder}
+                    className="h-11 border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500"
+                    autoComplete="name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="kreator-client-email" className="mb-1 block text-xs font-medium text-zinc-500">
+                    {k.contactEmailLabel} <span className="text-red-400" aria-hidden>*</span>
+                  </label>
+                  <Input
+                    id="kreator-client-email"
+                    type="email"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder={k.contactEmailPlaceholder}
+                    className="h-11 border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500"
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-zinc-500">
+                {k.contactDisclaimer}
+              </p>
+            </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center print:hidden">
               <Button
                 size="lg"
@@ -475,7 +583,7 @@ export default function KreatorPage() {
                 size="lg"
                 variant="outline"
                 onClick={sendToBaluniak}
-                disabled={inquirySending}
+                disabled={inquirySending || !clientName.trim() || !clientEmail.trim()}
                 className="min-h-12 border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/50"
               >
                 <Send className="mr-2 size-5 shrink-0" />
