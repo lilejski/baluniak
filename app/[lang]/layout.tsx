@@ -24,8 +24,8 @@ export async function generateMetadata({
   const isPl = lang === "pl";
   return {
     title: isPl
-      ? "baluniak — Product Engineer | MVP w 80h | Projekty, współpraca"
-      : "baluniak — Product Engineer | MVP in 80h | Projects, collaboration",
+      ? "baluniak — Product Engineer | MVP | Projekty, współpraca"
+      : "baluniak — Product Engineer | MVP | Projects, collaboration",
     description: isPl
       ? "Projekty, sklep, współpraca. Pragmatyczny Product Engineering. Od pomysłu do produkcji w 80 godzin."
       : "Projects, shop, collaboration. Pragmatic Product Engineering. From idea to production in 80 hours.",

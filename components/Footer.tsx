@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter, ArrowRight } from "lucide-react";
+import { Linkedin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -87,24 +87,6 @@ export function Footer() {
                 {copy.contactTitle}
               </p>
               <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href={copy.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
-                  aria-label="GitHub"
-                >
-                  <Github className="size-5" />
-                </a>
-                <a
-                  href={copy.xUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
-                  aria-label="X (Twitter)"
-                >
-                  <Twitter className="size-5" />
-                </a>
                 <a
                   href={copy.linkedinUrl}
                   target="_blank"

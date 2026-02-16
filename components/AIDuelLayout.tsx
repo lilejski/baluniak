@@ -21,7 +21,8 @@ const RATE_LIMIT_MS = 2000;
 /**
  * Parse split-stream response: "[DEV]: ... ||| [BIZ]: ..."
  * Left column gets content after [DEV]:, right column after [BIZ]:.
- * Fallback: if separator is missing (e.g. error message), show full text in both columns.
+ * Until the separator " ||| " appears (streaming), only DEV panel gets content; BIZ stays empty.
+ * Fallback: if separator is missing (e.g. error message), show full text only in DEV panel.
  */
 function parseSplitStreamContent(raw: string): { dev: string; biz: string } {
   const trimmed = raw.trim();
@@ -29,10 +30,10 @@ function parseSplitStreamContent(raw: string): { dev: string; biz: string } {
   const parts = trimmed.split(SPLITTER);
   const first = (parts[0]?.trim() ?? "").replace(/^\[DEV]:\s*/i, "").trim();
   const second = (parts[1]?.trim() ?? "").replace(/^\[BIZ]:\s*/i, "").trim();
-  if (parts.length < 2 || (!first && !second)) {
-    return { dev: trimmed, biz: trimmed };
+  if (parts.length >= 2) {
+    return { dev: first, biz: second };
   }
-  return { dev: first, biz: second };
+  return { dev: first || trimmed, biz: "" };
 }
 
 function getAssistantTextContent(

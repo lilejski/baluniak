@@ -68,30 +68,17 @@ If the user asks about pricing: refer to the configurator (/kreator) and say you
 Keep each part short (max 2–3 sentences). No JSON. Always use exactly " ||| " between [DEV] and [BIZ].
 `;
 
-/** Last-step closing (workshop limit reached) — PL */
-const LAST_STEP_PL = `
-
-KRYTYCZNE: To jest OSTATNIA (trzecia) interakcja. Odpowiedz KONTEKSTOWO (krótko, 1–2 zdania), potem zakończenie: koniec rozmowy, zaproś do kontaktu – np. "To już ostatnia wymiana. Chcesz więcej? Skontaktuj się – oferta lub napisz. Czekamy." NIE wspominaj o dzwonieniu. Bądź profesjonalny i życzliwy. ZACHOWAJ FORMAT: [DEV]: ... ||| [BIZ]: ... – obie persony muszą się wypowiedzieć.`;
-
-/** Last-step closing (workshop limit reached) — EN */
-const LAST_STEP_EN = `
-
-CRITICAL: This is the LAST (third) interaction. Answer in context (briefly, 1–2 sentences), then add a closing: end of conversation, invite them to get in touch – e.g. "That's the last exchange. Want more? Get in touch – check the offer or drop us a line." Do NOT mention calling or callbacks. Be professional and friendly. KEEP FORMAT: [DEV]: ... ||| [BIZ]: ... – both personas must reply.`;
-
 // --- Modular system prompts (same business logic, language-specific) ---
 
-function buildSystemPrompt(lang: LangCode, isLastStep: boolean): string {
+function buildSystemPrompt(lang: LangCode): string {
   const context = lang === "EN" ? CONTEXT_EN : CONTEXT_PL;
   const languageInstruction = lang === "EN" ? LANGUAGE_EN : LANGUAGE_PL;
   const logic = lang === "EN" ? LOGIC_EN : LOGIC_PL;
-  const lastStep = lang === "EN" ? LAST_STEP_EN : LAST_STEP_PL;
 
-  const base = `${context}
+  return `${context}
 
 You are a two-persona AI engine. ${languageInstruction}
 ${logic}`;
-
-  return isLastStep ? base + lastStep : base;
 }
 
 const ERROR_MSG = {
@@ -112,9 +99,7 @@ export async function POST(req: Request) {
   const lang = normalizeLang(url.searchParams.get("lang") ?? "pl");
 
   const messages: UIMessage[] = Array.isArray(body?.messages) ? body.messages : [];
-  const step = body?.step;
-  const safeStep = typeof step === "number" && step >= 1 ? step : 1;
-  const systemPrompt = buildSystemPrompt(lang, safeStep >= 3);
+  const systemPrompt = buildSystemPrompt(lang);
 
   try {
     const result = streamText({
