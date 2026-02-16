@@ -668,9 +668,9 @@ export default function AIDuelLayout() {
                       {dict.projects.sectionTitle}
                     </Button>
                   </Link>
-                  <Link href={`/${localeSegment}/sklep`}>
+                  <Link href={`/${localeSegment}/projekty/fotarobota`}>
                     <Button variant="outline" className="border-amber-500/50 bg-amber-950/50 text-amber-200/90 hover:bg-amber-900/40">
-                      {dict.header.navShop}
+                      {dict.header.navCaseStudy}
                     </Button>
                   </Link>
                 </div>

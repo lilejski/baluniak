@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { BarChart3, Smartphone, Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -76,15 +77,14 @@ export function About() {
           transition={{ duration: 0.5 }}
           className="mb-14 flex flex-col items-center gap-8 sm:flex-row sm:items-start sm:gap-10"
         >
-          <div className="shrink-0">
-            <div
-              className="size-28 rounded-full border-2 border-emerald-500/30 bg-zinc-800/80 sm:size-36 md:size-40"
-              aria-hidden
-            >
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-500">
-                <span className="text-xs font-medium uppercase tracking-wider sm:text-sm">Photo</span>
-              </div>
-            </div>
+          <div className="relative size-28 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500/30 bg-zinc-800/80 sm:size-36 md:size-40">
+            <Image
+              src="/li.jpg"
+              alt=""
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 640px) 7rem, (max-width: 768px) 9rem, 10rem"
+            />
           </div>
           <div className="min-w-0 max-w-[65ch] flex-1 text-center sm:text-left">
             <p

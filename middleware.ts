@@ -3,10 +3,15 @@ import type { NextRequest } from "next/server";
 
 const LOCALE_COOKIE = "baluniak-lang";
 const SUPPORTED_LOCALES = ["pl", "en"] as const;
+const VERCEL_COUNTRY_HEADER = "x-vercel-ip-country";
 
 function getPreferredLocale(request: NextRequest): "pl" | "en" {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
   if (cookie === "en" || cookie === "pl") return cookie;
+
+  const country = request.headers.get(VERCEL_COUNTRY_HEADER)?.toUpperCase();
+  if (country === "PL") return "pl";
+  if (country) return "en";
 
   const acceptLang = request.headers.get("accept-language");
   if (acceptLang?.toLowerCase().includes("en")) return "en";
