@@ -708,7 +708,7 @@ function ProcessingTerminal({
               <motion.span
                 className="inline-block w-3 text-emerald-400"
                 animate={{ opacity: [1, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity, ease: "steps(2)" }}
+                transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
                 aria-hidden
               >
                 _
