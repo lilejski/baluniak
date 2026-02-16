@@ -267,6 +267,7 @@ export default function AIDuelLayout() {
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
+    body: { lang },
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -358,6 +359,7 @@ export default function AIDuelLayout() {
           chatHistory,
           userEmail: email,
           userContactInfo: {},
+          language: lang,
         }),
       });
       const data = (await res.json()) as { success?: boolean; error?: string };
@@ -375,7 +377,7 @@ export default function AIDuelLayout() {
     } finally {
       setBriefSending(false);
     }
-  }, [briefEmail, messages, COPY.briefModalError]);
+  }, [briefEmail, messages, lang, COPY.briefModalError]);
 
   const connectionError = !!error;
   const [mobileTab, setMobileTab] = useState<"dev" | "biz">("dev");

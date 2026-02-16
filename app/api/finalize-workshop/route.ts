@@ -12,18 +12,38 @@ type Body = {
   chatHistory?: ChatEntry[];
   userEmail?: string;
   userContactInfo?: Record<string, string>;
+  language?: string;
+  lang?: string;
 };
 
-const SYSTEM_PROMPT = `You are a Senior Project Manager. Analyze the attached conversation between the User and the Agents (DEV & BIZ).
+type Lang = "PL" | "EN";
 
-Summarize the project into a structured Brief. Output valid HTML only (no markdown, no \`\`\`). Use this structure:
+function normalizeLang(value: unknown): Lang {
+  if (value === "EN" || value === "en") return "EN";
+  return "PL";
+}
 
-1. <h3>Project Goal</h3> + one short paragraph
-2. <h3>Technical Requirements</h3> + bullet list (from DEV)
-3. <h3>Business Goals</h3> + bullet list (from BIZ)
+/** Dynamic summarizer prompts by language */
+const SUMMARIZER_PROMPT: Record<Lang, string> = {
+  PL: `Jesteś polskim Project Managerem. Przeanalizuj rozmowę i stwórz HTML Brief po POLSKU. Sekcje: Cel, Technologia, Biznes.
+
+Output: tylko poprawny HTML (bez markdown, bez \`\`\`). Użyj struktury:
+1. <h3>Cel</h3> + krótki akapit
+2. <h3>Technologia</h3> + lista (z DEV)
+3. <h3>Biznes</h3> + lista (z BIZ)
+4. <h3>Rekomendowane kolejne kroki</h3> + lista numerowana
+
+Używaj <p>, <ul>, <ol>, <li>. Zwięźle i po polsku. Jeśli czegoś brakuje w rozmowie, wpisz "Do doprecyzowania." w danej sekcji.`,
+  EN: `You are a Senior Project Manager. Analyze the chat and create an HTML Brief in ENGLISH. Sections: Goal, Tech Stack, Business Context.
+
+Output: valid HTML only (no markdown, no \`\`\`). Use this structure:
+1. <h3>Goal</h3> + one short paragraph
+2. <h3>Tech Stack</h3> + bullet list (from DEV)
+3. <h3>Business Context</h3> + bullet list (from BIZ)
 4. <h3>Recommended Next Steps</h3> + ordered list
 
-Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`;
+Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`,
+};
 
 function buildConversationText(chatHistory: ChatEntry[]): string {
   return chatHistory
@@ -38,16 +58,20 @@ function countUserMessages(chatHistory: ChatEntry[]): number {
   return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
 }
 
-function wrapEmailHtml(htmlBody: string, userEmail: string): string {
+/** Minimal wrapper: pass generated HTML as body; header/footer by language */
+function wrapEmailHtml(htmlBody: string, userEmail: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
   return `
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"></head>
 <body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Podsumowanie Warsztatu AI</td></tr>
-    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">Wysłano do: ${userEmail}</td></tr>
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${userEmail}</td></tr>
     <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Warsztat · baluniak.com</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
   </table>
 </body></html>`.trim();
 }
@@ -55,34 +79,62 @@ function wrapEmailHtml(htmlBody: string, userEmail: string): string {
 function getProjectIdeaForSubject(chatHistory: ChatEntry[]): string {
   const firstUser = chatHistory.find((m) => m.role === "user" && (m.content || "").trim());
   const text = (firstUser?.content || "").trim().slice(0, 50);
-  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "Warsztat";
+  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "";
 }
 
+/** Email subject by language */
+function getSubject(projectName: string, lang: Lang): string {
+  const fallback = lang === "EN" ? "Workshop" : "Warsztat";
+  const name = projectName || fallback;
+  return lang === "EN" ? `AI Workshop Summary: ${name}` : `Podsumowanie Warsztatu AI: ${name}`;
+}
+
+const ERROR_MSG = {
+  emailRequired: { PL: "Email jest wymagany.", EN: "Email is required." },
+  minMessages: {
+    PL: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief.",
+    EN: "We need at least 3 messages from you to generate the Brief.",
+  },
+  config: { PL: "Konfiguracja email nie jest ustawiona.", EN: "Email configuration is not set." },
+  sendFailed: { PL: "Nie udało się wysłać Briefu.", EN: "Failed to send the Brief." },
+  generic: {
+    PL: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie.",
+    EN: "Could not generate or send the Brief. Please try again.",
+  },
+} as const;
+
 export async function POST(req: Request) {
+  let lang: Lang = "PL";
   try {
     const body = (await req.json()) as Body;
     const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
     const userEmail = (body.userEmail ?? "").trim();
-    const userContactInfo = body.userContactInfo ?? {};
+    lang = normalizeLang(body.language ?? body.lang);
 
     if (!userEmail) {
-      return NextResponse.json({ error: "Email jest wymagany." }, { status: 400 });
+      return NextResponse.json(
+        { error: ERROR_MSG.emailRequired[lang] },
+        { status: 400 }
+      );
     }
 
     const userMessageCount = countUserMessages(chatHistory);
     if (userMessageCount < 3) {
       return NextResponse.json(
-        { error: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief." },
+        { error: ERROR_MSG.minMessages[lang] },
         { status: 400 }
       );
     }
 
     const conversationText = buildConversationText(chatHistory);
-    const userPrompt = `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only.`;
+    const userPrompt =
+      lang === "EN"
+        ? `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only (in English).`
+        : `Rozmowa:\n\n${conversationText}\n\nNa wyjściu podaj tylko Brief w HTML (po polsku).`;
 
     const { text: htmlBrief } = await generateText({
       model: anthropic("claude-sonnet-4-20250514"),
-      system: SYSTEM_PROMPT,
+      system: SUMMARIZER_PROMPT[lang],
       prompt: userPrompt,
     });
 
@@ -90,17 +142,21 @@ export async function POST(req: Request) {
     if (!apiKey) {
       console.error("[finalize-workshop] Missing RESEND_API_KEY");
       return NextResponse.json(
-        { error: "Konfiguracja email nie jest ustawiona." },
+        { error: ERROR_MSG.config[lang] },
         { status: 500 }
       );
     }
 
-    const subject = `Podsumowanie Warsztatu AI: ${getProjectIdeaForSubject(chatHistory)}`;
-    const fullHtml = wrapEmailHtml(htmlBrief.trim() || "<p>Brak wygenerowanej treści.</p>", userEmail);
+    const projectName = getProjectIdeaForSubject(chatHistory);
+    const subject = getSubject(projectName, lang);
+    const fullHtml = wrapEmailHtml(
+      htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>"),
+      userEmail,
+      lang
+    );
 
     const resend = new Resend(apiKey);
-
-    const toList = [userEmail, LEAD_EMAIL].filter((e) => e);
+    const toList = [userEmail, LEAD_EMAIL].filter(Boolean);
     const { error } = await resend.emails.send({
       from: FROM,
       to: toList,
@@ -112,7 +168,7 @@ export async function POST(req: Request) {
     if (error) {
       console.error("[finalize-workshop] Resend error:", error);
       return NextResponse.json(
-        { error: error.message ?? "Nie udało się wysłać Briefu." },
+        { error: error.message ?? ERROR_MSG.sendFailed[lang] },
         { status: 500 }
       );
     }
@@ -121,7 +177,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[finalize-workshop]", err);
     return NextResponse.json(
-      { error: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie." },
+      { error: ERROR_MSG.generic[lang] },
       { status: 500 }
     );
   }
