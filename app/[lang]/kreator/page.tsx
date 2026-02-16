@@ -201,23 +201,38 @@ export default function KreatorPage() {
 
   const sendToBaluniak = useCallback(async () => {
     const config = buildConfigForApi(state);
+    const projectType =
+      branch === "standard"
+        ? k.pathStandard
+        : branch === "professional"
+          ? k.pathProfessional
+          : "Kreator";
     setInquirySending(true);
     try {
-      const res = await fetch("/api/inquiry", {
+      const res = await fetch("/api/send-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          clientName: "",
+          clientEmail: "",
+          projectType,
+          budgetRange: { min: 0, max: totalPrice },
           config,
-          priceRange: { min: 0, max: 0 },
           architectSummary: architectText,
         }),
       });
-      const data = (await res.json()) as { success?: boolean };
-      if (data.success) setSummaryPhase("sent");
+      const data = (await res.json()) as { success?: boolean; error?: string };
+      if (res.ok && data.success) {
+        setSummaryPhase("sent");
+      } else {
+        alert(k.sendError);
+      }
+    } catch {
+      alert(k.sendError);
     } finally {
       setInquirySending(false);
     }
-  }, [branch, step, standard, professional, architectText]);
+  }, [branch, step, standard, professional, modules, architectText, totalPrice, k]);
 
   const downloadOfferPdf = useCallback(() => {
     if (typeof window === "undefined") return;
