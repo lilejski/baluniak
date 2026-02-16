@@ -60,7 +60,7 @@ export const translations = {
     },
     about: {
       bridgeTitle: "The Bridge",
-      roleTitle: "Product Engineer",
+      roleTitle: "Fullstack Product Builder",
       headline: "Analiza PostHog & Ergonomia: Nie zgaduję, sprawdzam dane. Projektuję pod 'konkretne przypadki', bo wiem, że każda aplikacja wymaga indywidualnego podejścia.",
       subheadline: "Buduję produkty, które konwertują – poparte doświadczeniem w analityce danych.",
       stages: [
@@ -74,7 +74,7 @@ export const translations = {
           id: "thumb",
           label: "Modern UX",
           title: "Ergonomia kciuka",
-          body: "Śledzę najnowsze trendy w interakcji mobilnej. Projektuję interfejsy z myślą o Thumb Zone – najważniejsze akcje muszą być tam, gdzie kciuk użytkownika ląduje naturalnie. To podnosi konwersję o dziesiątki procent.",
+          body: "Projektuję interfejsy z myślą o naturalnym ruchu dłoni. Najważniejsze akcje umieszczam w strefie kciuka (Thumb Zone). To sprawia, że aplikacja po prostu dobrze leży w dłoni, co realnie podnosi konwersję na urządzeniach mobilnych.",
         },
         {
           id: "scale",
@@ -429,7 +429,7 @@ export const translations = {
     },
     about: {
       bridgeTitle: "The Bridge",
-      roleTitle: "Product Engineer",
+      roleTitle: "Fullstack Product Builder",
       headline: "PostHog Analysis & Ergonomics: I don't guess, I track. I design for concrete use cases, because every app needs an individual approach.",
       subheadline: "I build products that convert – backed by experience in data analytics.",
       stages: [
@@ -443,7 +443,7 @@ export const translations = {
           id: "thumb",
           label: "Modern UX",
           title: "Thumb Zone ergonomics",
-          body: "I follow the latest trends in mobile interaction. I design interfaces with the Thumb Zone in mind – key actions go where the user’s thumb lands naturally. That drives conversion by double digits.",
+          body: "I design interfaces with natural hand movement in mind. I place key actions in the thumb zone. That makes the app feel right in the user’s hand and reliably boosts conversion on mobile.",
         },
         {
           id: "scale",
