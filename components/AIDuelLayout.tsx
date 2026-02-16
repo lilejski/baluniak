@@ -18,6 +18,23 @@ const SPLITTER = " ||| ";
 const MAX_INTERACTIONS = 15;
 const RATE_LIMIT_MS = 2000;
 
+/**
+ * Parse split-stream response: "[DEV]: ... ||| [BIZ]: ..."
+ * Left column gets content after [DEV]:, right column after [BIZ]:.
+ * Fallback: if separator is missing (e.g. error message), show full text in both columns.
+ */
+function parseSplitStreamContent(raw: string): { dev: string; biz: string } {
+  const trimmed = raw.trim();
+  if (!trimmed) return { dev: "", biz: "" };
+  const parts = trimmed.split(SPLITTER);
+  const first = (parts[0]?.trim() ?? "").replace(/^\[DEV]:\s*/i, "").trim();
+  const second = (parts[1]?.trim() ?? "").replace(/^\[BIZ]:\s*/i, "").trim();
+  if (parts.length < 2 || (!first && !second)) {
+    return { dev: trimmed, biz: trimmed };
+  }
+  return { dev: first, biz: second };
+}
+
 function getAssistantTextContent(
   messages: {
     role: string;
@@ -238,7 +255,7 @@ function AgentWindow({
           ) : (
             <>
               {content || placeholder}
-              {isDev && (isLoading || content) && (
+              {(isLoading || content) && (
                 <span className="animate-pulse">_</span>
               )}
             </>
@@ -279,14 +296,9 @@ export default function AIDuelLayout() {
       setBizResponse("");
       return;
     }
-    const parts = content.split(SPLITTER);
-    const dev = parts[0]?.trim() ?? "";
-    const biz = parts[1]?.trim() ?? "";
+    const { dev, biz } = parseSplitStreamContent(content);
     setDevResponse(dev);
     setBizResponse(biz);
-    if (process.env.NODE_ENV === "development" && content && biz === "" && parts.length === 1) {
-      console.debug("[AIDuel] No BIZ segment in response (missing ' ||| '). Full length:", content.length);
-    }
   }, [messages]);
 
   useEffect(() => {
@@ -552,7 +564,7 @@ export default function AIDuelLayout() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={isLoading ? CONSOLE.buttonSubmitting : CONSOLE.inputPlaceholder}
+                    placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
                     disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
                       aria-label={COPY.inputAriaLabel}
@@ -626,7 +638,7 @@ export default function AIDuelLayout() {
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={isLoading ? CONSOLE.buttonSubmitting : CONSOLE.inputPlaceholder}
+                      placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
                       disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
                       aria-label={COPY.inputAriaLabel}
