@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowLeft, Camera, Zap, CreditCard, TrendingUp } from "lucide-react";
@@ -70,16 +71,17 @@ export default function FotarobotaCaseStudyPage() {
           </p>
 
           <div
-            className="mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_0_40px_rgba(16,185,129,0.12)]"
+            className="relative mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_0_40px_rgba(16,185,129,0.12)]"
             style={{ aspectRatio: "16/9" }}
           >
-            <div className="flex h-full w-full items-center justify-center bg-zinc-900">
-              <div className="text-center">
-                <Camera className="mx-auto size-14 text-zinc-600" aria-hidden />
-                <p className="mt-3 text-sm font-medium text-zinc-500">{f.videoPlaceholderTitle}</p>
-                <p className="mt-1 text-xs text-zinc-600">{f.videoPlaceholderSub}</p>
-              </div>
-            </div>
+            <Image
+              src="/fotarobota-preview.png"
+              alt="Fotarobota — podgląd produktu"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 896px"
+              priority
+            />
           </div>
         </motion.header>
 
