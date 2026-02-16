@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { generateEmailHtml, type OrderEmailData } from "@/lib/email-template";
 
 const FROM = "onboarding@resend.dev";
-const TO = "lukasz@baluniak.com";
+const TO = "l.baluniak@gmail.com";
 
 type SendOrderBody = {
   clientName?: string;
