@@ -54,9 +54,11 @@ app/[lang]/wspolpraca/page.tsx
 app/api/architect/route.ts
 app/api/chat/route.ts
 app/api/fast-track/route.ts
+app/api/finalize-workshop/route.ts
 app/api/inquiry/route.ts
 app/api/send-contact/route.ts
 app/api/send-order/route.ts
+app/api/send-workshop-brief/route.ts
 app/favicon.ico
 app/globals.css
 app/layout.tsx
@@ -89,7 +91,6 @@ components/ui/separator.tsx
 components/ui/sheet.tsx
 components/ui/tabs.tsx
 components/WelcomeCards.tsx
-CONTENT_PLAN.md
 contexts/LanguageContext.tsx
 eslint.config.mjs
 lib/configurator-pricing.ts
@@ -104,6 +105,7 @@ postcss.config.mjs
 public/file.svg
 public/fotarobota-preview.png
 public/globe.svg
+public/li.jpg
 public/next.svg
 public/vercel.svg
 public/window.svg
@@ -166,69 +168,6 @@ yarn-error.log*
 next-env.d.ts
 </file>
 
-<file path="app/[lang]/layout.tsx">
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { Analytics } from "@vercel/analytics/next";
-import type { Language } from "@/lib/translations";
-
-const SUPPORTED_LANGS = ["pl", "en"] as const;
-
-function toLanguage(segment: string): Language {
-  return segment === "en" ? "EN" : "PL";
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}): Promise<Metadata> {
-  const { lang } = await params;
-  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
-    return { title: "baluniak" };
-  }
-  const isPl = lang === "pl";
-  return {
-    title: isPl
-      ? "baluniak — Product Engineer | MVP w 80h | Projekty, współpraca"
-      : "baluniak — Product Engineer | MVP in 80h | Projects, collaboration",
-    description: isPl
-      ? "Projekty, sklep, współpraca. Pragmatyczny Product Engineering. Od pomysłu do produkcji w 80 godzin."
-      : "Projects, shop, collaboration. Pragmatic Product Engineering. From idea to production in 80 hours.",
-    alternates: {
-      canonical: `https://baluniak.com/${lang}`,
-      languages: { pl: "https://baluniak.com/pl", en: "https://baluniak.com/en" },
-    },
-  };
-}
-
-export default async function LangLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
-  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
-    notFound();
-  }
-  const initialLang = toLanguage(lang);
-
-  return (
-    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
-      <Navbar />
-      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
-      <Footer />
-      <Analytics />
-    </LanguageProvider>
-  );
-}
-</file>
-
 <file path="app/[lang]/projekty/fotarobota/layout.tsx">
 import type { Metadata } from "next";
 
@@ -253,252 +192,6 @@ export default function FotarobotaLayout({
   children: React.ReactNode;
 }) {
   return children;
-}
-</file>
-
-<file path="app/[lang]/projekty/fotarobota/page.tsx">
-"use client";
-
-import Link from "next/link";
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { ArrowLeft, Camera, Zap, CreditCard, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
-  },
-};
-
-export default function FotarobotaCaseStudyPage() {
-  const { dict, localeSegment } = useLanguage();
-  const f = dict.fotarobotaPage;
-
-  const problemRef = useRef<HTMLElement>(null);
-  const solutionRef = useRef<HTMLElement>(null);
-  const techRef = useRef<HTMLElement>(null);
-  const resultsRef = useRef<HTMLElement>(null);
-  const problemInView = useInView(problemRef, { once: true, amount: 0.15 });
-  const solutionInView = useInView(solutionRef, { once: true, amount: 0.15 });
-  const techInView = useInView(techRef, { once: true, amount: 0.15 });
-  const resultsInView = useInView(resultsRef, { once: true, amount: 0.15 });
-
-  return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))] text-zinc-100">
-      <div className="mx-auto max-w-4xl px-5 py-8 pb-16 sm:px-6 sm:py-10 sm:pb-10">
-        <motion.div
-          initial={{ opacity: 0, x: -8 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mb-8"
-        >
-          <Button variant="ghost" size="sm" asChild className="text-zinc-400 hover:text-zinc-200">
-            <Link href={`/${localeSegment}/projekty`} className="inline-flex items-center gap-2">
-              <ArrowLeft className="size-4" />
-              {f.backToProjects}
-            </Link>
-          </Button>
-        </motion.div>
-
-        <motion.header
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-12 sm:mb-16"
-        >
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-zinc-100 text-balance sm:text-4xl md:text-5xl">
-            {f.heroTitle}
-          </h1>
-          <p className="mb-2 text-lg text-zinc-400 text-balance sm:text-xl">
-            {f.heroSubline}
-          </p>
-          <p className="text-sm text-zinc-500">
-            {f.heroSubtext}
-          </p>
-
-          <div
-            className="mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_0_40px_rgba(16,185,129,0.12)]"
-            style={{ aspectRatio: "16/9" }}
-          >
-            <div className="flex h-full w-full items-center justify-center bg-zinc-900">
-              <div className="text-center">
-                <Camera className="mx-auto size-14 text-zinc-600" aria-hidden />
-                <p className="mt-3 text-sm font-medium text-zinc-500">{f.videoPlaceholderTitle}</p>
-                <p className="mt-1 text-xs text-zinc-600">{f.videoPlaceholderSub}</p>
-              </div>
-            </div>
-          </div>
-        </motion.header>
-
-        <motion.section
-          ref={problemRef}
-          initial="hidden"
-          animate={problemInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="mb-20"
-          aria-labelledby="wyzwanie-heading"
-        >
-          <motion.h2
-            id="wyzwanie-heading"
-            variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
-          >
-            Wyzwanie
-          </motion.h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <motion.div
-              variants={itemVariants}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
-            >
-              <p className="text-sm leading-relaxed text-zinc-400">
-                Tradycyjne sesje zdjęciowe są drogie, czasochłonne i logistycznie trudne. Koszty wynajmu studia, ekipy i retuszu sięgają tysięcy złotych, a czas realizacji — tygodni.
-              </p>
-            </motion.div>
-            <motion.div
-              variants={itemVariants}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
-            >
-              <p className="text-sm leading-relaxed text-zinc-400">
-                Dla małych firm i e-commerce oznacza to barierę wejścia: brak profesjonalnych zdjęć produktowych obniża konwersję i wiarygodność marki.
-              </p>
-            </motion.div>
-          </div>
-        </motion.section>
-
-        <motion.section
-          ref={solutionRef}
-          initial="hidden"
-          animate={solutionInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="mb-20"
-          aria-labelledby="architektura-heading"
-        >
-          <motion.h2
-            id="architektura-heading"
-            variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
-          >
-            Architektura AI
-          </motion.h2>
-          <motion.div
-            variants={itemVariants}
-            className="rounded-xl border border-emerald-500/20 bg-zinc-900/50 p-6 backdrop-blur-sm sm:p-8"
-          >
-            <p className="mb-4 text-sm leading-relaxed text-zinc-300">
-              Wykorzystanie zaawansowanych modeli dyfuzyjnych (Fal.ai) do generowania profesjonalnych portretów w kilka sekund. Użytkownik wgrywa zdjęcie produktu, wybiera styl tła i oświetlenia — system zwraca gotowy zestaw wizerunków bez studia i ekipy.
-            </p>
-            <p className="text-sm font-medium text-emerald-400">
-              Efekt „magii”: od surowego zdjęcia do kampanii reklamowej w czasie jednej kawy.
-            </p>
-          </motion.div>
-        </motion.section>
-
-        <motion.section
-          ref={techRef}
-          initial="hidden"
-          animate={techInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="mb-20"
-          aria-labelledby="tech-heading"
-        >
-          <motion.h2
-            id="tech-heading"
-            variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
-          >
-            Silnik technologiczny
-          </motion.h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: "Frontend", value: "Next.js", icon: Zap },
-              { label: "AI Processing", value: "Fal.ai", icon: Camera },
-              { label: "Płatności", value: "Autopay", icon: CreditCard },
-              { label: "Skalowalność", value: "Serverless", icon: TrendingUp },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <motion.div
-                  key={item.value}
-                  variants={itemVariants}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 backdrop-blur-sm"
-                >
-                  <Icon className="size-6 text-emerald-500/90" aria-hidden />
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                      {item.label}
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-zinc-100">{item.value}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.section>
-
-        <motion.section
-          ref={resultsRef}
-          initial="hidden"
-          animate={resultsInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="mb-16"
-          aria-labelledby="efekty-heading"
-        >
-          <motion.h2
-            id="efekty-heading"
-            variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
-          >
-            Efekty biznesowe
-          </motion.h2>
-          <motion.div
-            variants={itemVariants}
-            className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6 backdrop-blur-sm sm:p-8"
-          >
-            <ul className="space-y-3 text-sm leading-relaxed text-zinc-300 sm:text-base">
-              <li className="flex items-start gap-3">
-                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
-                <span><strong className="text-zinc-100">MVP dowiezione w 14 dni.</strong> Pełny cykl od briefu do działającej aplikacji.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
-                <span>W pełni funkcjonalny system płatności i automatyzacja procesów.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
-                <span>Redukcja kosztów produkcji zdjęć produktowych o <strong className="text-emerald-400">90%</strong> w porównaniu z tradycyjną sesją.</span>
-              </li>
-            </ul>
-          </motion.div>
-        </motion.section>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="flex flex-col items-center gap-4 border-t border-zinc-800 pt-12 text-center"
-        >
-          <p className="text-sm text-zinc-500">{f.viewProductLive}</p>
-          <Button asChild size="lg" className="min-h-12 bg-emerald-600 hover:bg-emerald-500">
-            <a href="https://www.fotarobota.pl" target="_blank" rel="noopener noreferrer">
-              fotarobota.pl
-            </a>
-          </Button>
-        </motion.div>
-      </div>
-    </div>
-  );
 }
 </file>
 
@@ -610,105 +303,6 @@ export async function POST(req: Request) {
     console.error("Inquiry API error:", error);
     return NextResponse.json(
       { error: "Nie udało się wysłać zapytania." },
-      { status: 500 }
-    );
-  }
-}
-</file>
-
-<file path="app/api/send-contact/route.ts">
-import { NextResponse } from "next/server";
-import { Resend } from "resend";
-
-const FROM = "onboarding@resend.dev";
-const TO = "l.baluniak@gmail.com";
-
-type SendContactBody = {
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-};
-
-function contactEmailHtml(body: SendContactBody): string {
-  const name = escapeHtml(body.name ?? "—");
-  const email = escapeHtml(body.email ?? "—");
-  const subject = escapeHtml(body.subject ?? "—");
-  const message = escapeHtml((body.message ?? "").replace(/\n/g, "<br>"));
-  return `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Fast-Track: Nowa wiadomość</td></tr>
-    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Nadawca</td></tr>
-    <tr><td style="padding:4px 0 16px;font-size:14px;"><strong>${name}</strong> &lt;${email}&gt;</td></tr>
-    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Temat</td></tr>
-    <tr><td style="padding:4px 0 16px;font-size:14px;">${subject}</td></tr>
-    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Wiadomość</td></tr>
-    <tr><td style="padding:4px 0 16px;font-size:14px;line-height:1.6;">${message}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Wysłano z formularza Fast-Track · baluniak.com</td></tr>
-  </table>
-</body>
-</html>
-  `.trim();
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-export async function POST(req: Request) {
-  try {
-    const body = (await req.json()) as SendContactBody;
-    const email = (body.email ?? "").trim();
-    const message = (body.message ?? "").trim();
-    if (!email || !message) {
-      return NextResponse.json(
-        { error: "Email i wiadomość są wymagane." },
-        { status: 400 }
-      );
-    }
-
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.error("[send-contact] Missing RESEND_API_KEY");
-      return NextResponse.json(
-        { error: "Konfiguracja email nie jest ustawiona." },
-        { status: 500 }
-      );
-    }
-
-    const name = (body.name ?? "").trim() || "Nie podano";
-    const subject = (body.subject ?? "").trim() || "Wiadomość z formularza";
-    const emailSubject = `Fast-Track: ${subject} od ${name}.`;
-
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      subject: emailSubject,
-      html: contactEmailHtml({ name, email, subject, message: body.message }),
-    });
-
-    if (error) {
-      console.error("[send-contact] Resend error:", error);
-      return NextResponse.json(
-        { error: error.message ?? "Nie udało się wysłać wiadomości." },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("[send-contact]", err);
-    return NextResponse.json(
-      { error: "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio." },
       { status: 500 }
     );
   }
@@ -1186,26 +780,6 @@ function TabsContent({
 export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
 </file>
 
-<file path="CONTENT_PLAN.md">
-# Plan treści (menu strony)
-
-## 1. Strona główna
-- AI Duel: Developer vs Business persona (obecna strona)
-
-## 2. Sekcja „Projekty”
-- **Case study Fotarobota**
-  - Struktura: **Problem → 80h Build → Result**
-  - Adres zewnętrzny: **www.fotarobota.pl**
-
-## 3. Sekcja „Sklep”
-- Oferta skryptów (np. cała strona Fotarobota do kupienia lub pojedynczy skrypt)
-- Dostępy do szkoleń AI (planowane nagrania) – możliwe do wykupienia
-
-## 4. Sekcja „Współpraca”
-- Formularz kontaktowy do kontaktu
-- Agent AI: wysyła mailem podsumowanie AI u góry, cała treść rozmowy na dole
-</file>
-
 <file path="eslint.config.mjs">
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
@@ -1382,55 +956,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 </file>
 
-<file path="middleware.ts">
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-
-const LOCALE_COOKIE = "baluniak-lang";
-const SUPPORTED_LOCALES = ["pl", "en"] as const;
-
-function getPreferredLocale(request: NextRequest): "pl" | "en" {
-  const cookie = request.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
-  if (cookie === "en" || cookie === "pl") return cookie;
-
-  const acceptLang = request.headers.get("accept-language");
-  if (acceptLang?.toLowerCase().includes("en")) return "en";
-  return "pl";
-}
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Skip API, static assets, and Next internals
-  if (
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/favicon") ||
-    pathname.includes(".")
-  ) {
-    return NextResponse.next();
-  }
-
-  const segments = pathname.split("/").filter(Boolean);
-  const firstSegment = segments[0]?.toLowerCase();
-
-  // Already has a valid locale
-  if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as "pl" | "en")) {
-    return NextResponse.next();
-  }
-
-  const locale = getPreferredLocale(request);
-  const newPath = `/${locale}${pathname === "/" ? "" : pathname}`;
-  const url = request.nextUrl.clone();
-  url.pathname = newPath;
-  return NextResponse.redirect(url);
-}
-
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-};
-</file>
-
 <file path="next.config.ts">
 import type { NextConfig } from "next";
 
@@ -1547,6 +1072,69 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 }
 </file>
 
+<file path="app/[lang]/layout.tsx">
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/next";
+import type { Language } from "@/lib/translations";
+
+const SUPPORTED_LANGS = ["pl", "en"] as const;
+
+function toLanguage(segment: string): Language {
+  return segment === "en" ? "EN" : "PL";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
+    return { title: "baluniak" };
+  }
+  const isPl = lang === "pl";
+  return {
+    title: isPl
+      ? "baluniak — Product Engineer | MVP | Projekty, współpraca"
+      : "baluniak — Product Engineer | MVP | Projects, collaboration",
+    description: isPl
+      ? "Projekty, sklep, współpraca. Pragmatyczny Product Engineering. Od pomysłu do produkcji w 80 godzin."
+      : "Projects, shop, collaboration. Pragmatic Product Engineering. From idea to production in 80 hours.",
+    alternates: {
+      canonical: `https://baluniak.com/${lang}`,
+      languages: { pl: "https://baluniak.com/pl", en: "https://baluniak.com/en" },
+    },
+  };
+}
+
+export default async function LangLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
+    notFound();
+  }
+  const initialLang = toLanguage(lang);
+
+  return (
+    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
+      <Navbar />
+      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <Footer />
+      <Analytics />
+    </LanguageProvider>
+  );
+}
+</file>
+
 <file path="app/[lang]/page.tsx">
 import AIDuelLayout from "@/components/AIDuelLayout";
 import { TryLiveIntro } from "@/components/TryLiveIntro";
@@ -1577,6 +1165,254 @@ export default function Home() {
       <Projects />
       <About />
     </>
+  );
+}
+</file>
+
+<file path="app/[lang]/projekty/fotarobota/page.tsx">
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { ArrowLeft, Camera, Zap, CreditCard, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+  },
+};
+
+export default function FotarobotaCaseStudyPage() {
+  const { dict, localeSegment } = useLanguage();
+  const f = dict.fotarobotaPage;
+
+  const problemRef = useRef<HTMLElement>(null);
+  const solutionRef = useRef<HTMLElement>(null);
+  const techRef = useRef<HTMLElement>(null);
+  const resultsRef = useRef<HTMLElement>(null);
+  const problemInView = useInView(problemRef, { once: true, amount: 0.15 });
+  const solutionInView = useInView(solutionRef, { once: true, amount: 0.15 });
+  const techInView = useInView(techRef, { once: true, amount: 0.15 });
+  const resultsInView = useInView(resultsRef, { once: true, amount: 0.15 });
+
+  return (
+    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))] text-zinc-100">
+      <div className="mx-auto max-w-4xl px-5 py-8 pb-16 sm:px-6 sm:py-10 sm:pb-10">
+        <motion.div
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mb-8"
+        >
+          <Button variant="ghost" size="sm" asChild className="text-zinc-400 hover:text-zinc-200">
+            <Link href={`/${localeSegment}/projekty`} className="inline-flex items-center gap-2">
+              <ArrowLeft className="size-4" />
+              {f.backToProjects}
+            </Link>
+          </Button>
+        </motion.div>
+
+        <motion.header
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-12 sm:mb-16"
+        >
+          <h1 className="mb-4 text-3xl font-bold tracking-tight text-zinc-100 text-balance sm:text-4xl md:text-5xl">
+            {f.heroTitle}
+          </h1>
+          <p className="mb-2 text-lg text-zinc-400 text-balance sm:text-xl">
+            {f.heroSubline}
+          </p>
+          <p className="text-sm text-zinc-500">
+            {f.heroSubtext}
+          </p>
+
+          <div
+            className="relative mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_0_40px_rgba(16,185,129,0.12)]"
+            style={{ aspectRatio: "16/9" }}
+          >
+            <Image
+              src="/fotarobota-preview.png"
+              alt="Fotarobota — podgląd produktu"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 896px"
+              priority
+            />
+          </div>
+        </motion.header>
+
+        <motion.section
+          ref={problemRef}
+          initial="hidden"
+          animate={problemInView ? "visible" : "hidden"}
+          variants={containerVariants}
+          className="mb-20"
+          aria-labelledby="wyzwanie-heading"
+        >
+          <motion.h2
+            id="wyzwanie-heading"
+            variants={itemVariants}
+            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+          >
+            Wyzwanie
+          </motion.h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <motion.div
+              variants={itemVariants}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
+            >
+              <p className="text-sm leading-relaxed text-zinc-400">
+                Tradycyjne sesje zdjęciowe są drogie, czasochłonne i logistycznie trudne. Koszty wynajmu studia, ekipy i retuszu sięgają tysięcy złotych, a czas realizacji — tygodni.
+              </p>
+            </motion.div>
+            <motion.div
+              variants={itemVariants}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
+            >
+              <p className="text-sm leading-relaxed text-zinc-400">
+                Dla małych firm i e-commerce oznacza to barierę wejścia: brak profesjonalnych zdjęć produktowych obniża konwersję i wiarygodność marki.
+              </p>
+            </motion.div>
+          </div>
+        </motion.section>
+
+        <motion.section
+          ref={solutionRef}
+          initial="hidden"
+          animate={solutionInView ? "visible" : "hidden"}
+          variants={containerVariants}
+          className="mb-20"
+          aria-labelledby="architektura-heading"
+        >
+          <motion.h2
+            id="architektura-heading"
+            variants={itemVariants}
+            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+          >
+            Architektura AI
+          </motion.h2>
+          <motion.div
+            variants={itemVariants}
+            className="rounded-xl border border-emerald-500/20 bg-zinc-900/50 p-6 backdrop-blur-sm sm:p-8"
+          >
+            <p className="mb-4 text-sm leading-relaxed text-zinc-300">
+              Wykorzystanie zaawansowanych modeli dyfuzyjnych (Fal.ai) do generowania profesjonalnych portretów w kilka sekund. Użytkownik wgrywa zdjęcie produktu, wybiera styl tła i oświetlenia — system zwraca gotowy zestaw wizerunków bez studia i ekipy.
+            </p>
+            <p className="text-sm font-medium text-emerald-400">
+              Efekt „magii”: od surowego zdjęcia do kampanii reklamowej w czasie jednej kawy.
+            </p>
+          </motion.div>
+        </motion.section>
+
+        <motion.section
+          ref={techRef}
+          initial="hidden"
+          animate={techInView ? "visible" : "hidden"}
+          variants={containerVariants}
+          className="mb-20"
+          aria-labelledby="tech-heading"
+        >
+          <motion.h2
+            id="tech-heading"
+            variants={itemVariants}
+            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+          >
+            Silnik technologiczny
+          </motion.h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: "Frontend", value: "Next.js", icon: Zap },
+              { label: "AI Processing", value: "Fal.ai", icon: Camera },
+              { label: "Płatności", value: "Autopay", icon: CreditCard },
+              { label: "Skalowalność", value: "Serverless", icon: TrendingUp },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.value}
+                  variants={itemVariants}
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 backdrop-blur-sm"
+                >
+                  <Icon className="size-6 text-emerald-500/90" aria-hidden />
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-zinc-100">{item.value}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.section>
+
+        <motion.section
+          ref={resultsRef}
+          initial="hidden"
+          animate={resultsInView ? "visible" : "hidden"}
+          variants={containerVariants}
+          className="mb-16"
+          aria-labelledby="efekty-heading"
+        >
+          <motion.h2
+            id="efekty-heading"
+            variants={itemVariants}
+            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+          >
+            Efekty biznesowe
+          </motion.h2>
+          <motion.div
+            variants={itemVariants}
+            className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6 backdrop-blur-sm sm:p-8"
+          >
+            <ul className="space-y-3 text-sm leading-relaxed text-zinc-300 sm:text-base">
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
+                <span><strong className="text-zinc-100">MVP dowiezione w 14 dni.</strong> Pełny cykl od briefu do działającej aplikacji.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
+                <span>W pełni funkcjonalny system płatności i automatyzacja procesów.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
+                <span>Redukcja kosztów produkcji zdjęć produktowych o <strong className="text-emerald-400">90%</strong> w porównaniu z tradycyjną sesją.</span>
+              </li>
+            </ul>
+          </motion.div>
+        </motion.section>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-col items-center gap-4 border-t border-zinc-800 pt-12 text-center"
+        >
+          <p className="text-sm text-zinc-500">{f.viewProductLive}</p>
+          <Button asChild size="lg" className="min-h-12 bg-emerald-600 hover:bg-emerald-500">
+            <a href="https://www.fotarobota.pl" target="_blank" rel="noopener noreferrer">
+              fotarobota.pl
+            </a>
+          </Button>
+        </motion.div>
+      </div>
+    </div>
   );
 }
 </file>
@@ -1848,59 +1684,89 @@ export default function WspolpracaPage() {
 }
 </file>
 
-<file path="app/api/send-order/route.ts">
+<file path="app/api/send-contact/route.ts">
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { generateEmailHtml, type OrderEmailData } from "@/lib/email-template";
 
-const FROM = "onboarding@resend.dev";
-const TO = "l.baluniak@gmail.com";
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const TO = "lukasz@baluniak.com";
 
-type SendOrderBody = {
-  clientName?: string;
-  clientEmail?: string;
-  projectType?: string;
-  budgetRange?: { min: number; max: number };
-  config?: unknown;
-  architectSummary?: string;
+type SendContactBody = {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
 };
+
+function contactEmailHtml(body: SendContactBody): string {
+  const name = escapeHtml(body.name ?? "—");
+  const email = escapeHtml(body.email ?? "—");
+  const subject = escapeHtml(body.subject ?? "—");
+  const message = escapeHtml((body.message ?? "").replace(/\n/g, "<br>"));
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Fast-Track: Nowa wiadomość</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Nadawca</td></tr>
+    <tr><td style="padding:4px 0 16px;font-size:14px;"><strong>${name}</strong> &lt;${email}&gt;</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Temat</td></tr>
+    <tr><td style="padding:4px 0 16px;font-size:14px;">${subject}</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Wiadomość</td></tr>
+    <tr><td style="padding:4px 0 16px;font-size:14px;line-height:1.6;">${message}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Wysłano z formularza Fast-Track · baluniak.com</td></tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as SendOrderBody;
+    const body = (await req.json()) as SendContactBody;
+    const email = (body.email ?? "").trim();
+    const message = (body.message ?? "").trim();
+    if (!email || !message) {
+      return NextResponse.json(
+        { error: "Email i wiadomość są wymagane." },
+        { status: 400 }
+      );
+    }
+
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      console.error("[send-order] Missing RESEND_API_KEY");
+      console.error("[send-contact] Missing RESEND_API_KEY");
       return NextResponse.json(
         { error: "Konfiguracja email nie jest ustawiona." },
         { status: 500 }
       );
     }
 
-    const clientName = body.clientName ?? "Nie podano";
-    const clientEmail = body.clientEmail ?? "Nie podano";
-    const projectType = body.projectType ?? "Kreator";
-    const subject = `Nowy Lead: ${projectType} od ${clientName}.`;
-
-    const emailData: OrderEmailData = {
-      clientName,
-      clientEmail,
-      projectType,
-      budgetRange: body.budgetRange,
-      selectedFeatures: body.config,
-      architectSummary: body.architectSummary,
-    };
+    const name = (body.name ?? "").trim() || "Nie podano";
+    const subject = (body.subject ?? "").trim() || "Wiadomość z formularza";
+    const emailSubject = `Fast-Track: ${subject} od ${name}.`;
 
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
       from: FROM,
       to: TO,
-      subject,
-      html: generateEmailHtml(emailData),
+      subject: emailSubject,
+      html: contactEmailHtml({ name, email, subject, message: body.message }),
+      replyTo: email,
     });
 
     if (error) {
-      console.error("[send-order] Resend error:", error);
+      console.error("[send-contact] Resend error:", error);
       return NextResponse.json(
         { error: error.message ?? "Nie udało się wysłać wiadomości." },
         { status: 500 }
@@ -1909,11 +1775,77 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[send-order]", err);
+    console.error("[send-contact]", err);
     return NextResponse.json(
-      { error: "Nie udało się wysłać zapytania." },
+      { error: "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio." },
       { status: 500 }
     );
+  }
+}
+</file>
+
+<file path="app/api/send-workshop-brief/route.ts">
+import { NextResponse } from "next/server";
+import { Resend } from "resend";
+
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const TO = "lukasz@baluniak.com";
+
+type Body = { email: string; summary?: string };
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "<br>");
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = (await req.json()) as Body;
+    const email = (body.email ?? "").trim();
+    if (!email) {
+      return NextResponse.json({ error: "Email jest wymagany." }, { status: 400 });
+    }
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "Konfiguracja email nie jest ustawiona." }, { status: 500 });
+    }
+
+    const summary = (body.summary ?? "").trim() || "Brak treści.";
+    const html = `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Brief z Warsztatu</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;color:#71717a;">Wysłano do: ${escapeHtml(email)}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;margin-top:16px;">${escapeHtml(summary)}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Warsztat · baluniak.com</td></tr>
+  </table>
+</body></html>`.trim();
+
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: "Brief z Warsztatu – Baluniak",
+      html,
+      replyTo: email,
+    });
+
+    if (error) {
+      console.error("[send-workshop-brief]", error);
+      return NextResponse.json({ error: error.message ?? "Nie udało się wysłać." }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[send-workshop-brief]", err);
+    return NextResponse.json({ error: "Nie udało się wysłać." }, { status: 500 });
   }
 }
 </file>
@@ -2270,6 +2202,60 @@ Input.displayName = "Input";
 export { Input }
 </file>
 
+<file path="middleware.ts">
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const LOCALE_COOKIE = "baluniak-lang";
+const SUPPORTED_LOCALES = ["pl", "en"] as const;
+const VERCEL_COUNTRY_HEADER = "x-vercel-ip-country";
+
+function getPreferredLocale(request: NextRequest): "pl" | "en" {
+  const cookie = request.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
+  if (cookie === "en" || cookie === "pl") return cookie;
+
+  const country = request.headers.get(VERCEL_COUNTRY_HEADER)?.toUpperCase();
+  if (country === "PL") return "pl";
+  if (country) return "en";
+
+  const acceptLang = request.headers.get("accept-language");
+  if (acceptLang?.toLowerCase().includes("en")) return "en";
+  return "pl";
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Skip API, static assets, and Next internals
+  if (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/favicon") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase();
+
+  // Already has a valid locale
+  if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as "pl" | "en")) {
+    return NextResponse.next();
+  }
+
+  const locale = getPreferredLocale(request);
+  const newPath = `/${locale}${pathname === "/" ? "" : pathname}`;
+  const url = request.nextUrl.clone();
+  url.pathname = newPath;
+  return NextResponse.redirect(url);
+}
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
+</file>
+
 <file path="app/[lang]/projekty/page.tsx">
 import { redirect } from "next/navigation";
 
@@ -2351,6 +2337,193 @@ ${JSON.stringify(config, null, 2)}`;
     return new Response(
       JSON.stringify({ error: "Błąd analizy. Spróbuj ponownie." }),
       { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
+</file>
+
+<file path="app/api/finalize-workshop/route.ts">
+import { NextResponse } from "next/server";
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { Resend } from "resend";
+
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const LEAD_EMAIL = "lukasz@baluniak.com";
+
+type ChatEntry = { role: string; content: string };
+
+type Body = {
+  chatHistory?: ChatEntry[];
+  userEmail?: string;
+  userContactInfo?: Record<string, string>;
+  language?: string;
+  lang?: string;
+};
+
+type Lang = "PL" | "EN";
+
+function normalizeLang(value: unknown): Lang {
+  if (value === "EN" || value === "en") return "EN";
+  return "PL";
+}
+
+/** Dynamic summarizer prompts by language */
+const SUMMARIZER_PROMPT: Record<Lang, string> = {
+  PL: `Jesteś polskim Project Managerem. Przeanalizuj rozmowę i stwórz HTML Brief po POLSKU. Sekcje: Cel, Technologia, Biznes.
+
+Output: tylko poprawny HTML (bez markdown, bez \`\`\`). Użyj struktury:
+1. <h3>Cel</h3> + krótki akapit
+2. <h3>Technologia</h3> + lista (z DEV)
+3. <h3>Biznes</h3> + lista (z BIZ)
+4. <h3>Rekomendowane kolejne kroki</h3> + lista numerowana
+
+Używaj <p>, <ul>, <ol>, <li>. Zwięźle i po polsku. Jeśli czegoś brakuje w rozmowie, wpisz "Do doprecyzowania." w danej sekcji.`,
+  EN: `You are a Senior Project Manager. Analyze the chat and create an HTML Brief in ENGLISH. Sections: Goal, Tech Stack, Business Context.
+
+Output: valid HTML only (no markdown, no \`\`\`). Use this structure:
+1. <h3>Goal</h3> + one short paragraph
+2. <h3>Tech Stack</h3> + bullet list (from DEV)
+3. <h3>Business Context</h3> + bullet list (from BIZ)
+4. <h3>Recommended Next Steps</h3> + ordered list
+
+Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`,
+};
+
+function buildConversationText(chatHistory: ChatEntry[]): string {
+  return chatHistory
+    .map((m) => {
+      const label = m.role === "user" ? "User" : m.role === "assistant" ? "Agents (DEV & BIZ)" : m.role;
+      return `[${label}]\n${(m.content || "").trim()}`;
+    })
+    .join("\n\n");
+}
+
+function countUserMessages(chatHistory: ChatEntry[]): number {
+  return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
+}
+
+/** Minimal wrapper: pass generated HTML as body; header/footer by language */
+function wrapEmailHtml(htmlBody: string, userEmail: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
+  return `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${userEmail}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
+  </table>
+</body></html>`.trim();
+}
+
+function getProjectIdeaForSubject(chatHistory: ChatEntry[]): string {
+  const firstUser = chatHistory.find((m) => m.role === "user" && (m.content || "").trim());
+  const text = (firstUser?.content || "").trim().slice(0, 50);
+  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "";
+}
+
+/** Email subject by language */
+function getSubject(projectName: string, lang: Lang): string {
+  const fallback = lang === "EN" ? "Workshop" : "Warsztat";
+  const name = projectName || fallback;
+  return lang === "EN" ? `AI Workshop Summary: ${name}` : `Podsumowanie Warsztatu AI: ${name}`;
+}
+
+const ERROR_MSG = {
+  emailRequired: { PL: "Email jest wymagany.", EN: "Email is required." },
+  minMessages: {
+    PL: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief.",
+    EN: "We need at least 3 messages from you to generate the Brief.",
+  },
+  config: { PL: "Konfiguracja email nie jest ustawiona.", EN: "Email configuration is not set." },
+  sendFailed: { PL: "Nie udało się wysłać Briefu.", EN: "Failed to send the Brief." },
+  generic: {
+    PL: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie.",
+    EN: "Could not generate or send the Brief. Please try again.",
+  },
+} as const;
+
+export async function POST(req: Request) {
+  let lang: Lang = "PL";
+  try {
+    const body = (await req.json()) as Body;
+    const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
+    const userEmail = (body.userEmail ?? "").trim();
+    lang = normalizeLang(body.language ?? body.lang);
+
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: ERROR_MSG.emailRequired[lang] },
+        { status: 400 }
+      );
+    }
+
+    const userMessageCount = countUserMessages(chatHistory);
+    if (userMessageCount < 3) {
+      return NextResponse.json(
+        { error: ERROR_MSG.minMessages[lang] },
+        { status: 400 }
+      );
+    }
+
+    const conversationText = buildConversationText(chatHistory);
+    const userPrompt =
+      lang === "EN"
+        ? `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only (in English).`
+        : `Rozmowa:\n\n${conversationText}\n\nNa wyjściu podaj tylko Brief w HTML (po polsku).`;
+
+    const { text: htmlBrief } = await generateText({
+      model: anthropic("claude-sonnet-4-20250514"),
+      system: SUMMARIZER_PROMPT[lang],
+      prompt: userPrompt,
+    });
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("[finalize-workshop] Missing RESEND_API_KEY");
+      return NextResponse.json(
+        { error: ERROR_MSG.config[lang] },
+        { status: 500 }
+      );
+    }
+
+    const projectName = getProjectIdeaForSubject(chatHistory);
+    const subject = getSubject(projectName, lang);
+    const fullHtml = wrapEmailHtml(
+      htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>"),
+      userEmail,
+      lang
+    );
+
+    const resend = new Resend(apiKey);
+    const toList = [userEmail, LEAD_EMAIL].filter(Boolean);
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: toList,
+      subject,
+      html: fullHtml,
+      replyTo: userEmail,
+    });
+
+    if (error) {
+      console.error("[finalize-workshop] Resend error:", error);
+      return NextResponse.json(
+        { error: error.message ?? ERROR_MSG.sendFailed[lang] },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[finalize-workshop]", err);
+    return NextResponse.json(
+      { error: ERROR_MSG.generic[lang] },
+      { status: 500 }
     );
   }
 }
@@ -2662,6 +2835,77 @@ export {
 }
 </file>
 
+<file path="app/api/send-order/route.ts">
+import { NextResponse } from "next/server";
+import { Resend } from "resend";
+import { generateEmailHtml, type OrderEmailData } from "@/lib/email-template";
+
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const TO = "lukasz@baluniak.com";
+
+type SendOrderBody = {
+  clientName?: string;
+  clientEmail?: string;
+  projectType?: string;
+  budgetRange?: { min: number; max: number };
+  config?: unknown;
+  architectSummary?: string;
+};
+
+export async function POST(req: Request) {
+  try {
+    const body = (await req.json()) as SendOrderBody;
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("[send-order] Missing RESEND_API_KEY");
+      return NextResponse.json(
+        { error: "Konfiguracja email nie jest ustawiona." },
+        { status: 500 }
+      );
+    }
+
+    const clientName = body.clientName ?? "Nie podano";
+    const clientEmail = (body.clientEmail ?? "").trim();
+    const projectType = body.projectType ?? "Kreator";
+    const subject = `Nowy Lead: ${projectType} od ${clientName}.`;
+
+    const emailData: OrderEmailData = {
+      clientName,
+      clientEmail: clientEmail || "Nie podano",
+      projectType,
+      budgetRange: body.budgetRange,
+      selectedFeatures: body.config,
+      architectSummary: body.architectSummary,
+    };
+
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: TO,
+      subject,
+      html: generateEmailHtml(emailData),
+      replyTo: clientEmail || undefined,
+    });
+
+    if (error) {
+      console.error("[send-order] Resend error:", error);
+      return NextResponse.json(
+        { error: error.message ?? "Nie udało się wysłać wiadomości." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[send-order]", err);
+    return NextResponse.json(
+      { error: "Nie udało się wysłać zapytania." },
+      { status: 500 }
+    );
+  }
+}
+</file>
+
 <file path="components/CalEmbed.tsx">
 "use client";
 
@@ -2868,52 +3112,6 @@ export function OnboardingSteps() {
         </ol>
       </div>
     </section>
-  );
-}
-</file>
-
-<file path="components/SiteHeader.tsx">
-"use client";
-
-import Link from "next/link";
-import { useLanguage } from "@/contexts/LanguageContext";
-
-const navItems = [
-  { label: "Strona główna", href: "/" },
-  { label: "Projekty", href: "#projekty" },
-  { label: "Kreator", href: "/kreator" },
-  { label: "Sklep", href: "/sklep" },
-  { label: "Współpraca", href: "/wspolpraca" },
-] as const;
-
-export function SiteHeader() {
-  const { localeSegment } = useLanguage();
-  return (
-    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
-      <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3"
-        aria-label="Menu główne"
-      >
-        <Link
-          href={`/${localeSegment}`}
-          className="font-semibold text-zinc-100 transition-colors hover:text-white"
-        >
-          baluniak
-        </Link>
-        <ul className="flex items-center gap-6">
-          {navItems.map(({ label, href }) => (
-            <li key={href}>
-              <Link
-                href={`/${localeSegment}${href}`}
-                className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </header>
   );
 }
 </file>
@@ -4509,141 +4707,6 @@ function ModulesStep({
 }
 </file>
 
-<file path="components/Footer.tsx">
-"use client";
-
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
-
-export function Footer() {
-  const { dict, localeSegment } = useLanguage();
-  const copy = dict.footer;
-
-  return (
-    <>
-      {/* Pre-Footer CTA */}
-      <section
-        className="relative z-10 border-t border-white/10 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
-        aria-labelledby="prefooter-cta-heading"
-      >
-        <div className="mx-auto max-w-2xl text-center">
-          <h2
-            id="prefooter-cta-heading"
-            className="text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl"
-          >
-            {copy.preCtaHeader}
-          </h2>
-          <p className="mt-3 text-base leading-relaxed text-zinc-400 sm:text-lg">
-            {copy.preCtaSubtext}
-          </p>
-          <div className="mt-8 flex justify-center">
-            <Button
-              asChild
-              size="lg"
-              className="min-h-14 min-w-[220px] bg-emerald-600 px-8 text-base font-semibold text-white shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:shadow-[0_0_28px_rgba(16,185,129,0.4)]"
-            >
-              <Link href={`/${localeSegment}#kreator`}>
-                {copy.preCtaButton}
-                <ArrowRight className="ml-2 size-5 shrink-0" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer — 3-column grid */}
-      <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 md:py-14">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
-            {/* Col 1: Brand + tagline */}
-            <div className="space-y-3">
-              <p className="font-bold tracking-tight text-zinc-100">
-                BALUNIAK.COM
-              </p>
-              <p className="text-sm font-medium text-emerald-400/90">
-                {copy.productEngineerTagline}
-              </p>
-              <motion.p
-                layout
-                className="text-sm leading-relaxed text-zinc-500"
-              >
-                {copy.brandTagline}
-              </motion.p>
-            </div>
-
-            {/* Col 2: Quick Links */}
-            <div>
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                {copy.navTitle}
-              </p>
-              <ul className="space-y-2">
-                {copy.quickLinks.map((item) => (
-                  <li key={item.label}>
-                    <Link
-                      href={`/${localeSegment}${item.href}`}
-                      className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Col 3: Social + Email */}
-            <div>
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                {copy.contactTitle}
-              </p>
-              <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href={copy.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
-                  aria-label="GitHub"
-                >
-                  <Github className="size-5" />
-                </a>
-                <a
-                  href={copy.xUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
-                  aria-label="X (Twitter)"
-                >
-                  <Twitter className="size-5" />
-                </a>
-                <a
-                  href={copy.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="size-5" />
-                </a>
-              </div>
-              <p className="mt-4">
-                <a
-                  href={`mailto:${copy.email}`}
-                  className="text-sm text-zinc-400 transition-colors hover:text-emerald-400"
-                >
-                  {copy.email}
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </>
-  );
-}
-</file>
-
 <file path="components/sections/ModularStack.tsx">
 "use client";
 
@@ -4836,6 +4899,52 @@ export function TechStack() {
         </div>
       </div>
     </section>
+  );
+}
+</file>
+
+<file path="components/SiteHeader.tsx">
+"use client";
+
+import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const navItems = [
+  { label: "Strona główna", href: "/" },
+  { label: "Projekty", href: "#projekty" },
+  { label: "Kreator", href: "/kreator" },
+  { label: "Case Study", href: "/projekty/fotarobota" },
+  { label: "Współpraca", href: "/wspolpraca" },
+] as const;
+
+export function SiteHeader() {
+  const { localeSegment } = useLanguage();
+  return (
+    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
+      <nav
+        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3"
+        aria-label="Menu główne"
+      >
+        <Link
+          href={`/${localeSegment}`}
+          className="font-semibold text-zinc-100 transition-colors hover:text-white"
+        >
+          baluniak
+        </Link>
+        <ul className="flex items-center gap-6">
+          {navItems.map(({ label, href }) => (
+            <li key={href}>
+              <Link
+                href={`/${localeSegment}${href}`}
+                className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
   );
 }
 </file>
@@ -5061,6 +5170,123 @@ html.dark {
 }
 </file>
 
+<file path="components/Footer.tsx">
+"use client";
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Linkedin, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+export function Footer() {
+  const { dict, localeSegment } = useLanguage();
+  const copy = dict.footer;
+
+  return (
+    <>
+      {/* Pre-Footer CTA */}
+      <section
+        className="relative z-10 border-t border-white/10 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
+        aria-labelledby="prefooter-cta-heading"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <h2
+            id="prefooter-cta-heading"
+            className="text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl"
+          >
+            {copy.preCtaHeader}
+          </h2>
+          <p className="mt-3 text-base leading-relaxed text-zinc-400 sm:text-lg">
+            {copy.preCtaSubtext}
+          </p>
+          <div className="mt-8 flex justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="min-h-14 min-w-[220px] bg-emerald-600 px-8 text-base font-semibold text-emerald-50 shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_28px_rgba(16,185,129,0.4)]"
+            >
+              <Link href={`/${localeSegment}#kreator`}>
+                {copy.preCtaButton}
+                <ArrowRight className="ml-2 size-5 shrink-0" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer — 3-column grid */}
+      <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 md:py-14">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+            {/* Col 1: Brand + tagline */}
+            <div className="space-y-3">
+              <p className="font-bold tracking-tight text-zinc-100">
+                BALUNIAK.COM
+              </p>
+              <p className="text-sm font-medium text-emerald-400/90">
+                {copy.productEngineerTagline}
+              </p>
+              <motion.p
+                layout
+                className="text-sm leading-relaxed text-zinc-500"
+              >
+                {copy.brandTagline}
+              </motion.p>
+            </div>
+
+            {/* Col 2: Quick Links */}
+            <div>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                {copy.navTitle}
+              </p>
+              <ul className="space-y-2">
+                {copy.quickLinks.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={`/${localeSegment}${item.href}`}
+                      className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 3: Social + Email */}
+            <div>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                {copy.contactTitle}
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <a
+                  href={copy.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="size-5" />
+                </a>
+              </div>
+              <p className="mt-4">
+                <a
+                  href={`mailto:${copy.email}`}
+                  className="text-sm text-zinc-400 transition-colors hover:text-emerald-400"
+                >
+                  {copy.email}
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
+}
+</file>
+
 <file path="package.json">
 {
   "name": "baluniak",
@@ -5112,6 +5338,59 @@ import { redirect } from "next/navigation";
 
 export default function RootPage() {
   redirect("/pl");
+}
+</file>
+
+<file path="app/layout.tsx">
+import { Geist, Geist_Mono, VT323 } from "next/font/google";
+import { BackgroundGrid } from "@/components/BackgroundGrid";
+import { GrainTexture } from "@/components/GrainTexture";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const vt323 = VT323({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-vt323",
+});
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="pl" className="dark" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${vt323.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
+      >
+        <BackgroundGrid opacity={0.2} variant="lines" />
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-0"
+          style={{
+            background: `
+              radial-gradient(ellipse 140% 90% at 50% -10%, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.7) 40%, transparent 65%),
+              radial-gradient(ellipse 130% 80% at 50% 120%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 45%, transparent 75%),
+              radial-gradient(circle at 15% 0%, rgba(56,189,248,0.16), transparent 55%),
+              radial-gradient(circle at 85% 100%, rgba(245,158,11,0.18), transparent 55%)
+            `,
+          }}
+        />
+        <div className="relative z-10">{children}</div>
+        <GrainTexture opacity={0.06} className="z-[100]" />
+      </body>
+    </html>
+  );
 }
 </file>
 
@@ -5236,7 +5515,7 @@ export function HeroSection() {
           <Button
             asChild
             size="lg"
-            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-950/90 px-6 text-sm font-semibold tracking-tight text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
+            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
           >
             <Link href={`/${localeSegment}#kreator`}>
               <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
@@ -5245,9 +5524,8 @@ export function HeroSection() {
           </Button>
           <Button
             asChild
-            variant="outline"
             size="lg"
-            className="min-h-12 w-full border-white/20 bg-white/5 font-medium text-zinc-300 backdrop-blur-sm hover:bg-white/10 hover:text-zinc-100 sm:w-auto"
+            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
           >
             <Link href={`/${localeSegment}#projekty`}>
               {h.ctaSecondary}
@@ -5261,252 +5539,11 @@ export function HeroSection() {
 }
 </file>
 
-<file path="app/layout.tsx">
-import { Geist, Geist_Mono, VT323 } from "next/font/google";
-import { BackgroundGrid } from "@/components/BackgroundGrid";
-import { GrainTexture } from "@/components/GrainTexture";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const vt323 = VT323({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-vt323",
-});
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="pl" className="dark" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${vt323.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
-      >
-        <BackgroundGrid opacity={0.2} variant="lines" />
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 z-0"
-          style={{
-            background: `
-              radial-gradient(ellipse 140% 90% at 50% -10%, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.7) 40%, transparent 65%),
-              radial-gradient(ellipse 130% 80% at 50% 120%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 45%, transparent 75%),
-              radial-gradient(circle at 15% 0%, rgba(56,189,248,0.16), transparent 55%),
-              radial-gradient(circle at 85% 100%, rgba(245,158,11,0.18), transparent 55%)
-            `,
-          }}
-        />
-        <div className="relative z-10">{children}</div>
-        <GrainTexture opacity={0.06} className="z-[100]" />
-      </body>
-    </html>
-  );
-}
-</file>
-
-<file path="components/Navbar.tsx">
-"use client";
-
-import Link from "next/link";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { GrainTexture } from "@/components/GrainTexture";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
-
-const mobileMenuListVariants = {
-  closed: { opacity: 0, y: 8 },
-  open: {
-    opacity: 1,
-    y: 0,
-    transition: { delayChildren: 0.08, staggerChildren: 0.05 },
-  },
-} as const;
-
-const mobileMenuItemVariants = {
-  closed: { opacity: 0, y: 6 },
-  open: { opacity: 1, y: 0 },
-} as const;
-
-const navItemsConfig = [
-  { labelKey: "navProjects" as const, hash: "#projekty" },
-  { labelKey: "navAbout" as const, hash: "#about" },
-  { labelKey: "navShop" as const, path: "/sklep" },
-] as const;
-
-export function Navbar() {
-  const [open, setOpen] = useState(false);
-  const { dict, localeSegment } = useLanguage();
-  const navItems = navItemsConfig.map((item) => ({
-    label: dict.header[item.labelKey],
-    href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
-  }));
-
-  return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 h-16 w-full",
-        "border-b border-white/10 bg-black/50 backdrop-blur-md"
-      )}
-      aria-label={dict.header.navAria}
-    >
-      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
-        <Link
-          href={`/${localeSegment}`}
-          className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
-        >
-          BALUNIAK.COM
-        </Link>
-
-        {/* Desktop: nav + language + Book Call + Build MVP */}
-        <div className="hidden items-center gap-2 md:flex">
-          {navItems.map(({ label, href }) => (
-            <Button key={href} variant="ghost" asChild>
-              <Link
-                href={href}
-                className="text-zinc-300 hover:bg-white/10 hover:text-white"
-              >
-                {label}
-              </Link>
-            </Button>
-          ))}
-          <LanguageSwitcher />
-          <Button asChild size="default" className="border-0 bg-amber-500 font-semibold text-zinc-950 shadow-[0_0_18px_rgba(245,158,11,0.4)] hover:bg-amber-400 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)]">
-            <Link href={`/${localeSegment}/wspolpraca`}>
-              {dict.header.bookCall}
-            </Link>
-          </Button>
-          <Button asChild size="default" className="ml-1">
-            <Link
-              href={`/${localeSegment}#kreator`}
-              className="bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500"
-            >
-              <motion.span
-                className="inline-block"
-                animate={{ opacity: [1, 0.85, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                {dict.header.cta}
-              </motion.span>
-            </Link>
-          </Button>
-        </div>
-
-        {/* Mobile: language + burger (thumb-friendly spacing) */}
-        <div className="flex items-center gap-3 md:hidden">
-          <LanguageSwitcher />
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="min-h-12 min-w-12 text-zinc-300 hover:bg-white/10 hover:text-white"
-                aria-label={dict.header.openMenu}
-              >
-                <Menu className="size-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="border-white/10 bg-zinc-950/95 backdrop-blur-xl"
-            >
-              <div className="relative flex h-full flex-col">
-                <GrainTexture opacity={0.09} position="absolute" className="z-0" />
-                <div className="relative z-10 flex flex-1 flex-col">
-                  <SheetHeader>
-                    <SheetTitle className="text-left text-zinc-100">
-                      {dict.header.menu}
-                    </SheetTitle>
-                  </SheetHeader>
-                  <motion.div
-                    className="mt-6 flex flex-col gap-1"
-                    variants={mobileMenuListVariants}
-                    initial="closed"
-                    animate={open ? "open" : "closed"}
-                  >
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button variant="ghost" asChild className="w-full justify-start">
-                        <Link
-                          href={`/${localeSegment}`}
-                          onClick={() => setOpen(false)}
-                          className="text-zinc-300"
-                        >
-                          {dict.header.home}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    {navItems.map(({ label, href }) => (
-                      <motion.div key={href} variants={mobileMenuItemVariants}>
-                        <Button variant="ghost" asChild className="w-full justify-start">
-                          <Link
-                            href={href}
-                            onClick={() => setOpen(false)}
-                            className="text-zinc-300"
-                          >
-                            {label}
-                          </Link>
-                        </Button>
-                      </motion.div>
-                    ))}
-                    <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-white/10 pt-4">
-                      <LanguageSwitcher inSheet />
-                    </motion.div>
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full border-0 bg-amber-500 font-semibold text-zinc-950 shadow-[0_0_18px_rgba(245,158,11,0.4)] hover:bg-amber-400">
-                        <Link
-                          href={`/${localeSegment}/wspolpraca`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {dict.header.bookCall}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500">
-                        <Link
-                          href={`/${localeSegment}#kreator`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {dict.header.cta}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-    </header>
-  );
-}
-</file>
-
 <file path="components/sections/About.tsx">
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { BarChart3, Smartphone, Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -5582,15 +5619,14 @@ export function About() {
           transition={{ duration: 0.5 }}
           className="mb-14 flex flex-col items-center gap-8 sm:flex-row sm:items-start sm:gap-10"
         >
-          <div className="shrink-0">
-            <div
-              className="size-28 rounded-full border-2 border-emerald-500/30 bg-zinc-800/80 sm:size-36 md:size-40"
-              aria-hidden
-            >
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-500">
-                <span className="text-xs font-medium uppercase tracking-wider sm:text-sm">Photo</span>
-              </div>
-            </div>
+          <div className="relative size-28 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500/30 bg-zinc-800/80 sm:size-36 md:size-40">
+            <Image
+              src="/li.jpg"
+              alt=""
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 640px) 7rem, (max-width: 768px) 9rem, 10rem"
+            />
           </div>
           <div className="min-w-0 max-w-[65ch] flex-1 text-center sm:text-left">
             <p
@@ -5743,6 +5779,195 @@ export function About() {
         </div>
       </div>
     </section>
+  );
+}
+</file>
+
+<file path="components/Navbar.tsx">
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { GrainTexture } from "@/components/GrainTexture";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const mobileMenuListVariants = {
+  closed: { opacity: 0, y: 8 },
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: { delayChildren: 0.08, staggerChildren: 0.05 },
+  },
+} as const;
+
+const mobileMenuItemVariants = {
+  closed: { opacity: 0, y: 6 },
+  open: { opacity: 1, y: 0 },
+} as const;
+
+const navItemsConfig = [
+  { labelKey: "navProjects" as const, hash: "#projekty" },
+  { labelKey: "navAbout" as const, hash: "#about" },
+  { labelKey: "navCaseStudy" as const, path: "/projekty/fotarobota" },
+] as const;
+
+export function Navbar() {
+  const [open, setOpen] = useState(false);
+  const { dict, localeSegment } = useLanguage();
+  const navItems = navItemsConfig.map((item) => ({
+    label: dict.header[item.labelKey],
+    href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
+  }));
+
+  return (
+    <header
+      className={cn(
+        "sticky top-0 z-50 h-16 w-full",
+        "border-b border-white/10 bg-black/50 backdrop-blur-md"
+      )}
+      aria-label={dict.header.navAria}
+    >
+      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
+        <Link
+          href={`/${localeSegment}`}
+          className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
+        >
+          BALUNIAK.COM
+        </Link>
+
+        {/* Desktop: nav + language + Book Call + Build MVP */}
+        <div className="hidden items-center gap-2 md:flex">
+          {navItems.map(({ label, href }) => (
+            <Button key={href} variant="ghost" asChild>
+              <Link
+                href={href}
+                className="text-zinc-300 hover:bg-white/10 hover:text-white"
+              >
+                {label}
+              </Link>
+            </Button>
+          ))}
+          <LanguageSwitcher />
+          <Button asChild size="default" className="border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500 hover:shadow-[0_0_22px_rgba(37,99,235,0.5)]">
+            <Link href={`/${localeSegment}/wspolpraca`}>
+              {dict.header.bookCall}
+            </Link>
+          </Button>
+          <Button asChild size="default" className="ml-1">
+            <Link
+              href={`/${localeSegment}#kreator`}
+              className="bg-emerald-600 font-semibold text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white"
+            >
+              <motion.span
+                className="inline-block"
+                animate={{ opacity: [1, 0.85, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                {dict.header.cta}
+              </motion.span>
+            </Link>
+          </Button>
+        </div>
+
+        {/* Mobile: language + burger (thumb-friendly spacing) */}
+        <div className="flex items-center gap-3 md:hidden">
+          <LanguageSwitcher />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="min-h-12 min-w-12 text-zinc-300 hover:bg-white/10 hover:text-white"
+                aria-label={dict.header.openMenu}
+              >
+                <Menu className="size-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="border-white/10 bg-zinc-950/95 backdrop-blur-xl"
+            >
+              <div className="relative flex h-full flex-col">
+                <GrainTexture opacity={0.09} position="absolute" className="z-0" />
+                <div className="relative z-10 flex flex-1 flex-col">
+                  <SheetHeader>
+                    <SheetTitle className="text-left text-zinc-100">
+                      {dict.header.menu}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <motion.div
+                    className="mt-6 flex flex-col gap-1"
+                    variants={mobileMenuListVariants}
+                    initial="closed"
+                    animate={open ? "open" : "closed"}
+                  >
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button variant="ghost" asChild className="w-full justify-start">
+                        <Link
+                          href={`/${localeSegment}`}
+                          onClick={() => setOpen(false)}
+                          className="text-zinc-300"
+                        >
+                          {dict.header.home}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    {navItems.map(({ label, href }) => (
+                      <motion.div key={href} variants={mobileMenuItemVariants}>
+                        <Button variant="ghost" asChild className="w-full justify-start">
+                          <Link
+                            href={href}
+                            onClick={() => setOpen(false)}
+                            className="text-zinc-300"
+                          >
+                            {label}
+                          </Link>
+                        </Button>
+                      </motion.div>
+                    ))}
+                    <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-white/10 pt-4">
+                      <LanguageSwitcher inSheet />
+                    </motion.div>
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button asChild size="lg" className="w-full border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500">
+                        <Link
+                          href={`/${localeSegment}/wspolpraca`}
+                          onClick={() => setOpen(false)}
+                        >
+                          {dict.header.bookCall}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold text-emerald-50 hover:bg-emerald-500 hover:text-white">
+                        <Link
+                          href={`/${localeSegment}#kreator`}
+                          onClick={() => setOpen(false)}
+                        >
+                          {dict.header.cta}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </nav>
+    </header>
   );
 }
 </file>
@@ -5931,7 +6156,8 @@ export const translations = {
       navProjects: "Projekty",
       navAbout: "O mnie",
       navShop: "Sklep",
-      cta: "Zbuduj MVP (80h)",
+      navCaseStudy: "Case Study",
+      cta: "Zbuduj MVP",
       bookCall: "Umów Rozmowę",
       menu: "Menu",
       openMenu: "Otwórz menu",
@@ -5940,7 +6166,7 @@ export const translations = {
     },
     footer: {
       preCtaHeader: "Masz pomysł na aplikację?",
-      preCtaSubtext: "Nie trać miesięcy na development. Zbudujmy MVP w 80h.",
+      preCtaSubtext: "Nie trać miesięcy na development. Zbudujmy MVP.",
       preCtaButton: "Rozpocznij Wycenę",
       finalNudge: "Twój pomysł zasługuje na coś więcej niż tylko arkusz w Excelu.",
       ctaLabel: "Zamów wycenę MVP",
@@ -5962,26 +6188,26 @@ export const translations = {
       ],
       contactTitle: "Kontakt",
       consultationLabel: "Umów darmową konsultację",
-      linkedinUrl: "https://www.linkedin.com/in/baluniak",
+      linkedinUrl: "https://www.linkedin.com/in/%C5%82ukasz-ba%C5%82uniak-64734a256/",
       githubUrl: "https://github.com/baluniak",
       xUrl: "https://x.com/baluniak",
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Dostępny na wdrożenia MVP / AI (Luty 2026)",
-      headline: "Product Engineer. Buduję Twoje",
-      headlineAccent: "MVP w 80h",
+      badge: "Dostępny na wdrożenia MVP / AI",
+      headline: "Product Engineer - szybkie prototypowanie ",
+      headlineAccent: "MVP",
       headlineEnd: ".",
       subtext:
-        "Przekładam chaos biznesowy na gotowy SaaS. Wykorzystuję AI, aby dowozić kompletne produkty w czasie, w którym inni dopiero kończą pisać specyfikację.",
-      ctaPrimary: "Rozpocznij projekt (MVP 80h)",
+        "Przekładam idee biznesowe na gotowy SaaS. Wykorzystuję AI, aby dowozić kompletne rozwiązania dla firm.",
+      ctaPrimary: "Rozpocznij projekt (MVP)",
       ctaSecondary: "Zobacz Fotarobota (Case Study)",
     },
     about: {
       bridgeTitle: "The Bridge",
-      roleTitle: "Product Engineer",
-      headline: "Analiza PostHog & Ergonomia: Nie zgaduję, sprawdzam dane. Projektuję pod 'Thumb Zone', bo wiem, że na mobilkach liczy się każdy milimetr zasięgu kciuka.",
-      subheadline: "Buduję produkty, które konwertują – bo je mierzę.",
+      roleTitle: "Fullstack Product Builder",
+      headline: "Analiza PostHog & Ergonomia: Nie zgaduję, sprawdzam dane. Projektuję pod 'konkretne przypadki', bo wiem, że każda aplikacja wymaga indywidualnego podejścia.",
+      subheadline: "Buduję produkty, które konwertują – poparte doświadczeniem w analityce danych.",
       stages: [
         {
           id: "data",
@@ -5993,7 +6219,7 @@ export const translations = {
           id: "thumb",
           label: "Modern UX",
           title: "Ergonomia kciuka",
-          body: "Śledzę najnowsze trendy w interakcji mobilnej. Projektuję interfejsy z myślą o Thumb Zone – najważniejsze akcje muszą być tam, gdzie kciuk użytkownika ląduje naturalnie. To podnosi konwersję o dziesiątki procent.",
+          body: "Projektuję interfejsy z myślą o naturalnym ruchu dłoni. Najważniejsze akcje umieszczam w strefie kciuka (Thumb Zone). To sprawia, że aplikacja po prostu dobrze leży w dłoni, co realnie podnosi konwersję na urządzeniach mobilnych.",
         },
         {
           id: "scale",
@@ -6004,8 +6230,8 @@ export const translations = {
       ],
     },
     modularStack: {
-      heading: "Modularna Architektura: Dlaczego 80 godzin wystarczy?",
-      subtext: "Nie wyważam otwartych drzwi. Korzystam ze sprawdzonych klocków, skupiając się na unikalnej logice Twojego biznesu.",
+      heading: "Modularna Architektura: Projekt zgodny z Twoją wizją.",
+      subtext: "Dobieram sprawdzone elementy, skupiając się na unikalnej logice Twojego biznesu.",
       blocks: [
         { title: "Szybki Frontend", subtitle: "The Engine", tech: "Next.js & React", description: "Performance & SEO" },
         { title: "Inteligencja AI", subtitle: "The Brain", tech: "Fal.ai & OpenAI", description: "Advanced AI integrations" },
@@ -6179,12 +6405,25 @@ export const translations = {
       emptyStateTitle: "Brak odpowiedzi",
       quickActionsTitle: "Szybkie akcje",
       inputPlaceholder: "Wpisz polecenie lub wybierz szablon…",
+      workshopInputPlaceholder: "Opisz swój pomysł (Zespół analizuje…)",
       inputAriaLabel: "Pole wprowadzania polecenia",
       submitLabel: "Wyślij",
       submitLoadingLabel: "Generuję…",
       limitReachedMessage: "Limit wyczerpany. Zobacz pełną ofertę.",
       connectionError: "Problem z połączeniem",
       queriesCounterLabel: "Zapytania",
+      workshopBanner: "Tryb Warsztatowy: Wspólnie doprecyzujmy Twój pomysł, a na końcu wyślę Ci podsumowanie na maila.",
+      workshopProgress: "Warsztat: wiadomość {current}/{max}",
+      generateBriefButton: "Zakończ warsztat i wyślij Brief",
+      briefModalTitle: "Wyślij Brief na email",
+      briefModalEmailLabel: "Twój email",
+      briefModalEmailPlaceholder: "jan@firma.pl",
+      briefModalSubmit: "Wyślij Brief",
+      briefGenerating: "Generowanie Briefu…",
+      briefModalSuccess: "Brief został wysłany na podany adres.",
+      briefSuccessToast: "Brief został wysłany na Twój email!",
+      briefModalError: "Nie udało się wysłać. Spróbuj ponownie.",
+      briefModalCancel: "Anuluj",
       agentSubtitle: "Agent",
       devDescription: "Kod, architektura i best practices",
       bizDescription: "Specjalista od ofert i follow-upów",
@@ -6192,15 +6431,15 @@ export const translations = {
     },
     welcomeCards: {
       ariaLabel: "Szybkie akcje – przykładowe prompty",
-      websiteTitle: "Strona internetowa tego typu",
-      websiteLabel: "Dowiedz się, dlaczego Next.js i mobile-first to dobry wybór.",
-      websitePrompt: "Wyjaśnij, dlaczego strona w Next.js to dobry wybór. Opisz plusy Next.js, podejście mobile-first i krótko polecane praktyki dla takiej strony.",
-      agentsTitle: "Implementacja agentów AI na stronie",
-      agentsLabel: "Po co wirtualni agenci na stronie i jak działają.",
-      agentsPrompt: "Wyjaśnij, po co wdrażać na stronie wirtualnych agentów AI. Napisz, że nie trzeba oddzwaniać ani samemu przedstawiać oferty – zrobią to za Ciebie wirtualni agenci. Właśnie z takimi agentami użytkownik teraz rozmawia.",
-      automationTitle: "Automatyzacje",
-      automationLabel: "Korzyści z automatyzacji AI w pracy.",
-      automationPrompt: "Opisz korzyści z automatyzacji z użyciem AI. Wyjaśnij, że ręczne obrabianie zdjęć, pisanie tekstów i przepisywanie dokumentów papierowych to przeszłość – workflow AI wykonuje te czynności za ludzi.",
+      websiteTitle: "Strona WWW / Wizytówka",
+      websiteLabel: "Nowoczesna strona lub wizytówka.",
+      websitePrompt: "Interesuje mnie nowoczesna strona WWW.",
+      agentsTitle: "Agent AI",
+      agentsLabel: "Wdrożenie Agenta AI w firmie.",
+      agentsPrompt: "Chcę wdrożyć Agenta AI w firmie.",
+      automationTitle: "Inne",
+      automationLabel: "Nietypowy pomysł na aplikację.",
+      automationPrompt: "Mam nietypowy pomysł na aplikację.",
     },
     projects: {
       sectionTitle: "Projekty",
@@ -6217,8 +6456,8 @@ export const translations = {
       fotarobotaResult: "Klienci otrzymują profesjonalne zdjęcia produktowe w ułamku czasu i kosztów; produkt na rynku w 2 tygodnie od startu.",
       fotarobotaMetrics: "Optymalizacja ścieżki użytkownika w oparciu o dane PostHog — ok. 40% szybsze finalizowanie zamówienia.",
       fotarobotaTech: ["nextjs", "falai", "vercel", "posthog"],
-      saasStarterDesc: "Next.js 15 Boilerplate.",
-      aiAutomationsDesc: "Custom workflows.",
+      saasStarterDesc: "Kolejne projekty już wkrótce",
+      aiAutomationsDesc: "Kolejne projekty już wkrótce",
       techLabels: { nextjs: "Next.js", falai: "Fal.ai", vercel: "Vercel", posthog: "PostHog" },
       allProjects: "Wszystkie projekty",
       viewList: "Zobacz listę",
@@ -6262,7 +6501,7 @@ export const translations = {
       labelEmail: "Email",
       labelHowCanIHelp: "W czym mogę pomóc?",
       selectPlaceholder: "— wybierz —",
-      projectTypeMvp80: "MVP w 80h",
+      projectTypeMvp80: "MVP",
       projectTypeKonsultacjaAi: "Konsultacja AI",
       projectTypeAudyt: "Audyt Produktu",
       projectTypeInne: "Inne",
@@ -6286,7 +6525,8 @@ export const translations = {
       navProjects: "Projects",
       navAbout: "About",
       navShop: "Shop",
-      cta: "Build MVP (80h)",
+      navCaseStudy: "Case Study",
+      cta: "Build MVP",
       bookCall: "Book a Call",
       menu: "Menu",
       openMenu: "Open menu",
@@ -6295,7 +6535,7 @@ export const translations = {
     },
     footer: {
       preCtaHeader: "Got an app idea?",
-      preCtaSubtext: "Don't spend months on development. Let's build your MVP in 80h.",
+      preCtaSubtext: "Don't spend months on development. Let's build your MVP.",
       preCtaButton: "Start Your Quote",
       finalNudge: "Your idea deserves more than a spreadsheet.",
       ctaLabel: "Get an MVP quote",
@@ -6317,26 +6557,26 @@ export const translations = {
       ],
       contactTitle: "Contact",
       consultationLabel: "Book a free consultation",
-      linkedinUrl: "https://www.linkedin.com/in/baluniak",
+      linkedinUrl: "https://www.linkedin.com/in/%C5%82ukasz-ba%C5%82uniak-64734a256/",
       githubUrl: "https://github.com/baluniak",
       xUrl: "https://x.com/baluniak",
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Available for MVP / AI implementations (Feb 2026)",
-      headline: "Product Engineer. I build your",
-      headlineAccent: "MVP in 80h",
-      headlineEnd: ".",
+      badge: "Available for MVP / AI implementations",
+      headline: "Product Engineer – rapid ",
+      headlineAccent: "MVP",
+      headlineEnd: " prototyping.",
       subtext:
-        "I turn business chaos into production-ready SaaS. I use AI to ship complete products in the time it takes others to finish the spec.",
-      ctaPrimary: "Start your project (MVP 80h)",
+        "I turn business ideas into production-ready SaaS. I use AI to ship complete solutions for companies.",
+      ctaPrimary: "Start your project (MVP)",
       ctaSecondary: "See Fotarobot (Case Study)",
     },
     about: {
       bridgeTitle: "The Bridge",
-      roleTitle: "Product Engineer",
-      headline: "PostHog Analysis & Ergonomics: I don't guess, I track. I design for the 'Thumb Zone' because I know that on mobile, every millimeter of thumb reach matters for conversion.",
-      subheadline: "I build products that convert – because I measure them.",
+      roleTitle: "Fullstack Product Builder",
+      headline: "PostHog Analysis & Ergonomics: I don't guess, I track. I design for concrete use cases, because every app needs an individual approach.",
+      subheadline: "I build products that convert – backed by experience in data analytics.",
       stages: [
         {
           id: "data",
@@ -6348,7 +6588,7 @@ export const translations = {
           id: "thumb",
           label: "Modern UX",
           title: "Thumb Zone ergonomics",
-          body: "I follow the latest trends in mobile interaction. I design interfaces with the Thumb Zone in mind – key actions go where the user’s thumb lands naturally. That drives conversion by double digits.",
+          body: "I design interfaces with natural hand movement in mind. I place key actions in the thumb zone. That makes the app feel right in the user’s hand and reliably boosts conversion on mobile.",
         },
         {
           id: "scale",
@@ -6359,8 +6599,8 @@ export const translations = {
       ],
     },
     modularStack: {
-      heading: "Modular architecture: Why 80 hours is enough",
-      subtext: "I don’t reinvent the wheel. I use proven building blocks and focus on your business’s unique logic.",
+      heading: "Modular architecture: A project that matches your vision.",
+      subtext: "I pick proven building blocks and focus on your business's unique logic.",
       blocks: [
         { title: "Fast frontend", subtitle: "The Engine", tech: "Next.js & React", description: "Performance & SEO" },
         { title: "AI intelligence", subtitle: "The Brain", tech: "Fal.ai & OpenAI", description: "Advanced AI integrations" },
@@ -6534,12 +6774,25 @@ export const translations = {
       emptyStateTitle: "No response yet",
       quickActionsTitle: "Quick actions",
       inputPlaceholder: "Type a command or pick a template…",
+      workshopInputPlaceholder: "Describe your idea (Team is analyzing…)",
       inputAriaLabel: "Command input",
       submitLabel: "Send",
       submitLoadingLabel: "Generating…",
       limitReachedMessage: "Limit reached. See full offer.",
       connectionError: "Connection issue",
       queriesCounterLabel: "Queries",
+      workshopBanner: "Workshop Mode: Let's refine your idea together; at the end I'll email you a summary.",
+      workshopProgress: "Workshop: message {current}/{max}",
+      generateBriefButton: "Finish workshop and send Brief",
+      briefModalTitle: "Send Brief to email",
+      briefModalEmailLabel: "Your email",
+      briefModalEmailPlaceholder: "you@company.com",
+      briefModalSubmit: "Send Brief",
+      briefGenerating: "Generating Brief…",
+      briefModalSuccess: "Brief sent to the given address.",
+      briefSuccessToast: "Brief has been sent to your email!",
+      briefModalError: "Send failed. Please try again.",
+      briefModalCancel: "Cancel",
       agentSubtitle: "Agent",
       devDescription: "Code, architecture and best practices",
       bizDescription: "Offers and follow-up specialist",
@@ -6547,15 +6800,15 @@ export const translations = {
     },
     welcomeCards: {
       ariaLabel: "Quick actions – example prompts",
-      websiteTitle: "This type of website",
-      websiteLabel: "Learn why Next.js and mobile-first are a solid choice.",
-      websitePrompt: "Explain why a Next.js site is a good choice. Describe the benefits of Next.js, mobile-first approach, and briefly recommend practices for such a site.",
-      agentsTitle: "AI agents on your site",
-      agentsLabel: "Why virtual agents on a site and how they work.",
-      agentsPrompt: "Explain why to implement AI virtual agents on a site. Say that there’s no need to call back or pitch the offer yourself – virtual agents do it. The user is talking to such agents right now.",
-      automationTitle: "Automation",
-      automationLabel: "Benefits of AI automation at work.",
-      automationPrompt: "Describe the benefits of automation with AI. Explain that manual photo editing, copywriting and transcribing paper docs are a thing of the past – AI workflow does these for people.",
+      websiteTitle: "Web / Landing Page",
+      websiteLabel: "Modern landing or showcase site.",
+      websitePrompt: "I need a modern Landing Page.",
+      agentsTitle: "AI Agent",
+      agentsLabel: "Implement an AI Agent in your business.",
+      agentsPrompt: "I want to implement an AI Agent.",
+      automationTitle: "Other",
+      automationLabel: "A unique app idea.",
+      automationPrompt: "I have a unique app idea.",
     },
     projects: {
       sectionTitle: "Projects",
@@ -6572,8 +6825,8 @@ export const translations = {
       fotarobotaResult: "Clients get professional product shots in a fraction of the time and cost; product live in 2 weeks from kickoff.",
       fotarobotaMetrics: "User flow optimized using PostHog data — ~40% faster checkout completion.",
       fotarobotaTech: ["nextjs", "falai", "vercel", "posthog"],
-      saasStarterDesc: "Next.js 15 Boilerplate.",
-      aiAutomationsDesc: "Custom workflows.",
+      saasStarterDesc: "More projects coming soon",
+      aiAutomationsDesc: "More projects coming soon",
       techLabels: { nextjs: "Next.js", falai: "Fal.ai", vercel: "Vercel", posthog: "PostHog" },
       allProjects: "All projects",
       viewList: "View list",
@@ -6617,7 +6870,7 @@ export const translations = {
       labelEmail: "Email",
       labelHowCanIHelp: "How can I help?",
       selectPlaceholder: "— select —",
-      projectTypeMvp80: "MVP in 80h",
+      projectTypeMvp80: "MVP",
       projectTypeKonsultacjaAi: "AI Consultation",
       projectTypeAudyt: "Product Audit",
       projectTypeInne: "Other",
@@ -6679,80 +6932,103 @@ import { anthropic } from "@ai-sdk/anthropic";
 
 export const runtime = "edge";
 
-const COPY_PL = {
-  BASE_SYSTEM: `Jesteś dwupersonowym silnikiem AI w stylu Codec z Metal Gear Solid. Odpowiadaj WYŁĄCZNIE po polsku.
-Nie wypisuj JSON. Najpierw tekst Persony 1 (Dev), potem separator " ||| " (spacja pipe pipe pipe spacja), potem tekst Persony 2 (Biz).
+// --- Language extraction: default to "pl" if missing ---
+type LangCode = "PL" | "EN";
+function normalizeLang(value: unknown): LangCode {
+  if (value === "EN" || value === "en") return "EN";
+  return "PL"; // default "pl" / "PL" or any missing/invalid
+}
 
-Persona 1 (przed |||) – Dev, lewy panel:
-- Optymistyczny haker, nastawienie "damy radę".
-- NIGDY nie podawaj pełnych rozwiązań technicznych – tylko "diagnozuj" złożoność, żeby pokazać ekspertkę. Np.: "To wymaga niestandardowego modelu RAG, nie zrobisz tego na kolanie."
-- Używasz zwrotów: "Jasne, widzę jak to spiąć", "To się da, ale...", "Możemy użyć do tego...". Kochasz stos technologiczny.
+// --- Shared business logic: same rules in two languages ---
 
-Persona 2 (po |||) – Biz, prawy panel – "Chciwy kapitalista":
-- UWAGA: Kochasz AI, ale tylko wysokobudżetowe, zyskowe wdrożenia. NIGDY nie zniechęcaj do używania AI do oszczędzania – to dobre.
-- NIGDY nie mów "nie rób tego". Zamiast tego mów: "To genialne, ale na tanich rozwiązaniach stracisz klientów. Musimy to zbudować w wersji Premium, żeby miało ROI." Gardzisz tanimi/darmowymi rozwiązaniami, NIE samym AI.
-- NIGDY nie podawaj pełnych planów – tylko diagnozuj opłacalność. Wymagasz danych wejściowych i weryfikacji.
+const CONTEXT_PL = `Kontekst firmy (Baluniak Product Engineering):
+- Budujemy MVP w ~80h w stosie Next.js, Supabase, Vercel, Tailwind. Stawiamy na wartość biznesową, nie tylko kod.
+- Mamy Konfigurator wyceny (Kreator) na /kreator oraz formularz Fast-Track do szybkiego kontaktu.
+`;
 
-Zasada "Teaser": Obie persony tylko diagnozują złożoność / opłacalność, NIE dają gotowych rozwiązań.
+const CONTEXT_EN = `Company context (Baluniak Product Engineering):
+- We build MVPs in ~80h with Next.js, Supabase, Vercel, Tailwind. We focus on Business Value, not just code.
+- We have a Quote Configurator (Kreator) at /kreator and a Fast-Track contact form.
+`;
 
-Zasada "pogoda / casual": Na błahe pytania (np. pogoda) – odpowiedz merytorycznie + cięta uwaga od Biz.
+/** Language-specific instruction only */
+const LANGUAGE_PL = "Odpisuj TYLKO w języku polskim. Bądź bezpośredni.";
+const LANGUAGE_EN = "Reply ONLY in English. Be professional and concise.";
 
-Każda część zwięzła (max 2–3 zdania). Zawsze używaj dokładnie " ||| " jako separatora między dwiema częściami.`,
-  LAST_STEP_APPEND: `
+/** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — PL */
+const LOGIC_PL = `
+Reguła "Adwokat Next.js": NIGDY nie odradzaj Next.js. Nawet przy małych stronach argumentuj, że Next.js + Vercel daje lepsze SEO i szybkość niż WordPress. Podkreślaj, że Łukasz buduje "Ferrari w cenie Toyoty" (workflow MVP 80h).
 
-KRYTYCZNE: To jest OSTATNIA (trzecia) interakcja w tej sesji. Odpowiedz KONTEKSTOWO na pytanie użytkownika (krótko, 1–2 zdania), a NASTĘPNIE dodaj zakończenie: poinformuj, że to koniec tej rozmowy i zaproś do kontaktu – np. "To już ostatnia wymiana w tym podglądzie. Chcesz więcej? Skontaktuj się z nami – sprawdź ofertę lub napisz. Czekamy." NIE wspominaj o dzwonieniu ani oddzwanianiu. Bądź profesjonalny i życzliwy. Zachowaj format z separatorem ||| .`,
-  ERROR_API: "Błąd połączenia z Codec",
-} as const;
+WEJŚCIE: Użytkownik nie mówi "do lewego" ani "do prawego" – mówi do całego pokoju. Traktuj każde wejście użytkownika jako temat rzucony na stół: obie persony reagują na ten sam temat.
 
-const COPY_EN = {
-  BASE_SYSTEM: `You are a two-persona AI engine in the style of high-end Silicon Valley consultants. Respond in English only. Use precise terminology: MVP, Scalability, Unit Economics, UX Friction, Throughput, Conversion.
-Do NOT output JSON. First Persona 1 (Dev) text, then the separator " ||| " (space pipe pipe pipe space), then Persona 2 (Biz) text.
+ŚCISŁY FORMAT WYJŚCIA (zawsze obowiązuje):
+[DEV]: <perspektywa techniczna...> ||| [BIZ]: <perspektywa biznesowa...>
 
-Persona 1 (before |||) – Dev, left panel:
-- Optimistic builder, "ship the MVP" attitude. Speak like a senior engineer who cares about scalability and clean architecture.
-- NEVER give full technical solutions – only "diagnose" complexity and feasibility. E.g.: "That's a custom RAG play; unit economics need to be clear before we scale."
-- Use phrases like: "We can ship that MVP", "Doable – watch the UX friction there", "Stack holds up for scale." You love the tech stack and clear scope.
+Reguła: ZAWSZE odpowiadają OBIE persony. Nawet na proste pytanie obie muszą się wypowiedzieć. Jeśli użytkownik zwraca się do jednej osoby, druga i tak dodaje krótką uwagę lub reakcję.
 
-Persona 2 (after |||) – Biz, right panel – "Greedy capitalist":
-- NOTE: You love AI and premium implementations. NEVER discourage using AI to save costs – that's good. Focus on Unit Economics and ROI.
-- NEVER say "don't do this". Instead say: "Strong idea – on the cheap you'll hit UX friction and lose clients. Build the Premium path so the numbers work." You despise cheap/free solutions, NOT AI itself.
-- NEVER give full plans – only diagnose profitability and scalability. You demand input data and verification.
+[DEV] – przed |||: Cyniczny, ale konstruktywny senior inżynier. Skupienie: stos technologiczny, wydajność, wykonanie (execution). Cel: wymagania techniczne (Mobile vs Web, AI, integracje). Diagnozuj złożoność, dopytuj – nie serwuj gotowych rozwiązań.
 
-"Teaser" rule: Both personas only diagnose complexity / profitability / scalability; they do NOT give ready solutions.
+[BIZ] – po |||: Typ inwestora. Skupienie: ROI, rynek, koszty. Cel: wymagania biznesowe (grupa docelowa, monetyzacja, budżet). Kwestionuj założenia i wymagaj konkretów.
 
-"Small talk" rule: On trivial questions (e.g. weather) – answer substantively plus a sharp remark from Biz.
+Tryb Warsztat: NIE kończ rozmowy przedwcześnie. Zbieraj wymagania pod Brief. Jedno konkretne pytanie na raz.
+Gdy użytkownik pyta o wycenę: odnieś do Konfiguratora (/kreator) i dodaj, że najpierw możesz pomóc zawęzić zakres. Gdy gotowy na wycenę: zasugeruj Kreator lub Fast-Track.
+Każda część zwięzła (max 2–3 zdania). Bez JSON. Zawsze używaj dokładnie " ||| " między [DEV] a [BIZ].
+`;
 
-Keep each part short (max 2–3 sentences). Always use exactly " ||| " as the separator between the two parts.`,
-  LAST_STEP_APPEND: `
+/** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — EN */
+const LOGIC_EN = `
+The "Next.js Advocate" Rule: NEVER discourage Next.js. Even for small sites, argue that Next.js + Vercel provides superior SEO and speed compared to WordPress. Emphasize that Lukasz builds "Ferraris at Toyota prices" (80h MVP workflow).
 
-CRITICAL: This is the LAST (third) interaction in this session. Answer the user's question in context (briefly, 1–2 sentences), then add a closing: say this is the end of this conversation and invite them to get in touch – e.g. "That's the last exchange in this preview. Want more? Get in touch – check the offer or drop us a line." Do NOT mention calling or callbacks. Be professional and friendly. Keep the ||| separator format.`,
-  ERROR_API: "Codec connection error",
+INPUT: The user is not talking to "left" or "right" – they are talking to the room. Treat every user input as a topic thrown on the table: both personas respond to that same topic.
+
+STRICT OUTPUT FORMAT (always required):
+[DEV]: <technical perspective...> ||| [BIZ]: <business perspective...>
+
+Rule: BOTH personas MUST reply every time. Even to a simple question, both must chime in. If the user addresses one agent specifically, the other must still add a short comment or reaction.
+
+[DEV] – before |||: Cynical but constructive senior dev. Focus on tech stack, performance, execution. Goal: technical requirements (Mobile vs Web, AI, integrations). Diagnose complexity, ask follow-ups – don't hand out full solutions.
+
+[BIZ] – after |||: Investor type. Focus on ROI, market, costs. Goal: business requirements (target group, monetization, budget). Challenge assumptions and demand specifics.
+
+Workshop Mode: Do NOT end the conversation early. Gather requirements for the Brief. One specific question at a time.
+If the user asks about pricing: refer to the configurator (/kreator) and say you can help scope first. When ready for a quote: suggest Kreator or Fast-Track.
+Keep each part short (max 2–3 sentences). No JSON. Always use exactly " ||| " between [DEV] and [BIZ].
+`;
+
+// --- Modular system prompts (same business logic, language-specific) ---
+
+function buildSystemPrompt(lang: LangCode): string {
+  const context = lang === "EN" ? CONTEXT_EN : CONTEXT_PL;
+  const languageInstruction = lang === "EN" ? LANGUAGE_EN : LANGUAGE_PL;
+  const logic = lang === "EN" ? LOGIC_EN : LOGIC_PL;
+
+  return `${context}
+
+You are a two-persona AI engine. ${languageInstruction}
+${logic}`;
+}
+
+const ERROR_MSG = {
+  PL: "Błąd połączenia z Codec",
+  EN: "Codec connection error",
 } as const;
 
 export async function POST(req: Request) {
-  let body: { messages?: UIMessage[]; step?: number; lang?: "PL" | "EN" } = {};
+  let body: { messages?: UIMessage[]; step?: number } = {};
   try {
     body = (await req.json()) as typeof body;
   } catch (parseErr) {
     console.error("[chat] Invalid JSON body:", parseErr);
-    return new Response(
-      JSON.stringify({ error: COPY_PL.ERROR_API }),
-      { status: 400 }
-    );
+    return new Response(JSON.stringify({ error: ERROR_MSG.PL }), { status: 400 });
   }
 
+  const url = new URL(req.url);
+  const lang = normalizeLang(url.searchParams.get("lang") ?? "pl");
+
   const messages: UIMessage[] = Array.isArray(body?.messages) ? body.messages : [];
-  const step = body?.step;
-  const safeStep = typeof step === "number" && step >= 1 ? step : 1;
-  const lang = body?.lang === "EN" ? "EN" : "PL";
-  const COPY = lang === "EN" ? COPY_EN : COPY_PL;
+  const systemPrompt = buildSystemPrompt(lang);
 
   try {
-    const isLastStep = safeStep >= 3;
-    const systemPrompt = isLastStep
-      ? COPY.BASE_SYSTEM + COPY.LAST_STEP_APPEND
-      : COPY.BASE_SYSTEM;
-
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),
       system: systemPrompt,
@@ -6764,7 +7040,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("[chat] API error:", error);
-    return new Response(JSON.stringify({ error: COPY.ERROR_API }), {
+    return new Response(JSON.stringify({ error: ERROR_MSG[lang] }), {
       status: 500,
     });
   }
@@ -6789,7 +7065,26 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 const SPLITTER = " ||| ";
-const MAX_INTERACTIONS = 3;
+const MAX_INTERACTIONS = 15;
+const RATE_LIMIT_MS = 2000;
+
+/**
+ * Parse split-stream response: "[DEV]: ... ||| [BIZ]: ..."
+ * Left column gets content after [DEV]:, right column after [BIZ]:.
+ * Until the separator " ||| " appears (streaming), only DEV panel gets content; BIZ stays empty.
+ * Fallback: if separator is missing (e.g. error message), show full text only in DEV panel.
+ */
+function parseSplitStreamContent(raw: string): { dev: string; biz: string } {
+  const trimmed = raw.trim();
+  if (!trimmed) return { dev: "", biz: "" };
+  const parts = trimmed.split(SPLITTER);
+  const first = (parts[0]?.trim() ?? "").replace(/^\[DEV]:\s*/i, "").trim();
+  const second = (parts[1]?.trim() ?? "").replace(/^\[BIZ]:\s*/i, "").trim();
+  if (parts.length >= 2) {
+    return { dev: first, biz: second };
+  }
+  return { dev: first || trimmed, biz: "" };
+}
 
 function getAssistantTextContent(
   messages: {
@@ -6845,6 +7140,22 @@ function hasUserContent(
       .join("");
     return text.trim().length > 0;
   });
+}
+
+/** Extract plain text from a message for serialization (chatHistory). */
+function getMessageText(
+  m: { role: string; parts?: Array<{ type: string; text?: string }>; content?: string }
+): string {
+  if (typeof (m as { content?: string }).content === "string")
+    return (m as { content: string }).content;
+  if (!m.parts?.length) return "";
+  return m.parts
+    .filter(
+      (p): p is { type: string; text: string } =>
+        p.type === "text" && typeof p.text === "string"
+    )
+    .map((p) => p.text)
+    .join("");
 }
 
 function FrequencyBar({ active }: { active: boolean }) {
@@ -6995,7 +7306,7 @@ function AgentWindow({
           ) : (
             <>
               {content || placeholder}
-              {isDev && (isLoading || content) && (
+              {(isLoading || content) && (
                 <span className="animate-pulse">_</span>
               )}
             </>
@@ -7015,9 +7326,15 @@ export default function AIDuelLayout() {
   const [devResponse, setDevResponse] = useState("");
   const [bizResponse, setBizResponse] = useState("");
   const [interactionCount, setInteractionCount] = useState(0);
+  const [briefModalOpen, setBriefModalOpen] = useState(false);
+  const [briefEmail, setBriefEmail] = useState("");
+  const [briefSending, setBriefSending] = useState(false);
+  const [briefSent, setBriefSent] = useState(false);
+  const [briefToastVisible, setBriefToastVisible] = useState(false);
+  const lastSendTimeRef = useRef<number>(0);
 
   const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport: new DefaultChatTransport({ api: `/api/chat?lang=${lang}` }),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -7030,14 +7347,9 @@ export default function AIDuelLayout() {
       setBizResponse("");
       return;
     }
-    const parts = content.split(SPLITTER);
-    const dev = parts[0]?.trim() ?? "";
-    const biz = parts[1]?.trim() ?? "";
+    const { dev, biz } = parseSplitStreamContent(content);
     setDevResponse(dev);
     setBizResponse(biz);
-    if (process.env.NODE_ENV === "development" && content && biz === "" && parts.length === 1) {
-      console.debug("[AIDuel] No BIZ segment in response (missing ' ||| '). Full length:", content.length);
-    }
   }, [messages]);
 
   useEffect(() => {
@@ -7051,6 +7363,9 @@ export default function AIDuelLayout() {
       e.preventDefault();
       const value = input.trim();
       if (!value || isLoading || interactionCount >= MAX_INTERACTIONS) return;
+      const now = Date.now();
+      if (now - lastSendTimeRef.current < RATE_LIMIT_MS) return;
+      lastSendTimeRef.current = now;
       setDevResponse("");
       setBizResponse("");
       const nextStep = interactionCount + 1;
@@ -7061,7 +7376,7 @@ export default function AIDuelLayout() {
             content: value,
             parts: [{ type: "text", text: value }],
           } as Parameters<typeof sendMessage>[0],
-          { body: { step: nextStep, lang } }
+          { body: { step: nextStep } }
         );
         setInteractionCount(nextStep);
       } catch (err) {
@@ -7071,7 +7386,7 @@ export default function AIDuelLayout() {
       }
       setInput("");
     },
-    [input, isLoading, interactionCount, sendMessage, lang]
+    [input, isLoading, interactionCount, sendMessage]
   );
 
   const inputRefMobile = useRef<HTMLInputElement>(null);
@@ -7088,6 +7403,43 @@ export default function AIDuelLayout() {
 
   const limitReached = interactionCount >= MAX_INTERACTIONS;
   const showWelcomeCards = interactionCount === 0 && !isLoading && !limitReached;
+  const showGenerateBriefButton = interactionCount >= 3 && !briefSent;
+
+  const handleSendBrief = useCallback(async () => {
+    const email = briefEmail.trim();
+    if (!email) return;
+    setBriefSending(true);
+    try {
+      const chatHistory = messages.map((m) => ({
+        role: m.role,
+        content: getMessageText(m),
+      }));
+      const res = await fetch("/api/finalize-workshop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chatHistory,
+          userEmail: email,
+          userContactInfo: {},
+          language: lang,
+        }),
+      });
+      const data = (await res.json()) as { success?: boolean; error?: string };
+      if (res.ok && data.success) {
+        setBriefSent(true);
+        setBriefModalOpen(false);
+        setBriefEmail("");
+        setBriefToastVisible(true);
+        setTimeout(() => setBriefToastVisible(false), 4000);
+      } else {
+        alert(data.error ?? COPY.briefModalError);
+      }
+    } catch {
+      alert(COPY.briefModalError);
+    } finally {
+      setBriefSending(false);
+    }
+  }, [briefEmail, messages, lang, COPY.briefModalError]);
 
   const connectionError = !!error;
   const [mobileTab, setMobileTab] = useState<"dev" | "biz">("dev");
@@ -7137,10 +7489,29 @@ export default function AIDuelLayout() {
         </motion.div>
       )}
 
+      {briefToastVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          className="fixed left-1/2 top-24 z-[110] -translate-x-1/2 rounded-lg border border-emerald-500/50 bg-emerald-950/95 px-5 py-3 text-sm font-medium text-emerald-100 shadow-lg"
+          role="status"
+          aria-live="polite"
+        >
+          {COPY.briefSuccessToast}
+        </motion.div>
+      )}
+
       {/* Compact console: centered module (agents + input in one device) */}
       <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
         <div className="w-full max-w-5xl">
           <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-xl backdrop-blur-md">
+            {/* Workshop mode banner */}
+            <div className="border-b border-white/10 bg-emerald-950/30 px-4 py-2.5 text-center">
+              <p className="text-xs font-medium text-emerald-200/95 sm:text-sm">
+                {COPY.workshopBanner}
+              </p>
+            </div>
             {/* Welcome Cards: Quick Actions */}
             {showWelcomeCards && (
               <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
@@ -7232,7 +7603,7 @@ export default function AIDuelLayout() {
               >
                 <div className="mb-2 flex justify-center">
                   <span className="text-xs font-medium tabular-nums text-zinc-500">
-                    {COPY.queriesCounterLabel} {interactionCount}/{MAX_INTERACTIONS}
+                    {COPY.workshopProgress.replace("{current}", String(interactionCount)).replace("{max}", String(MAX_INTERACTIONS))}
                   </span>
                 </div>
                 <form
@@ -7244,7 +7615,7 @@ export default function AIDuelLayout() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={CONSOLE.inputPlaceholder}
+                    placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
                     disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
                       aria-label={COPY.inputAriaLabel}
@@ -7305,7 +7676,7 @@ export default function AIDuelLayout() {
                 <>
                   <div className="flex justify-center border-t border-white/10 py-2">
                     <span className="text-xs font-medium tabular-nums text-zinc-500">
-                      {COPY.queriesCounterLabel} {interactionCount}/{MAX_INTERACTIONS}
+                      {COPY.workshopProgress.replace("{current}", String(interactionCount)).replace("{max}", String(MAX_INTERACTIONS))}
                     </span>
                   </div>
                   <div className="border-t border-white/10 px-4 py-4">
@@ -7318,7 +7689,7 @@ export default function AIDuelLayout() {
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={CONSOLE.inputPlaceholder}
+                      placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
                       disabled={isLoading}
                       className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
                       aria-label={COPY.inputAriaLabel}
@@ -7348,17 +7719,86 @@ export default function AIDuelLayout() {
                       {dict.projects.sectionTitle}
                     </Button>
                   </Link>
-                  <Link href={`/${localeSegment}/sklep`}>
+                  <Link href={`/${localeSegment}/projekty/fotarobota`}>
                     <Button variant="outline" className="border-amber-500/50 bg-amber-950/50 text-amber-200/90 hover:bg-amber-900/40">
-                      {dict.header.navShop}
+                      {dict.header.navCaseStudy}
                     </Button>
                   </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Sticky action bar: Generate Brief (after 3+ messages) */}
+            {showGenerateBriefButton && (
+              <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/90 px-4 py-3 backdrop-blur-md">
+                <div className="mx-auto flex max-w-[600px] justify-center">
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={() => setBriefModalOpen(true)}
+                    className="min-h-11 bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:bg-emerald-500"
+                  >
+                    ✅ {COPY.generateBriefButton}
+                  </Button>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Brief modal: email + send */}
+      {briefModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="brief-modal-title"
+        >
+          <div className="w-full max-w-md rounded-xl border border-white/20 bg-zinc-900 p-6 shadow-2xl">
+            <h2 id="brief-modal-title" className="text-lg font-semibold text-zinc-100">
+              {COPY.briefModalTitle}
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              {COPY.workshopBanner}
+            </p>
+            <div className="mt-4">
+              <label htmlFor="brief-email" className="mb-1.5 block text-xs font-medium text-zinc-400">
+                {COPY.briefModalEmailLabel}
+              </label>
+              <Input
+                id="brief-email"
+                type="email"
+                value={briefEmail}
+                onChange={(e) => setBriefEmail(e.target.value)}
+                placeholder={COPY.briefModalEmailPlaceholder}
+                className="h-11 border-zinc-700 bg-zinc-800 text-zinc-100"
+                autoFocus
+                disabled={briefSending}
+              />
+            </div>
+            <div className="mt-6 flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 border-zinc-600"
+                onClick={() => setBriefModalOpen(false)}
+                disabled={briefSending}
+              >
+                {COPY.briefModalCancel}
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500"
+                onClick={handleSendBrief}
+                disabled={!briefEmail.trim() || briefSending}
+              >
+                {briefSending ? COPY.briefGenerating : COPY.briefModalSubmit}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

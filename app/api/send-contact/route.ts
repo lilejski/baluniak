@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const TO = "lukasz@baluniak.com";
+const ADMIN_EMAIL = "lukasz@baluniak.com";
 
 type SendContactBody = {
   name?: string;
@@ -10,6 +10,14 @@ type SendContactBody = {
   subject?: string;
   message?: string;
 };
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function contactEmailHtml(body: SendContactBody): string {
   const name = escapeHtml(body.name ?? "—");
@@ -36,12 +44,33 @@ function contactEmailHtml(body: SendContactBody): string {
   `.trim();
 }
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function confirmationEmailHtml(lang: "PL" | "EN"): string {
+  const text = lang === "EN"
+    ? {
+        title: "Message Received",
+        body: "Thank you for contacting me. I've received your message and will get back to you within 24 hours.",
+        footer: "Best regards,<br>Łukasz Baluniak"
+      }
+    : {
+        title: "Wiadomość otrzymana",
+        body: "Dziękuję za kontakt. Otrzymałem Twoją wiadomość i wrócę z odpowiedzią w ciągu 24h.",
+        footer: "Pozdrawiam,<br>Łukasz Baluniak"
+      };
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${text.title}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${text.body}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${text.footer}</td></tr>
+    <tr><td style="padding:16px 0 0;font-size:11px;color:#52525b;">baluniak.com</td></tr>
+  </table>
+</body>
+</html>
+  `.trim();
 }
 
 export async function POST(req: Request) {
@@ -70,20 +99,39 @@ export async function POST(req: Request) {
     const emailSubject = `Fast-Track: ${subject} od ${name}.`;
 
     const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      subject: emailSubject,
-      html: contactEmailHtml({ name, email, subject, message: body.message }),
-      replyTo: email,
-    });
 
-    if (error) {
-      console.error("[send-contact] Resend error:", error);
+    // Detect language from email domain or default to PL
+    const lang: "PL" | "EN" = email.includes(".pl") || email.includes("pl.") ? "PL" : "EN";
+
+    // Send TWO emails in parallel: admin notification + client confirmation
+    const [adminResult, clientResult] = await Promise.all([
+      resend.emails.send({
+        from: FROM,
+        to: ADMIN_EMAIL,
+        subject: emailSubject,
+        html: contactEmailHtml({ name, email, subject, message }),
+        replyTo: email,
+      }),
+      resend.emails.send({
+        from: FROM,
+        to: email,
+        subject: lang === "EN" ? "Confirmation: Message Received" : "Potwierdzenie otrzymania zgłoszenia",
+        html: confirmationEmailHtml(lang),
+      }),
+    ]);
+
+    if (adminResult.error) {
+      console.error("[send-contact] Admin email error:", adminResult.error);
       return NextResponse.json(
-        { error: error.message ?? "Nie udało się wysłać wiadomości." },
+        { error: adminResult.error.message ?? "Nie udało się wysłać wiadomości." },
         { status: 500 }
       );
+    }
+
+    if (clientResult.error) {
+      console.error("[send-contact] Client confirmation error:", clientResult.error);
+      // Admin email succeeded, but client confirmation failed - log but don't fail the request
+      console.warn("[send-contact] Client confirmation failed, but admin notification sent");
     }
 
     return NextResponse.json({ success: true });

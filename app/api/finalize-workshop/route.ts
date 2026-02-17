@@ -4,7 +4,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { Resend } from "resend";
 
 const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const LEAD_EMAIL = "lukasz@baluniak.com";
+const ADMIN_EMAIL = "lukasz@baluniak.com";
 
 type ChatEntry = { role: string; content: string };
 
@@ -58,10 +58,17 @@ function countUserMessages(chatHistory: ChatEntry[]): number {
   return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
 }
 
-/** Minimal wrapper: pass generated HTML as body; header/footer by language */
-function wrapEmailHtml(htmlBody: string, userEmail: string, lang: Lang): string {
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Email wrapper for client: brief only */
+function wrapClientEmailHtml(htmlBody: string, lang: Lang): string {
   const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
-  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
   const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
   return `
 <!DOCTYPE html>
@@ -69,8 +76,40 @@ function wrapEmailHtml(htmlBody: string, userEmail: string, lang: Lang): string 
 <body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
     <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
-    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${userEmail}</td></tr>
     <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
+  </table>
+</body></html>`.trim();
+}
+
+/** Email wrapper for admin: brief + full chat history */
+function wrapAdminEmailHtml(htmlBody: string, chatHistory: ChatEntry[], userEmail: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
+  const historyLabel = lang === "EN" ? "Full conversation history:" : "Pełna historia rozmowy:";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
+
+  const historyHtml = chatHistory
+    .map((m) => {
+      const role = m.role === "user" ? (lang === "EN" ? "User" : "Użytkownik") : (lang === "EN" ? "Agents" : "Agenci");
+      const content = escapeHtml(m.content || "");
+      return `<div style="margin-bottom:12px;padding:12px;background:#27272a;border-radius:8px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#71717a;margin-bottom:4px;">${role}</div>
+        <div style="font-size:13px;line-height:1.5;white-space:pre-wrap;">${content}</div>
+      </div>`;
+    })
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${escapeHtml(userEmail)}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;border-top:1px solid #27272a;margin-top:24px;">${historyLabel}</td></tr>
+    <tr><td style="padding:8px 0 16px;">${historyHtml}</td></tr>
     <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
   </table>
 </body></html>`.trim();
@@ -149,28 +188,39 @@ export async function POST(req: Request) {
 
     const projectName = getProjectIdeaForSubject(chatHistory);
     const subject = getSubject(projectName, lang);
-    const fullHtml = wrapEmailHtml(
-      htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>"),
-      userEmail,
-      lang
-    );
+    const briefHtml = htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>");
 
     const resend = new Resend(apiKey);
-    const toList = [userEmail, LEAD_EMAIL].filter(Boolean);
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: toList,
-      subject,
-      html: fullHtml,
-      replyTo: userEmail,
-    });
 
-    if (error) {
-      console.error("[finalize-workshop] Resend error:", error);
+    // Send TWO emails in parallel: admin (brief + history) + client (brief only)
+    const [adminResult, clientResult] = await Promise.all([
+      resend.emails.send({
+        from: FROM,
+        to: ADMIN_EMAIL,
+        subject: `[Admin] ${subject}`,
+        html: wrapAdminEmailHtml(briefHtml, chatHistory, userEmail, lang),
+        replyTo: userEmail,
+      }),
+      resend.emails.send({
+        from: FROM,
+        to: userEmail,
+        subject,
+        html: wrapClientEmailHtml(briefHtml, lang),
+      }),
+    ]);
+
+    if (adminResult.error) {
+      console.error("[finalize-workshop] Admin email error:", adminResult.error);
       return NextResponse.json(
-        { error: error.message ?? ERROR_MSG.sendFailed[lang] },
+        { error: adminResult.error.message ?? ERROR_MSG.sendFailed[lang] },
         { status: 500 }
       );
+    }
+
+    if (clientResult.error) {
+      console.error("[finalize-workshop] Client email error:", clientResult.error);
+      // Admin email succeeded, but client email failed - log but don't fail the request
+      console.warn("[finalize-workshop] Client email failed, but admin notification sent");
     }
 
     return NextResponse.json({ success: true });
