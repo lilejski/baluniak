@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const FROM = "onboarding@resend.dev";
-const TO = "l.baluniak@gmail.com";
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const TO = "lukasz@baluniak.com";
 
 type SendContactBody = {
   name?: string;
@@ -75,6 +75,7 @@ export async function POST(req: Request) {
       to: TO,
       subject: emailSubject,
       html: contactEmailHtml({ name, email, subject, message: body.message }),
+      replyTo: email,
     });
 
     if (error) {

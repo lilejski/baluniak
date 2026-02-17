@@ -3,8 +3,8 @@ import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { Resend } from "resend";
 
-const FROM = "onboarding@resend.dev";
-const LEAD_EMAIL = "l.baluniak@gmail.com";
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const LEAD_EMAIL = "lukasz@baluniak.com";
 
 type ChatEntry = { role: string; content: string };
 
@@ -162,7 +162,7 @@ export async function POST(req: Request) {
       to: toList,
       subject,
       html: fullHtml,
-      replyTo: LEAD_EMAIL,
+      replyTo: userEmail,
     });
 
     if (error) {

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { generateEmailHtml, type OrderEmailData } from "@/lib/email-template";
 
-const FROM = "onboarding@resend.dev";
-const TO = "l.baluniak@gmail.com";
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const TO = "lukasz@baluniak.com";
 
 type SendOrderBody = {
   clientName?: string;
@@ -41,11 +41,13 @@ export async function POST(req: Request) {
     };
 
     const resend = new Resend(apiKey);
+    const clientEmail = body.clientEmail ?? "";
     const { error } = await resend.emails.send({
       from: FROM,
       to: TO,
       subject,
       html: generateEmailHtml(emailData),
+      replyTo: clientEmail || undefined,
     });
 
     if (error) {

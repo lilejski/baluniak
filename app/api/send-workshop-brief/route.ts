@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const FROM = "onboarding@resend.dev";
-const TO = "l.baluniak@gmail.com";
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const TO = "lukasz@baluniak.com";
 
 type Body = { email: string; summary?: string };
 
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       to: email,
       subject: "Brief z Warsztatu – Baluniak",
       html,
-      replyTo: TO,
+      replyTo: email,
     });
 
     if (error) {
