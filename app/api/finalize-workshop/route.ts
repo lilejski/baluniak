@@ -219,8 +219,10 @@ export async function POST(req: Request) {
 
     if (clientResult.error) {
       console.error("[finalize-workshop] Client email error:", clientResult.error);
-      // Admin email succeeded, but client email failed - log but don't fail the request
-      console.warn("[finalize-workshop] Client email failed, but admin notification sent");
+      return NextResponse.json(
+        { error: ERROR_MSG.sendFailed[lang] },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });

@@ -109,10 +109,12 @@ export async function POST(req: Request) {
       );
     }
 
-    if (clientResult.error) {
+    if (clientEmail && clientResult.error) {
       console.error("[send-order] Client confirmation error:", clientResult.error);
-      // Admin email succeeded, but client confirmation failed - log but don't fail the request
-      console.warn("[send-order] Client confirmation failed, but admin notification sent");
+      return NextResponse.json(
+        { error: "Nie udało się wysłać potwierdzenia na adres klienta." },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });

@@ -96,7 +96,7 @@ export async function POST(req: Request) {
 
     const name = (body.name ?? "").trim() || "Nie podano";
     const subject = (body.subject ?? "").trim() || "Wiadomość z formularza";
-    const emailSubject = `Fast-Track: ${subject} od ${name}.`;
+    const emailSubject = `Nowy Lead: Kontakt – ${subject} od ${name}`;
 
     const resend = new Resend(apiKey);
 
@@ -130,8 +130,10 @@ export async function POST(req: Request) {
 
     if (clientResult.error) {
       console.error("[send-contact] Client confirmation error:", clientResult.error);
-      // Admin email succeeded, but client confirmation failed - log but don't fail the request
-      console.warn("[send-contact] Client confirmation failed, but admin notification sent");
+      return NextResponse.json(
+        { error: "Nie udało się wysłać potwierdzenia na adres klienta." },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });
