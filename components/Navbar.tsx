@@ -74,7 +74,7 @@ export function Navbar() {
             </Button>
           ))}
           <LanguageSwitcher />
-          <Button asChild size="default" className="border-0 bg-amber-500 font-semibold text-zinc-950 shadow-[0_0_18px_rgba(245,158,11,0.4)] hover:bg-amber-400 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)]">
+          <Button asChild size="default" className="border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500 hover:shadow-[0_0_22px_rgba(37,99,235,0.5)]">
             <Link href={`/${localeSegment}/wspolpraca`}>
               {dict.header.bookCall}
             </Link>
@@ -82,7 +82,7 @@ export function Navbar() {
           <Button asChild size="default" className="ml-1">
             <Link
               href={`/${localeSegment}#kreator`}
-              className="bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500"
+              className="bg-emerald-600 font-semibold text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white"
             >
               <motion.span
                 className="inline-block"
@@ -155,7 +155,7 @@ export function Navbar() {
                       <LanguageSwitcher inSheet />
                     </motion.div>
                     <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full border-0 bg-amber-500 font-semibold text-zinc-950 shadow-[0_0_18px_rgba(245,158,11,0.4)] hover:bg-amber-400">
+                      <Button asChild size="lg" className="w-full border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500">
                         <Link
                           href={`/${localeSegment}/wspolpraca`}
                           onClick={() => setOpen(false)}
@@ -165,7 +165,7 @@ export function Navbar() {
                       </Button>
                     </motion.div>
                     <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold hover:bg-emerald-500">
+                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold text-emerald-50 hover:bg-emerald-500 hover:text-white">
                         <Link
                           href={`/${localeSegment}#kreator`}
                           onClick={() => setOpen(false)}
