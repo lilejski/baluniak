@@ -27,13 +27,13 @@ export async function POST(req: Request) {
     }
 
     const clientName = body.clientName ?? "Nie podano";
-    const clientEmail = body.clientEmail ?? "Nie podano";
+    const clientEmail = (body.clientEmail ?? "").trim();
     const projectType = body.projectType ?? "Kreator";
     const subject = `Nowy Lead: ${projectType} od ${clientName}.`;
 
     const emailData: OrderEmailData = {
       clientName,
-      clientEmail,
+      clientEmail: clientEmail || "Nie podano",
       projectType,
       budgetRange: body.budgetRange,
       selectedFeatures: body.config,
@@ -41,7 +41,6 @@ export async function POST(req: Request) {
     };
 
     const resend = new Resend(apiKey);
-    const clientEmail = body.clientEmail ?? "";
     const { error } = await resend.emails.send({
       from: FROM,
       to: TO,
