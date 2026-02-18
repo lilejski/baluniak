@@ -81,7 +81,7 @@ export function Navbar() {
           </Button>
           <Button asChild size="default" className="ml-1">
             <Link
-              href={`/${localeSegment}#kreator`}
+              href={`/${localeSegment}/kreator`}
               className="bg-emerald-600 font-semibold text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white"
             >
               <motion.span
@@ -167,7 +167,7 @@ export function Navbar() {
                     <motion.div variants={mobileMenuItemVariants}>
                       <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold text-emerald-50 hover:bg-emerald-500 hover:text-white">
                         <Link
-                          href={`/${localeSegment}#kreator`}
+                          href={`/${localeSegment}/kreator`}
                           onClick={() => setOpen(false)}
                         >
                           {dict.header.cta}

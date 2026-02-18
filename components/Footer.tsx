@@ -33,7 +33,7 @@ export function Footer() {
               size="lg"
               className="min-h-14 min-w-[220px] bg-emerald-600 px-8 text-base font-semibold text-emerald-50 shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_28px_rgba(16,185,129,0.4)]"
             >
-              <Link href={`/${localeSegment}#kreator`}>
+              <Link href={`/${localeSegment}/kreator`}>
                 {copy.preCtaButton}
                 <ArrowRight className="ml-2 size-5 shrink-0" />
               </Link>

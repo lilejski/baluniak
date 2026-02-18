@@ -31,7 +31,7 @@ export const translations = {
       navTitle: "Nawigacja",
       quickLinks: [
         { label: "Strona główna", href: "/" },
-        { label: "Konfigurator", href: "#kreator" },
+        { label: "Konfigurator", href: "/kreator" },
         { label: "Kontakt", href: "/wspolpraca" },
       ],
       nav: [
@@ -400,7 +400,7 @@ export const translations = {
       navTitle: "Navigation",
       quickLinks: [
         { label: "Home", href: "/" },
-        { label: "Configurator", href: "#kreator" },
+        { label: "Configurator", href: "/kreator" },
         { label: "Contact", href: "/wspolpraca" },
       ],
       nav: [

@@ -120,7 +120,7 @@ export function HeroSection() {
             size="lg"
             className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
           >
-            <Link href={`/${localeSegment}#kreator`}>
+            <Link href={`/${localeSegment}/kreator`}>
               <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
               {h.ctaPrimary}
             </Link>
