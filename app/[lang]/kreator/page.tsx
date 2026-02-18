@@ -31,6 +31,7 @@ import {
   getStackSummary,
   getTimelineSummary,
   getPriceBreakdown,
+  getEstimatedDays,
   ADVANCED_MODULE_IDS,
 } from "@/lib/kreator-funnel";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -118,6 +119,8 @@ export default function KreatorPage() {
   const discountAmount = isPortfolioDiscount ? Math.round(0.1 * totalPrice) : 0;
   const finalTotal = totalPrice - discountAmount;
   const displayTotal = useCountUp(finalTotal);
+  const estimatedDays = useMemo(() => getEstimatedDays(state), [state]);
+  const displayEstimatedDays = useCountUp(estimatedDays, 500);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const totalSteps = branch ? getTotalSteps(branch) : 0;
   const currentStepLabel =
@@ -374,6 +377,11 @@ export default function KreatorPage() {
               </motion.p>
             )}
           </div>
+          {estimatedDays > 0 && (
+            <p className="text-sm text-zinc-400">
+              {k.estimatedTime}: <span className="tabular-nums font-medium text-zinc-200">{displayEstimatedDays}</span> {lang === "PL" ? "dni" : "days"}
+            </p>
+          )}
           <p className="text-xs text-zinc-500">
             {k.billingNote}
           </p>
@@ -726,17 +734,17 @@ export default function KreatorPage() {
             </CardContent>
           </Card>
 
-          {/* Desktop: sticky price summary sidebar (premium checkout feel) */}
-          <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-            <Card className="border-zinc-800 bg-zinc-950 shadow-xl">
+          {/* Desktop: sticky price summary sidebar (SaaS e‑commerce style) */}
+          <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
+            <Card className="border-zinc-800 bg-zinc-950/95 shadow-xl ring-1 ring-white/5">
               <CardContent className="p-6">
                 {priceSummaryContent}
               </CardContent>
             </Card>
           </div>
 
-          {/* Mobile: bottom bar + drawer */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800 bg-zinc-950 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+          {/* Mobile: fixed bottom bar + drawer (always at hand) */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800/80 bg-zinc-950/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:hidden">
             <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
               <SheetTrigger asChild>
                 <button
@@ -886,21 +894,26 @@ function StandardSteps({
               { id: "portfolio" as const, labelKey: "brandingPortfolio" as const },
               { id: "kontakt" as const, labelKey: "brandingKontakt" as const },
             ] as const
-            ).map(({ id, labelKey }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setStandard((s) => ({ ...s, branding: id }))}
-              className={cn(
-                "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                standard.branding === id
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-              )}
-            >
-              {options[labelKey]}
-            </button>
-          ))}
+            ).map(({ id, labelKey }) => {
+            const selected = standard.branding === id;
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                onClick={() => setStandard((s) => ({ ...s, branding: id }))}
+                animate={{ scale: selected ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-left text-sm font-medium transition-all",
+                  selected
+                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
+                )}
+              >
+                {options[labelKey]}
+              </motion.button>
+            );
+          })}
         </motion.div>
       )}
       {step === 2 && (
@@ -910,10 +923,19 @@ function StandardSteps({
           transition={transition}
           className="space-y-3"
         >
-          {(["about", "gallery", "contact"] as const).map((key) => (
-            <label
+          {(["about", "gallery", "contact"] as const).map((key) => {
+            const checked = standard.sections?.[key] ?? false;
+            return (
+            <motion.label
               key={key}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-zinc-800/50 px-4 py-3"
+              animate={{ scale: checked ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className={cn(
+                "flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+                checked
+                  ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                  : "border-white/10 bg-zinc-800/50"
+              )}
             >
               <input
                 type="checkbox"
@@ -936,8 +958,9 @@ function StandardSteps({
                 {key === "gallery" && o.sectionGallery}
                 {key === "contact" && o.sectionContact}
               </span>
-            </label>
-          ))}
+            </motion.label>
+            );
+          })}
         </motion.div>
       )}
       {step === 3 && (
@@ -953,21 +976,26 @@ function StandardSteps({
               { id: "2weeks" as const, labelKey: "deadline2weeks" as const },
               { id: "1month" as const, labelKey: "deadline1month" as const },
             ] as const
-          ).map(({ id, labelKey }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setStandard((s) => ({ ...s, deadline: id }))}
-              className={cn(
-                "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                standard.deadline === id
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-              )}
-            >
-              {o[labelKey]}
-            </button>
-          ))}
+          ).map(({ id, labelKey }) => {
+            const selected = standard.deadline === id;
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                onClick={() => setStandard((s) => ({ ...s, deadline: id }))}
+                animate={{ scale: selected ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
+                  selected
+                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
+                )}
+              >
+                {o[labelKey]}
+              </motion.button>
+            );
+          })}
         </motion.div>
       )}
     </>
@@ -1007,51 +1035,60 @@ function ProfessionalSteps({
               { id: "openai" as const, labelKey: "aiOpenai" as const },
               { id: "both" as const, labelKey: "aiBoth" as const },
             ] as const
-          ).map(({ id, labelKey }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, aiIntegration: id }))}
-              className={cn(
-                "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                professional.aiIntegration === id
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-              )}
-            >
-              {o[labelKey]}
-            </button>
-          ))}
+          ).map(({ id, labelKey }) => {
+            const selected = professional.aiIntegration === id;
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                onClick={() => setProfessional((s) => ({ ...s, aiIntegration: id }))}
+                animate={{ scale: selected ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
+                  selected
+                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
+                )}
+              >
+                {o[labelKey]}
+              </motion.button>
+            );
+          })}
         </motion.div>
       )}
       {step === 2 && (
         <motion.div key="p2" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">{o.paymentsQuestion}</p>
           <div className="flex gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, payments: true }))}
+              animate={{ scale: professional.payments === true ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.payments === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.yes}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, payments: false }))}
+              animate={{ scale: professional.payments === false ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.payments === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.no}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -1059,30 +1096,34 @@ function ProfessionalSteps({
         <motion.div key="p3" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">{o.authQuestion}</p>
           <div className="flex gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, userAuth: true }))}
+              animate={{ scale: professional.userAuth === true ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.userAuth === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.yes}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, userAuth: false }))}
+              animate={{ scale: professional.userAuth === false ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.userAuth === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.no}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -1090,30 +1131,34 @@ function ProfessionalSteps({
         <motion.div key="p4" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">{o.scaleQuestion}</p>
           <div className="flex gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, scalability: true }))}
+              animate={{ scale: professional.scalability === true ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.scalability === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.yes}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, scalability: false }))}
+              animate={{ scale: professional.scalability === false ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.scalability === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.no}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -1159,14 +1204,22 @@ function ModulesStep({
     >
       {ADVANCED_MODULE_IDS.map((id) => {
         const subtitle = options[MODULE_SUBTITLE_KEYS[id]];
+        const checked = modules[id] ?? false;
         return (
-          <label
+          <motion.label
             key={id}
-            className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-zinc-800/50 px-4 py-3 transition-colors hover:border-white/20"
+            animate={{ scale: checked ? 1.05 : 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className={cn(
+              "flex cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+              checked
+                ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                : "border-white/10 bg-zinc-800/50 hover:border-white/20"
+            )}
           >
             <input
               type="checkbox"
-              checked={modules[id] ?? false}
+              checked={checked}
               onChange={(e) =>
                 setModules((m) => ({ ...m, [id]: e.target.checked }))
               }
@@ -1182,7 +1235,7 @@ function ModulesStep({
                 </p>
               )}
             </div>
-          </label>
+          </motion.label>
         );
       })}
     </motion.div>

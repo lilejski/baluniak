@@ -1684,106 +1684,6 @@ export default function WspolpracaPage() {
 }
 </file>
 
-<file path="app/api/send-contact/route.ts">
-import { NextResponse } from "next/server";
-import { Resend } from "resend";
-
-const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const TO = "lukasz@baluniak.com";
-
-type SendContactBody = {
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-};
-
-function contactEmailHtml(body: SendContactBody): string {
-  const name = escapeHtml(body.name ?? "—");
-  const email = escapeHtml(body.email ?? "—");
-  const subject = escapeHtml(body.subject ?? "—");
-  const message = escapeHtml((body.message ?? "").replace(/\n/g, "<br>"));
-  return `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Fast-Track: Nowa wiadomość</td></tr>
-    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Nadawca</td></tr>
-    <tr><td style="padding:4px 0 16px;font-size:14px;"><strong>${name}</strong> &lt;${email}&gt;</td></tr>
-    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Temat</td></tr>
-    <tr><td style="padding:4px 0 16px;font-size:14px;">${subject}</td></tr>
-    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Wiadomość</td></tr>
-    <tr><td style="padding:4px 0 16px;font-size:14px;line-height:1.6;">${message}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Wysłano z formularza Fast-Track · baluniak.com</td></tr>
-  </table>
-</body>
-</html>
-  `.trim();
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-export async function POST(req: Request) {
-  try {
-    const body = (await req.json()) as SendContactBody;
-    const email = (body.email ?? "").trim();
-    const message = (body.message ?? "").trim();
-    if (!email || !message) {
-      return NextResponse.json(
-        { error: "Email i wiadomość są wymagane." },
-        { status: 400 }
-      );
-    }
-
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.error("[send-contact] Missing RESEND_API_KEY");
-      return NextResponse.json(
-        { error: "Konfiguracja email nie jest ustawiona." },
-        { status: 500 }
-      );
-    }
-
-    const name = (body.name ?? "").trim() || "Nie podano";
-    const subject = (body.subject ?? "").trim() || "Wiadomość z formularza";
-    const emailSubject = `Fast-Track: ${subject} od ${name}.`;
-
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      subject: emailSubject,
-      html: contactEmailHtml({ name, email, subject, message: body.message }),
-      replyTo: email,
-    });
-
-    if (error) {
-      console.error("[send-contact] Resend error:", error);
-      return NextResponse.json(
-        { error: error.message ?? "Nie udało się wysłać wiadomości." },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("[send-contact]", err);
-    return NextResponse.json(
-      { error: "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio." },
-      { status: 500 }
-    );
-  }
-}
-</file>
-
 <file path="app/api/send-workshop-brief/route.ts">
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -2342,193 +2242,6 @@ ${JSON.stringify(config, null, 2)}`;
 }
 </file>
 
-<file path="app/api/finalize-workshop/route.ts">
-import { NextResponse } from "next/server";
-import { generateText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
-import { Resend } from "resend";
-
-const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const LEAD_EMAIL = "lukasz@baluniak.com";
-
-type ChatEntry = { role: string; content: string };
-
-type Body = {
-  chatHistory?: ChatEntry[];
-  userEmail?: string;
-  userContactInfo?: Record<string, string>;
-  language?: string;
-  lang?: string;
-};
-
-type Lang = "PL" | "EN";
-
-function normalizeLang(value: unknown): Lang {
-  if (value === "EN" || value === "en") return "EN";
-  return "PL";
-}
-
-/** Dynamic summarizer prompts by language */
-const SUMMARIZER_PROMPT: Record<Lang, string> = {
-  PL: `Jesteś polskim Project Managerem. Przeanalizuj rozmowę i stwórz HTML Brief po POLSKU. Sekcje: Cel, Technologia, Biznes.
-
-Output: tylko poprawny HTML (bez markdown, bez \`\`\`). Użyj struktury:
-1. <h3>Cel</h3> + krótki akapit
-2. <h3>Technologia</h3> + lista (z DEV)
-3. <h3>Biznes</h3> + lista (z BIZ)
-4. <h3>Rekomendowane kolejne kroki</h3> + lista numerowana
-
-Używaj <p>, <ul>, <ol>, <li>. Zwięźle i po polsku. Jeśli czegoś brakuje w rozmowie, wpisz "Do doprecyzowania." w danej sekcji.`,
-  EN: `You are a Senior Project Manager. Analyze the chat and create an HTML Brief in ENGLISH. Sections: Goal, Tech Stack, Business Context.
-
-Output: valid HTML only (no markdown, no \`\`\`). Use this structure:
-1. <h3>Goal</h3> + one short paragraph
-2. <h3>Tech Stack</h3> + bullet list (from DEV)
-3. <h3>Business Context</h3> + bullet list (from BIZ)
-4. <h3>Recommended Next Steps</h3> + ordered list
-
-Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`,
-};
-
-function buildConversationText(chatHistory: ChatEntry[]): string {
-  return chatHistory
-    .map((m) => {
-      const label = m.role === "user" ? "User" : m.role === "assistant" ? "Agents (DEV & BIZ)" : m.role;
-      return `[${label}]\n${(m.content || "").trim()}`;
-    })
-    .join("\n\n");
-}
-
-function countUserMessages(chatHistory: ChatEntry[]): number {
-  return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
-}
-
-/** Minimal wrapper: pass generated HTML as body; header/footer by language */
-function wrapEmailHtml(htmlBody: string, userEmail: string, lang: Lang): string {
-  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
-  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
-  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
-  return `
-<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
-    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${userEmail}</td></tr>
-    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
-  </table>
-</body></html>`.trim();
-}
-
-function getProjectIdeaForSubject(chatHistory: ChatEntry[]): string {
-  const firstUser = chatHistory.find((m) => m.role === "user" && (m.content || "").trim());
-  const text = (firstUser?.content || "").trim().slice(0, 50);
-  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "";
-}
-
-/** Email subject by language */
-function getSubject(projectName: string, lang: Lang): string {
-  const fallback = lang === "EN" ? "Workshop" : "Warsztat";
-  const name = projectName || fallback;
-  return lang === "EN" ? `AI Workshop Summary: ${name}` : `Podsumowanie Warsztatu AI: ${name}`;
-}
-
-const ERROR_MSG = {
-  emailRequired: { PL: "Email jest wymagany.", EN: "Email is required." },
-  minMessages: {
-    PL: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief.",
-    EN: "We need at least 3 messages from you to generate the Brief.",
-  },
-  config: { PL: "Konfiguracja email nie jest ustawiona.", EN: "Email configuration is not set." },
-  sendFailed: { PL: "Nie udało się wysłać Briefu.", EN: "Failed to send the Brief." },
-  generic: {
-    PL: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie.",
-    EN: "Could not generate or send the Brief. Please try again.",
-  },
-} as const;
-
-export async function POST(req: Request) {
-  let lang: Lang = "PL";
-  try {
-    const body = (await req.json()) as Body;
-    const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
-    const userEmail = (body.userEmail ?? "").trim();
-    lang = normalizeLang(body.language ?? body.lang);
-
-    if (!userEmail) {
-      return NextResponse.json(
-        { error: ERROR_MSG.emailRequired[lang] },
-        { status: 400 }
-      );
-    }
-
-    const userMessageCount = countUserMessages(chatHistory);
-    if (userMessageCount < 3) {
-      return NextResponse.json(
-        { error: ERROR_MSG.minMessages[lang] },
-        { status: 400 }
-      );
-    }
-
-    const conversationText = buildConversationText(chatHistory);
-    const userPrompt =
-      lang === "EN"
-        ? `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only (in English).`
-        : `Rozmowa:\n\n${conversationText}\n\nNa wyjściu podaj tylko Brief w HTML (po polsku).`;
-
-    const { text: htmlBrief } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
-      system: SUMMARIZER_PROMPT[lang],
-      prompt: userPrompt,
-    });
-
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.error("[finalize-workshop] Missing RESEND_API_KEY");
-      return NextResponse.json(
-        { error: ERROR_MSG.config[lang] },
-        { status: 500 }
-      );
-    }
-
-    const projectName = getProjectIdeaForSubject(chatHistory);
-    const subject = getSubject(projectName, lang);
-    const fullHtml = wrapEmailHtml(
-      htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>"),
-      userEmail,
-      lang
-    );
-
-    const resend = new Resend(apiKey);
-    const toList = [userEmail, LEAD_EMAIL].filter(Boolean);
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: toList,
-      subject,
-      html: fullHtml,
-      replyTo: userEmail,
-    });
-
-    if (error) {
-      console.error("[finalize-workshop] Resend error:", error);
-      return NextResponse.json(
-        { error: error.message ?? ERROR_MSG.sendFailed[lang] },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("[finalize-workshop]", err);
-    return NextResponse.json(
-      { error: ERROR_MSG.generic[lang] },
-      { status: 500 }
-    );
-  }
-}
-</file>
-
 <file path="components/LanguageSwitcher.tsx">
 "use client";
 
@@ -2835,71 +2548,150 @@ export {
 }
 </file>
 
-<file path="app/api/send-order/route.ts">
+<file path="app/api/send-contact/route.ts">
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { generateEmailHtml, type OrderEmailData } from "@/lib/email-template";
 
 const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const TO = "lukasz@baluniak.com";
+const ADMIN_EMAIL = "lukasz@baluniak.com";
 
-type SendOrderBody = {
-  clientName?: string;
-  clientEmail?: string;
-  projectType?: string;
-  budgetRange?: { min: number; max: number };
-  config?: unknown;
-  architectSummary?: string;
+type SendContactBody = {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
 };
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function contactEmailHtml(body: SendContactBody): string {
+  const name = escapeHtml(body.name ?? "—");
+  const email = escapeHtml(body.email ?? "—");
+  const subject = escapeHtml(body.subject ?? "—");
+  const message = escapeHtml((body.message ?? "").replace(/\n/g, "<br>"));
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Fast-Track: Nowa wiadomość</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Nadawca</td></tr>
+    <tr><td style="padding:4px 0 16px;font-size:14px;"><strong>${name}</strong> &lt;${email}&gt;</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Temat</td></tr>
+    <tr><td style="padding:4px 0 16px;font-size:14px;">${subject}</td></tr>
+    <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Wiadomość</td></tr>
+    <tr><td style="padding:4px 0 16px;font-size:14px;line-height:1.6;">${message}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Wysłano z formularza Fast-Track · baluniak.com</td></tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+function confirmationEmailHtml(lang: "PL" | "EN"): string {
+  const text = lang === "EN"
+    ? {
+        title: "Message Received",
+        body: "Thank you for contacting me. I've received your message and will get back to you within 24 hours.",
+        footer: "Best regards,<br>Łukasz Baluniak"
+      }
+    : {
+        title: "Wiadomość otrzymana",
+        body: "Dziękuję za kontakt. Otrzymałem Twoją wiadomość i wrócę z odpowiedzią w ciągu 24h.",
+        footer: "Pozdrawiam,<br>Łukasz Baluniak"
+      };
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${text.title}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${text.body}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${text.footer}</td></tr>
+    <tr><td style="padding:16px 0 0;font-size:11px;color:#52525b;">baluniak.com</td></tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as SendOrderBody;
+    const body = (await req.json()) as SendContactBody;
+    const email = (body.email ?? "").trim();
+    const message = (body.message ?? "").trim();
+    if (!email || !message) {
+      return NextResponse.json(
+        { error: "Email i wiadomość są wymagane." },
+        { status: 400 }
+      );
+    }
+
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      console.error("[send-order] Missing RESEND_API_KEY");
+      console.error("[send-contact] Missing RESEND_API_KEY");
       return NextResponse.json(
         { error: "Konfiguracja email nie jest ustawiona." },
         { status: 500 }
       );
     }
 
-    const clientName = body.clientName ?? "Nie podano";
-    const clientEmail = (body.clientEmail ?? "").trim();
-    const projectType = body.projectType ?? "Kreator";
-    const subject = `Nowy Lead: ${projectType} od ${clientName}.`;
-
-    const emailData: OrderEmailData = {
-      clientName,
-      clientEmail: clientEmail || "Nie podano",
-      projectType,
-      budgetRange: body.budgetRange,
-      selectedFeatures: body.config,
-      architectSummary: body.architectSummary,
-    };
+    const name = (body.name ?? "").trim() || "Nie podano";
+    const subject = (body.subject ?? "").trim() || "Wiadomość z formularza";
+    const emailSubject = `Nowy Lead: Kontakt – ${subject} od ${name}`;
 
     const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      subject,
-      html: generateEmailHtml(emailData),
-      replyTo: clientEmail || undefined,
-    });
 
-    if (error) {
-      console.error("[send-order] Resend error:", error);
+    // Detect language from email domain or default to PL
+    const lang: "PL" | "EN" = email.includes(".pl") || email.includes("pl.") ? "PL" : "EN";
+
+    // Send TWO emails in parallel: admin notification + client confirmation
+    const [adminResult, clientResult] = await Promise.all([
+      resend.emails.send({
+        from: FROM,
+        to: ADMIN_EMAIL,
+        subject: emailSubject,
+        html: contactEmailHtml({ name, email, subject, message }),
+        replyTo: email,
+      }),
+      resend.emails.send({
+        from: FROM,
+        to: email,
+        subject: lang === "EN" ? "Confirmation: Message Received" : "Potwierdzenie otrzymania zgłoszenia",
+        html: confirmationEmailHtml(lang),
+      }),
+    ]);
+
+    if (adminResult.error) {
+      console.error("[send-contact] Admin email error:", adminResult.error);
       return NextResponse.json(
-        { error: error.message ?? "Nie udało się wysłać wiadomości." },
+        { error: adminResult.error.message ?? "Nie udało się wysłać wiadomości." },
+        { status: 500 }
+      );
+    }
+
+    if (clientResult.error) {
+      console.error("[send-contact] Client confirmation error:", clientResult.error);
+      return NextResponse.json(
+        { error: "Nie udało się wysłać potwierdzenia na adres klienta." },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[send-order]", err);
+    console.error("[send-contact]", err);
     return NextResponse.json(
-      { error: "Nie udało się wysłać zapytania." },
+      { error: "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio." },
       { status: 500 }
     );
   }
@@ -4707,6 +4499,245 @@ function ModulesStep({
 }
 </file>
 
+<file path="app/api/finalize-workshop/route.ts">
+import { NextResponse } from "next/server";
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { Resend } from "resend";
+
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const ADMIN_EMAIL = "lukasz@baluniak.com";
+
+type ChatEntry = { role: string; content: string };
+
+type Body = {
+  chatHistory?: ChatEntry[];
+  userEmail?: string;
+  userContactInfo?: Record<string, string>;
+  language?: string;
+  lang?: string;
+};
+
+type Lang = "PL" | "EN";
+
+function normalizeLang(value: unknown): Lang {
+  if (value === "EN" || value === "en") return "EN";
+  return "PL";
+}
+
+/** Dynamic summarizer prompts by language */
+const SUMMARIZER_PROMPT: Record<Lang, string> = {
+  PL: `Jesteś polskim Project Managerem. Przeanalizuj rozmowę i stwórz HTML Brief po POLSKU. Sekcje: Cel, Technologia, Biznes.
+
+Output: tylko poprawny HTML (bez markdown, bez \`\`\`). Użyj struktury:
+1. <h3>Cel</h3> + krótki akapit
+2. <h3>Technologia</h3> + lista (z DEV)
+3. <h3>Biznes</h3> + lista (z BIZ)
+4. <h3>Rekomendowane kolejne kroki</h3> + lista numerowana
+
+Używaj <p>, <ul>, <ol>, <li>. Zwięźle i po polsku. Jeśli czegoś brakuje w rozmowie, wpisz "Do doprecyzowania." w danej sekcji.`,
+  EN: `You are a Senior Project Manager. Analyze the chat and create an HTML Brief in ENGLISH. Sections: Goal, Tech Stack, Business Context.
+
+Output: valid HTML only (no markdown, no \`\`\`). Use this structure:
+1. <h3>Goal</h3> + one short paragraph
+2. <h3>Tech Stack</h3> + bullet list (from DEV)
+3. <h3>Business Context</h3> + bullet list (from BIZ)
+4. <h3>Recommended Next Steps</h3> + ordered list
+
+Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`,
+};
+
+function buildConversationText(chatHistory: ChatEntry[]): string {
+  return chatHistory
+    .map((m) => {
+      const label = m.role === "user" ? "User" : m.role === "assistant" ? "Agents (DEV & BIZ)" : m.role;
+      return `[${label}]\n${(m.content || "").trim()}`;
+    })
+    .join("\n\n");
+}
+
+function countUserMessages(chatHistory: ChatEntry[]): number {
+  return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Email wrapper for client: brief only */
+function wrapClientEmailHtml(htmlBody: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
+  return `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
+  </table>
+</body></html>`.trim();
+}
+
+/** Email wrapper for admin: brief + full chat history */
+function wrapAdminEmailHtml(htmlBody: string, chatHistory: ChatEntry[], userEmail: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
+  const historyLabel = lang === "EN" ? "Full conversation history:" : "Pełna historia rozmowy:";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
+
+  const historyHtml = chatHistory
+    .map((m) => {
+      const role = m.role === "user" ? (lang === "EN" ? "User" : "Użytkownik") : (lang === "EN" ? "Agents" : "Agenci");
+      const content = escapeHtml(m.content || "");
+      return `<div style="margin-bottom:12px;padding:12px;background:#27272a;border-radius:8px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#71717a;margin-bottom:4px;">${role}</div>
+        <div style="font-size:13px;line-height:1.5;white-space:pre-wrap;">${content}</div>
+      </div>`;
+    })
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${escapeHtml(userEmail)}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;border-top:1px solid #27272a;margin-top:24px;">${historyLabel}</td></tr>
+    <tr><td style="padding:8px 0 16px;">${historyHtml}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
+  </table>
+</body></html>`.trim();
+}
+
+function getProjectIdeaForSubject(chatHistory: ChatEntry[]): string {
+  const firstUser = chatHistory.find((m) => m.role === "user" && (m.content || "").trim());
+  const text = (firstUser?.content || "").trim().slice(0, 50);
+  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "";
+}
+
+/** Email subject by language */
+function getSubject(projectName: string, lang: Lang): string {
+  const fallback = lang === "EN" ? "Workshop" : "Warsztat";
+  const name = projectName || fallback;
+  return lang === "EN" ? `AI Workshop Summary: ${name}` : `Podsumowanie Warsztatu AI: ${name}`;
+}
+
+const ERROR_MSG = {
+  emailRequired: { PL: "Email jest wymagany.", EN: "Email is required." },
+  minMessages: {
+    PL: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief.",
+    EN: "We need at least 3 messages from you to generate the Brief.",
+  },
+  config: { PL: "Konfiguracja email nie jest ustawiona.", EN: "Email configuration is not set." },
+  sendFailed: { PL: "Nie udało się wysłać Briefu.", EN: "Failed to send the Brief." },
+  generic: {
+    PL: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie.",
+    EN: "Could not generate or send the Brief. Please try again.",
+  },
+} as const;
+
+export async function POST(req: Request) {
+  let lang: Lang = "PL";
+  try {
+    const body = (await req.json()) as Body;
+    const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
+    const userEmail = (body.userEmail ?? "").trim();
+    lang = normalizeLang(body.language ?? body.lang);
+
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: ERROR_MSG.emailRequired[lang] },
+        { status: 400 }
+      );
+    }
+
+    const userMessageCount = countUserMessages(chatHistory);
+    if (userMessageCount < 3) {
+      return NextResponse.json(
+        { error: ERROR_MSG.minMessages[lang] },
+        { status: 400 }
+      );
+    }
+
+    const conversationText = buildConversationText(chatHistory);
+    const userPrompt =
+      lang === "EN"
+        ? `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only (in English).`
+        : `Rozmowa:\n\n${conversationText}\n\nNa wyjściu podaj tylko Brief w HTML (po polsku).`;
+
+    const { text: htmlBrief } = await generateText({
+      model: anthropic("claude-sonnet-4-20250514"),
+      system: SUMMARIZER_PROMPT[lang],
+      prompt: userPrompt,
+    });
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("[finalize-workshop] Missing RESEND_API_KEY");
+      return NextResponse.json(
+        { error: ERROR_MSG.config[lang] },
+        { status: 500 }
+      );
+    }
+
+    const projectName = getProjectIdeaForSubject(chatHistory);
+    const subject = getSubject(projectName, lang);
+    const briefHtml = htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>");
+
+    const resend = new Resend(apiKey);
+
+    // Send TWO emails in parallel: admin (brief + history) + client (brief only)
+    const [adminResult, clientResult] = await Promise.all([
+      resend.emails.send({
+        from: FROM,
+        to: ADMIN_EMAIL,
+        subject: `[Admin] ${subject}`,
+        html: wrapAdminEmailHtml(briefHtml, chatHistory, userEmail, lang),
+        replyTo: userEmail,
+      }),
+      resend.emails.send({
+        from: FROM,
+        to: userEmail,
+        subject,
+        html: wrapClientEmailHtml(briefHtml, lang),
+      }),
+    ]);
+
+    if (adminResult.error) {
+      console.error("[finalize-workshop] Admin email error:", adminResult.error);
+      return NextResponse.json(
+        { error: adminResult.error.message ?? ERROR_MSG.sendFailed[lang] },
+        { status: 500 }
+      );
+    }
+
+    if (clientResult.error) {
+      console.error("[finalize-workshop] Client email error:", clientResult.error);
+      return NextResponse.json(
+        { error: ERROR_MSG.sendFailed[lang] },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[finalize-workshop]", err);
+    return NextResponse.json(
+      { error: ERROR_MSG.generic[lang] },
+      { status: 500 }
+    );
+  }
+}
+</file>
+
 <file path="components/sections/ModularStack.tsx">
 "use client";
 
@@ -4949,6 +4980,137 @@ export function SiteHeader() {
 }
 </file>
 
+<file path="app/api/send-order/route.ts">
+import { NextResponse } from "next/server";
+import { Resend } from "resend";
+import { generateEmailHtml, type OrderEmailData } from "@/lib/email-template";
+
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const ADMIN_EMAIL = "lukasz@baluniak.com";
+
+type SendOrderBody = {
+  clientName?: string;
+  clientEmail?: string;
+  projectType?: string;
+  budgetRange?: { min: number; max: number };
+  config?: unknown;
+  architectSummary?: string;
+};
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function confirmationEmailHtml(lang: "PL" | "EN", projectType: string): string {
+  const text = lang === "EN"
+    ? {
+        title: "Inquiry Received",
+        body: `Thank you for your inquiry about "${escapeHtml(projectType)}". I've received your project details and will review them. I'll get back to you within 24 hours with next steps.`,
+        footer: "Best regards,<br>Łukasz Baluniak"
+      }
+    : {
+        title: "Zapytanie otrzymane",
+        body: `Dziękuję za zapytanie dotyczące "${escapeHtml(projectType)}". Otrzymałem szczegóły Twojego projektu i przeanalizuję je. Wrócę z odpowiedzią w ciągu 24h z kolejnymi krokami.`,
+        footer: "Pozdrawiam,<br>Łukasz Baluniak"
+      };
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${text.title}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${text.body}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${text.footer}</td></tr>
+    <tr><td style="padding:16px 0 0;font-size:11px;color:#52525b;">baluniak.com</td></tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = (await req.json()) as SendOrderBody;
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("[send-order] Missing RESEND_API_KEY");
+      return NextResponse.json(
+        { error: "Konfiguracja email nie jest ustawiona." },
+        { status: 500 }
+      );
+    }
+
+    const clientName = body.clientName ?? "Nie podano";
+    const clientEmail = (body.clientEmail ?? "").trim();
+    const projectType = body.projectType ?? "Kreator";
+    const subject = `Nowy Lead: ${projectType} od ${clientName}.`;
+
+    const emailData: OrderEmailData = {
+      clientName,
+      clientEmail: clientEmail || "Nie podano",
+      projectType,
+      budgetRange: body.budgetRange,
+      selectedFeatures: body.config,
+      architectSummary: body.architectSummary,
+    };
+
+    const resend = new Resend(apiKey);
+
+    // Detect language from client email domain or default to PL
+    const lang: "PL" | "EN" = clientEmail && (clientEmail.includes(".pl") || clientEmail.includes("pl.")) ? "PL" : "EN";
+
+    // Send TWO emails in parallel: admin notification + client confirmation
+    const [adminResult, clientResult] = await Promise.all([
+      resend.emails.send({
+        from: FROM,
+        to: ADMIN_EMAIL,
+        subject,
+        html: generateEmailHtml(emailData),
+        replyTo: clientEmail || undefined,
+      }),
+      clientEmail
+        ? resend.emails.send({
+            from: FROM,
+            to: clientEmail,
+            subject: lang === "EN" ? "Confirmation: Inquiry Received" : "Potwierdzenie otrzymania zgłoszenia",
+            html: confirmationEmailHtml(lang, projectType),
+          })
+        : Promise.resolve({ error: null, data: null }),
+    ]);
+
+    if (adminResult.error) {
+      console.error("[send-order] Admin email error:", adminResult.error);
+      return NextResponse.json(
+        { error: adminResult.error.message ?? "Nie udało się wysłać wiadomości." },
+        { status: 500 }
+      );
+    }
+
+    if (clientEmail && clientResult.error) {
+      console.error("[send-order] Client confirmation error:", clientResult.error);
+      return NextResponse.json(
+        { error: "Nie udało się wysłać potwierdzenia na adres klienta." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[send-order]", err);
+    return NextResponse.json(
+      { error: "Nie udało się wysłać zapytania." },
+      { status: 500 }
+    );
+  }
+}
+</file>
+
 <file path="app/globals.css">
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -5170,6 +5332,60 @@ html.dark {
 }
 </file>
 
+<file path="package.json">
+{
+  "name": "baluniak",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.36",
+    "@ai-sdk/react": "^3.0.71",
+    "@calcom/embed-react": "^1.5.3",
+    "@hookform/resolvers": "^5.2.2",
+    "@vercel/analytics": "^1.6.1",
+    "ai": "^6.0.69",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.29.2",
+    "lucide-react": "^0.563.0",
+    "next": "16.1.6",
+    "radix-ui": "^1.4.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hook-form": "^7.71.1",
+    "react-markdown": "^10.1.0",
+    "resend": "^6.9.2",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "^5"
+  }
+}
+</file>
+
+<file path="app/page.tsx">
+import { redirect } from "next/navigation";
+
+export default function RootPage() {
+  redirect("/pl");
+}
+</file>
+
 <file path="components/Footer.tsx">
 "use client";
 
@@ -5206,7 +5422,7 @@ export function Footer() {
               size="lg"
               className="min-h-14 min-w-[220px] bg-emerald-600 px-8 text-base font-semibold text-emerald-50 shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_28px_rgba(16,185,129,0.4)]"
             >
-              <Link href={`/${localeSegment}#kreator`}>
+              <Link href={`/${localeSegment}/kreator`}>
                 {copy.preCtaButton}
                 <ArrowRight className="ml-2 size-5 shrink-0" />
               </Link>
@@ -5287,60 +5503,6 @@ export function Footer() {
 }
 </file>
 
-<file path="package.json">
-{
-  "name": "baluniak",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.36",
-    "@ai-sdk/react": "^3.0.71",
-    "@calcom/embed-react": "^1.5.3",
-    "@hookform/resolvers": "^5.2.2",
-    "@vercel/analytics": "^1.6.1",
-    "ai": "^6.0.69",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.29.2",
-    "lucide-react": "^0.563.0",
-    "next": "16.1.6",
-    "radix-ui": "^1.4.3",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-hook-form": "^7.71.1",
-    "react-markdown": "^10.1.0",
-    "resend": "^6.9.2",
-    "tailwind-merge": "^3.4.0",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
-    "tw-animate-css": "^1.4.0",
-    "typescript": "^5"
-  }
-}
-</file>
-
-<file path="app/page.tsx">
-import { redirect } from "next/navigation";
-
-export default function RootPage() {
-  redirect("/pl");
-}
-</file>
-
 <file path="app/layout.tsx">
 import { Geist, Geist_Mono, VT323 } from "next/font/google";
 import { BackgroundGrid } from "@/components/BackgroundGrid";
@@ -5390,151 +5552,6 @@ export default function RootLayout({
         <GrainTexture opacity={0.06} className="z-[100]" />
       </body>
     </html>
-  );
-}
-</file>
-
-<file path="components/sections/HeroSection.tsx">
-"use client";
-
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Zap, Rocket, ArrowRight } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
-
-const sectionVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 14 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
-  },
-};
-
-export function HeroSection() {
-  const { dict, lang, localeSegment } = useLanguage();
-  const h = dict.hero;
-
-  return (
-    <motion.section
-      id="hero"
-      className="relative z-10 flex min-h-[70vh] flex-col items-center justify-center overflow-hidden px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
-      aria-labelledby="hero-heading"
-      variants={sectionVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: `
-            radial-gradient(ellipse 100% 80% at 50% -20%, rgba(16,185,129,0.18) 0%, transparent 55%),
-            radial-gradient(ellipse 80% 50% at 50% 60%, rgba(16,185,129,0.06) 0%, transparent 50%)
-          `,
-        }}
-      />
-
-      <motion.div
-        layout
-        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-start text-center md:justify-center"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.p
-          layout
-          variants={itemVariants}
-          className="mb-5 flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/90 backdrop-blur-sm sm:text-sm"
-        >
-          <Zap className="size-3.5 text-emerald-400" aria-hidden />
-          {h.badge}
-        </motion.p>
-
-        <motion.h1
-          id="hero-heading"
-          layout
-          variants={itemVariants}
-          className={cn(
-            "mb-5 text-2xl font-bold leading-tight tracking-tight text-zinc-100 text-balance",
-            "sm:text-3xl md:text-4xl lg:text-5xl"
-          )}
-        >
-          {h.headline}{" "}
-          <span className="text-emerald-500">{h.headlineAccent}</span>
-          {h.headlineEnd}
-        </motion.h1>
-
-        <motion.p
-          layout
-          variants={itemVariants}
-          className="mb-6 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:mb-8 sm:text-base"
-        >
-          {h.subtext}
-        </motion.p>
-
-        {/* Spacer: on mobile pushes CTAs into bottom 30% (thumb zone) */}
-        <div className="flex-1 min-h-[15vh] md:hidden" aria-hidden />
-
-        <motion.div
-          variants={itemVariants}
-          className="mt-auto flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4 md:mt-0"
-        >
-          <Button
-            asChild
-            size="lg"
-            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
-          >
-            <Link href={`/${localeSegment}#kreator`}>
-              <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
-              {h.ctaPrimary}
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
-          >
-            <Link href={`/${localeSegment}#projekty`}>
-              {h.ctaSecondary}
-              <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
-            </Link>
-          </Button>
-        </motion.div>
-      </motion.div>
-    </motion.section>
   );
 }
 </file>
@@ -5783,191 +5800,147 @@ export function About() {
 }
 </file>
 
-<file path="components/Navbar.tsx">
+<file path="components/sections/HeroSection.tsx">
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { GrainTexture } from "@/components/GrainTexture";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Zap, Rocket, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const mobileMenuListVariants = {
-  closed: { opacity: 0, y: 8 },
-  open: {
+const sectionVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.4, ease: "easeOut" as const },
+  },
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
     opacity: 1,
     y: 0,
-    transition: { delayChildren: 0.08, staggerChildren: 0.05 },
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
   },
-} as const;
+};
 
-const mobileMenuItemVariants = {
-  closed: { opacity: 0, y: 6 },
-  open: { opacity: 1, y: 0 },
-} as const;
-
-const navItemsConfig = [
-  { labelKey: "navProjects" as const, hash: "#projekty" },
-  { labelKey: "navAbout" as const, hash: "#about" },
-  { labelKey: "navCaseStudy" as const, path: "/projekty/fotarobota" },
-] as const;
-
-export function Navbar() {
-  const [open, setOpen] = useState(false);
-  const { dict, localeSegment } = useLanguage();
-  const navItems = navItemsConfig.map((item) => ({
-    label: dict.header[item.labelKey],
-    href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
-  }));
+export function HeroSection() {
+  const { dict, lang, localeSegment } = useLanguage();
+  const h = dict.hero;
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 h-16 w-full",
-        "border-b border-white/10 bg-black/50 backdrop-blur-md"
-      )}
-      aria-label={dict.header.navAria}
+    <motion.section
+      id="hero"
+      className="relative z-10 flex min-h-[70vh] flex-col items-center justify-center overflow-hidden px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
+      aria-labelledby="hero-heading"
+      variants={sectionVariants}
+      initial="hidden"
+      animate="visible"
     >
-      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
-        <Link
-          href={`/${localeSegment}`}
-          className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: "32px 32px",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 100% 80% at 50% -20%, rgba(16,185,129,0.18) 0%, transparent 55%),
+            radial-gradient(ellipse 80% 50% at 50% 60%, rgba(16,185,129,0.06) 0%, transparent 50%)
+          `,
+        }}
+      />
+
+      <motion.div
+        layout
+        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-start text-center md:justify-center"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.p
+          layout
+          variants={itemVariants}
+          className="mb-5 flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/90 backdrop-blur-sm sm:text-sm"
         >
-          BALUNIAK.COM
-        </Link>
+          <Zap className="size-3.5 text-emerald-400" aria-hidden />
+          {h.badge}
+        </motion.p>
 
-        {/* Desktop: nav + language + Book Call + Build MVP */}
-        <div className="hidden items-center gap-2 md:flex">
-          {navItems.map(({ label, href }) => (
-            <Button key={href} variant="ghost" asChild>
-              <Link
-                href={href}
-                className="text-zinc-300 hover:bg-white/10 hover:text-white"
-              >
-                {label}
-              </Link>
-            </Button>
-          ))}
-          <LanguageSwitcher />
-          <Button asChild size="default" className="border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500 hover:shadow-[0_0_22px_rgba(37,99,235,0.5)]">
-            <Link href={`/${localeSegment}/wspolpraca`}>
-              {dict.header.bookCall}
+        <motion.h1
+          id="hero-heading"
+          layout
+          variants={itemVariants}
+          className={cn(
+            "mb-5 text-2xl font-bold leading-tight tracking-tight text-zinc-100 text-balance",
+            "sm:text-3xl md:text-4xl lg:text-5xl"
+          )}
+        >
+          {h.headline}{" "}
+          <span className="text-emerald-500">{h.headlineAccent}</span>
+          {h.headlineEnd}
+        </motion.h1>
+
+        <motion.p
+          layout
+          variants={itemVariants}
+          className="mb-6 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:mb-8 sm:text-base"
+        >
+          {h.subtext}
+        </motion.p>
+
+        {/* Spacer: on mobile pushes CTAs into bottom 30% (thumb zone) */}
+        <div className="flex-1 min-h-[15vh] md:hidden" aria-hidden />
+
+        <motion.div
+          variants={itemVariants}
+          className="mt-auto flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4 md:mt-0"
+        >
+          <Button
+            asChild
+            size="lg"
+            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
+          >
+            <Link href={`/${localeSegment}/kreator`}>
+              <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
+              {h.ctaPrimary}
             </Link>
           </Button>
-          <Button asChild size="default" className="ml-1">
-            <Link
-              href={`/${localeSegment}#kreator`}
-              className="bg-emerald-600 font-semibold text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white"
-            >
-              <motion.span
-                className="inline-block"
-                animate={{ opacity: [1, 0.85, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                {dict.header.cta}
-              </motion.span>
+          <Button
+            asChild
+            size="lg"
+            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
+          >
+            <Link href={`/${localeSegment}#projekty`}>
+              {h.ctaSecondary}
+              <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
             </Link>
           </Button>
-        </div>
-
-        {/* Mobile: language + burger (thumb-friendly spacing) */}
-        <div className="flex items-center gap-3 md:hidden">
-          <LanguageSwitcher />
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="min-h-12 min-w-12 text-zinc-300 hover:bg-white/10 hover:text-white"
-                aria-label={dict.header.openMenu}
-              >
-                <Menu className="size-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="border-white/10 bg-zinc-950/95 backdrop-blur-xl"
-            >
-              <div className="relative flex h-full flex-col">
-                <GrainTexture opacity={0.09} position="absolute" className="z-0" />
-                <div className="relative z-10 flex flex-1 flex-col">
-                  <SheetHeader>
-                    <SheetTitle className="text-left text-zinc-100">
-                      {dict.header.menu}
-                    </SheetTitle>
-                  </SheetHeader>
-                  <motion.div
-                    className="mt-6 flex flex-col gap-1"
-                    variants={mobileMenuListVariants}
-                    initial="closed"
-                    animate={open ? "open" : "closed"}
-                  >
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button variant="ghost" asChild className="w-full justify-start">
-                        <Link
-                          href={`/${localeSegment}`}
-                          onClick={() => setOpen(false)}
-                          className="text-zinc-300"
-                        >
-                          {dict.header.home}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    {navItems.map(({ label, href }) => (
-                      <motion.div key={href} variants={mobileMenuItemVariants}>
-                        <Button variant="ghost" asChild className="w-full justify-start">
-                          <Link
-                            href={href}
-                            onClick={() => setOpen(false)}
-                            className="text-zinc-300"
-                          >
-                            {label}
-                          </Link>
-                        </Button>
-                      </motion.div>
-                    ))}
-                    <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-white/10 pt-4">
-                      <LanguageSwitcher inSheet />
-                    </motion.div>
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500">
-                        <Link
-                          href={`/${localeSegment}/wspolpraca`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {dict.header.bookCall}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold text-emerald-50 hover:bg-emerald-500 hover:text-white">
-                        <Link
-                          href={`/${localeSegment}#kreator`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {dict.header.cta}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-    </header>
+        </motion.div>
+      </motion.div>
+    </motion.section>
   );
 }
 </file>
@@ -6142,6 +6115,318 @@ export function Projects() {
 }
 </file>
 
+<file path="components/Navbar.tsx">
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { GrainTexture } from "@/components/GrainTexture";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const mobileMenuListVariants = {
+  closed: { opacity: 0, y: 8 },
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: { delayChildren: 0.08, staggerChildren: 0.05 },
+  },
+} as const;
+
+const mobileMenuItemVariants = {
+  closed: { opacity: 0, y: 6 },
+  open: { opacity: 1, y: 0 },
+} as const;
+
+const navItemsConfig = [
+  { labelKey: "navProjects" as const, hash: "#projekty" },
+  { labelKey: "navAbout" as const, hash: "#about" },
+  { labelKey: "navCaseStudy" as const, path: "/projekty/fotarobota" },
+] as const;
+
+export function Navbar() {
+  const [open, setOpen] = useState(false);
+  const { dict, localeSegment } = useLanguage();
+  const navItems = navItemsConfig.map((item) => ({
+    label: dict.header[item.labelKey],
+    href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
+  }));
+
+  return (
+    <header
+      className={cn(
+        "sticky top-0 z-50 h-16 w-full",
+        "border-b border-white/10 bg-black/50 backdrop-blur-md"
+      )}
+      aria-label={dict.header.navAria}
+    >
+      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
+        <Link
+          href={`/${localeSegment}`}
+          className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
+        >
+          BALUNIAK.COM
+        </Link>
+
+        {/* Desktop: nav + language + Book Call + Build MVP */}
+        <div className="hidden items-center gap-2 md:flex">
+          {navItems.map(({ label, href }) => (
+            <Button key={href} variant="ghost" asChild>
+              <Link
+                href={href}
+                className="text-zinc-300 hover:bg-white/10 hover:text-white"
+              >
+                {label}
+              </Link>
+            </Button>
+          ))}
+          <LanguageSwitcher />
+          <Button asChild size="default" className="border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500 hover:shadow-[0_0_22px_rgba(37,99,235,0.5)]">
+            <Link href={`/${localeSegment}/wspolpraca`}>
+              {dict.header.bookCall}
+            </Link>
+          </Button>
+          <Button asChild size="default" className="ml-1">
+            <Link
+              href={`/${localeSegment}/kreator`}
+              className="bg-emerald-600 font-semibold text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white"
+            >
+              <motion.span
+                className="inline-block"
+                animate={{ opacity: [1, 0.85, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                {dict.header.cta}
+              </motion.span>
+            </Link>
+          </Button>
+        </div>
+
+        {/* Mobile: language + burger (thumb-friendly spacing) */}
+        <div className="flex items-center gap-3 md:hidden">
+          <LanguageSwitcher />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="min-h-12 min-w-12 text-zinc-300 hover:bg-white/10 hover:text-white"
+                aria-label={dict.header.openMenu}
+              >
+                <Menu className="size-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="border-white/10 bg-zinc-950/95 backdrop-blur-xl"
+            >
+              <div className="relative flex h-full flex-col">
+                <GrainTexture opacity={0.09} position="absolute" className="z-0" />
+                <div className="relative z-10 flex flex-1 flex-col">
+                  <SheetHeader>
+                    <SheetTitle className="text-left text-zinc-100">
+                      {dict.header.menu}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <motion.div
+                    className="mt-6 flex flex-col gap-1"
+                    variants={mobileMenuListVariants}
+                    initial="closed"
+                    animate={open ? "open" : "closed"}
+                  >
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button variant="ghost" asChild className="w-full justify-start">
+                        <Link
+                          href={`/${localeSegment}`}
+                          onClick={() => setOpen(false)}
+                          className="text-zinc-300"
+                        >
+                          {dict.header.home}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    {navItems.map(({ label, href }) => (
+                      <motion.div key={href} variants={mobileMenuItemVariants}>
+                        <Button variant="ghost" asChild className="w-full justify-start">
+                          <Link
+                            href={href}
+                            onClick={() => setOpen(false)}
+                            className="text-zinc-300"
+                          >
+                            {label}
+                          </Link>
+                        </Button>
+                      </motion.div>
+                    ))}
+                    <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-white/10 pt-4">
+                      <LanguageSwitcher inSheet />
+                    </motion.div>
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button asChild size="lg" className="w-full border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500">
+                        <Link
+                          href={`/${localeSegment}/wspolpraca`}
+                          onClick={() => setOpen(false)}
+                        >
+                          {dict.header.bookCall}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    <motion.div variants={mobileMenuItemVariants}>
+                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold text-emerald-50 hover:bg-emerald-500 hover:text-white">
+                        <Link
+                          href={`/${localeSegment}/kreator`}
+                          onClick={() => setOpen(false)}
+                        >
+                          {dict.header.cta}
+                        </Link>
+                      </Button>
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </nav>
+    </header>
+  );
+}
+</file>
+
+<file path="app/api/chat/route.ts">
+// app/api/chat/route.ts
+import type { UIMessage } from "ai";
+import { streamText, convertToModelMessages } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+
+export const runtime = "edge";
+
+// --- Language extraction: default to "pl" if missing ---
+type LangCode = "PL" | "EN";
+function normalizeLang(value: unknown): LangCode {
+  if (value === "EN" || value === "en") return "EN";
+  return "PL"; // default "pl" / "PL" or any missing/invalid
+}
+
+// --- Shared business logic: same rules in two languages ---
+
+const CONTEXT_PL = `Kontekst firmy (Baluniak Product Engineering):
+- Budujemy MVP w ~80h w stosie Next.js, Supabase, Vercel, Tailwind. Stawiamy na wartość biznesową, nie tylko kod.
+- Mamy Konfigurator wyceny (Kreator) na /kreator oraz formularz Fast-Track do szybkiego kontaktu.
+`;
+
+const CONTEXT_EN = `Company context (Baluniak Product Engineering):
+- We build MVPs in ~80h with Next.js, Supabase, Vercel, Tailwind. We focus on Business Value, not just code.
+- We have a Quote Configurator (Kreator) at /kreator and a Fast-Track contact form.
+`;
+
+/** Language-specific instruction only */
+const LANGUAGE_PL = "Odpisuj TYLKO w języku polskim. Bądź bezpośredni.";
+const LANGUAGE_EN = "Reply ONLY in English. Be professional and concise.";
+
+/** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — PL */
+const LOGIC_PL = `
+Reguła "Adwokat Next.js": NIGDY nie odradzaj Next.js. Nawet przy małych stronach argumentuj, że Next.js + Vercel daje lepsze SEO i szybkość niż WordPress. Podkreślaj, że Łukasz buduje "Ferrari w cenie Toyoty" (workflow MVP 80h).
+
+WEJŚCIE: Użytkownik nie mówi "do lewego" ani "do prawego" – mówi do całego pokoju. Traktuj każde wejście użytkownika jako temat rzucony na stół: obie persony reagują na ten sam temat.
+
+ŚCISŁY FORMAT WYJŚCIA (zawsze obowiązuje):
+[DEV]: <perspektywa techniczna...> ||| [BIZ]: <perspektywa biznesowa...>
+
+Reguła: ZAWSZE odpowiadają OBIE persony. Nawet na proste pytanie obie muszą się wypowiedzieć. Jeśli użytkownik zwraca się do jednej osoby, druga i tak dodaje krótką uwagę lub reakcję.
+
+[DEV] – przed |||: Cyniczny, ale konstruktywny senior inżynier. Skupienie: stos technologiczny, wydajność, wykonanie (execution). Cel: wymagania techniczne (Mobile vs Web, AI, integracje). Diagnozuj złożoność, dopytuj – nie serwuj gotowych rozwiązań.
+
+[BIZ] – po |||: Typ inwestora. Skupienie: ROI, rynek, koszty. Cel: wymagania biznesowe (grupa docelowa, monetyzacja, budżet). Kwestionuj założenia i wymagaj konkretów.
+
+Tryb Warsztat: NIE kończ rozmowy przedwcześnie. Zbieraj wymagania pod Brief. Jedno konkretne pytanie na raz.
+Gdy użytkownik pyta o wycenę: odnieś do Konfiguratora (/kreator) i dodaj, że najpierw możesz pomóc zawęzić zakres. Gdy gotowy na wycenę: zasugeruj Kreator lub Fast-Track.
+Każda część zwięzła (max 2–3 zdania). Bez JSON. Zawsze używaj dokładnie " ||| " między [DEV] a [BIZ].
+`;
+
+/** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — EN */
+const LOGIC_EN = `
+The "Next.js Advocate" Rule: NEVER discourage Next.js. Even for small sites, argue that Next.js + Vercel provides superior SEO and speed compared to WordPress. Emphasize that Lukasz builds "Ferraris at Toyota prices" (80h MVP workflow).
+
+INPUT: The user is not talking to "left" or "right" – they are talking to the room. Treat every user input as a topic thrown on the table: both personas respond to that same topic.
+
+STRICT OUTPUT FORMAT (always required):
+[DEV]: <technical perspective...> ||| [BIZ]: <business perspective...>
+
+Rule: BOTH personas MUST reply every time. Even to a simple question, both must chime in. If the user addresses one agent specifically, the other must still add a short comment or reaction.
+
+[DEV] – before |||: Cynical but constructive senior dev. Focus on tech stack, performance, execution. Goal: technical requirements (Mobile vs Web, AI, integrations). Diagnose complexity, ask follow-ups – don't hand out full solutions.
+
+[BIZ] – after |||: Investor type. Focus on ROI, market, costs. Goal: business requirements (target group, monetization, budget). Challenge assumptions and demand specifics.
+
+Workshop Mode: Do NOT end the conversation early. Gather requirements for the Brief. One specific question at a time.
+If the user asks about pricing: refer to the configurator (/kreator) and say you can help scope first. When ready for a quote: suggest Kreator or Fast-Track.
+Keep each part short (max 2–3 sentences). No JSON. Always use exactly " ||| " between [DEV] and [BIZ].
+`;
+
+// --- Modular system prompts (same business logic, language-specific) ---
+
+function buildSystemPrompt(lang: LangCode): string {
+  const context = lang === "EN" ? CONTEXT_EN : CONTEXT_PL;
+  const languageInstruction = lang === "EN" ? LANGUAGE_EN : LANGUAGE_PL;
+  const logic = lang === "EN" ? LOGIC_EN : LOGIC_PL;
+
+  return `${context}
+
+You are a two-persona AI engine. ${languageInstruction}
+${logic}`;
+}
+
+const ERROR_MSG = {
+  PL: "Błąd połączenia z Codec",
+  EN: "Codec connection error",
+} as const;
+
+export async function POST(req: Request) {
+  let body: { messages?: UIMessage[]; step?: number } = {};
+  try {
+    body = (await req.json()) as typeof body;
+  } catch (parseErr) {
+    console.error("[chat] Invalid JSON body:", parseErr);
+    return new Response(JSON.stringify({ error: ERROR_MSG.PL }), { status: 400 });
+  }
+
+  const url = new URL(req.url);
+  const lang = normalizeLang(url.searchParams.get("lang") ?? "pl");
+
+  const messages: UIMessage[] = Array.isArray(body?.messages) ? body.messages : [];
+  const systemPrompt = buildSystemPrompt(lang);
+
+  try {
+    const result = streamText({
+      model: anthropic("claude-sonnet-4-20250514"),
+      system: systemPrompt,
+      messages: await convertToModelMessages(messages),
+    });
+
+    return result.toUIMessageStreamResponse({
+      originalMessages: messages,
+    });
+  } catch (error) {
+    console.error("[chat] API error:", error);
+    return new Response(JSON.stringify({ error: ERROR_MSG[lang] }), {
+      status: 500,
+    });
+  }
+}
+</file>
+
 <file path="lib/translations.ts">
 /**
  * PL/EN translation dictionary for the entire app.
@@ -6176,7 +6461,7 @@ export const translations = {
       navTitle: "Nawigacja",
       quickLinks: [
         { label: "Strona główna", href: "/" },
-        { label: "Konfigurator", href: "#kreator" },
+        { label: "Konfigurator", href: "/kreator" },
         { label: "Kontakt", href: "/wspolpraca" },
       ],
       nav: [
@@ -6545,7 +6830,7 @@ export const translations = {
       navTitle: "Navigation",
       quickLinks: [
         { label: "Home", href: "/" },
-        { label: "Configurator", href: "#kreator" },
+        { label: "Configurator", href: "/kreator" },
         { label: "Contact", href: "/wspolpraca" },
       ],
       nav: [
@@ -6922,129 +7207,6 @@ export function t(lang: Language, path: string): string {
 }
 
 export const STORAGE_KEY_LANG = "baluniak-lang";
-</file>
-
-<file path="app/api/chat/route.ts">
-// app/api/chat/route.ts
-import type { UIMessage } from "ai";
-import { streamText, convertToModelMessages } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
-
-export const runtime = "edge";
-
-// --- Language extraction: default to "pl" if missing ---
-type LangCode = "PL" | "EN";
-function normalizeLang(value: unknown): LangCode {
-  if (value === "EN" || value === "en") return "EN";
-  return "PL"; // default "pl" / "PL" or any missing/invalid
-}
-
-// --- Shared business logic: same rules in two languages ---
-
-const CONTEXT_PL = `Kontekst firmy (Baluniak Product Engineering):
-- Budujemy MVP w ~80h w stosie Next.js, Supabase, Vercel, Tailwind. Stawiamy na wartość biznesową, nie tylko kod.
-- Mamy Konfigurator wyceny (Kreator) na /kreator oraz formularz Fast-Track do szybkiego kontaktu.
-`;
-
-const CONTEXT_EN = `Company context (Baluniak Product Engineering):
-- We build MVPs in ~80h with Next.js, Supabase, Vercel, Tailwind. We focus on Business Value, not just code.
-- We have a Quote Configurator (Kreator) at /kreator and a Fast-Track contact form.
-`;
-
-/** Language-specific instruction only */
-const LANGUAGE_PL = "Odpisuj TYLKO w języku polskim. Bądź bezpośredni.";
-const LANGUAGE_EN = "Reply ONLY in English. Be professional and concise.";
-
-/** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — PL */
-const LOGIC_PL = `
-Reguła "Adwokat Next.js": NIGDY nie odradzaj Next.js. Nawet przy małych stronach argumentuj, że Next.js + Vercel daje lepsze SEO i szybkość niż WordPress. Podkreślaj, że Łukasz buduje "Ferrari w cenie Toyoty" (workflow MVP 80h).
-
-WEJŚCIE: Użytkownik nie mówi "do lewego" ani "do prawego" – mówi do całego pokoju. Traktuj każde wejście użytkownika jako temat rzucony na stół: obie persony reagują na ten sam temat.
-
-ŚCISŁY FORMAT WYJŚCIA (zawsze obowiązuje):
-[DEV]: <perspektywa techniczna...> ||| [BIZ]: <perspektywa biznesowa...>
-
-Reguła: ZAWSZE odpowiadają OBIE persony. Nawet na proste pytanie obie muszą się wypowiedzieć. Jeśli użytkownik zwraca się do jednej osoby, druga i tak dodaje krótką uwagę lub reakcję.
-
-[DEV] – przed |||: Cyniczny, ale konstruktywny senior inżynier. Skupienie: stos technologiczny, wydajność, wykonanie (execution). Cel: wymagania techniczne (Mobile vs Web, AI, integracje). Diagnozuj złożoność, dopytuj – nie serwuj gotowych rozwiązań.
-
-[BIZ] – po |||: Typ inwestora. Skupienie: ROI, rynek, koszty. Cel: wymagania biznesowe (grupa docelowa, monetyzacja, budżet). Kwestionuj założenia i wymagaj konkretów.
-
-Tryb Warsztat: NIE kończ rozmowy przedwcześnie. Zbieraj wymagania pod Brief. Jedno konkretne pytanie na raz.
-Gdy użytkownik pyta o wycenę: odnieś do Konfiguratora (/kreator) i dodaj, że najpierw możesz pomóc zawęzić zakres. Gdy gotowy na wycenę: zasugeruj Kreator lub Fast-Track.
-Każda część zwięzła (max 2–3 zdania). Bez JSON. Zawsze używaj dokładnie " ||| " między [DEV] a [BIZ].
-`;
-
-/** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — EN */
-const LOGIC_EN = `
-The "Next.js Advocate" Rule: NEVER discourage Next.js. Even for small sites, argue that Next.js + Vercel provides superior SEO and speed compared to WordPress. Emphasize that Lukasz builds "Ferraris at Toyota prices" (80h MVP workflow).
-
-INPUT: The user is not talking to "left" or "right" – they are talking to the room. Treat every user input as a topic thrown on the table: both personas respond to that same topic.
-
-STRICT OUTPUT FORMAT (always required):
-[DEV]: <technical perspective...> ||| [BIZ]: <business perspective...>
-
-Rule: BOTH personas MUST reply every time. Even to a simple question, both must chime in. If the user addresses one agent specifically, the other must still add a short comment or reaction.
-
-[DEV] – before |||: Cynical but constructive senior dev. Focus on tech stack, performance, execution. Goal: technical requirements (Mobile vs Web, AI, integrations). Diagnose complexity, ask follow-ups – don't hand out full solutions.
-
-[BIZ] – after |||: Investor type. Focus on ROI, market, costs. Goal: business requirements (target group, monetization, budget). Challenge assumptions and demand specifics.
-
-Workshop Mode: Do NOT end the conversation early. Gather requirements for the Brief. One specific question at a time.
-If the user asks about pricing: refer to the configurator (/kreator) and say you can help scope first. When ready for a quote: suggest Kreator or Fast-Track.
-Keep each part short (max 2–3 sentences). No JSON. Always use exactly " ||| " between [DEV] and [BIZ].
-`;
-
-// --- Modular system prompts (same business logic, language-specific) ---
-
-function buildSystemPrompt(lang: LangCode): string {
-  const context = lang === "EN" ? CONTEXT_EN : CONTEXT_PL;
-  const languageInstruction = lang === "EN" ? LANGUAGE_EN : LANGUAGE_PL;
-  const logic = lang === "EN" ? LOGIC_EN : LOGIC_PL;
-
-  return `${context}
-
-You are a two-persona AI engine. ${languageInstruction}
-${logic}`;
-}
-
-const ERROR_MSG = {
-  PL: "Błąd połączenia z Codec",
-  EN: "Codec connection error",
-} as const;
-
-export async function POST(req: Request) {
-  let body: { messages?: UIMessage[]; step?: number } = {};
-  try {
-    body = (await req.json()) as typeof body;
-  } catch (parseErr) {
-    console.error("[chat] Invalid JSON body:", parseErr);
-    return new Response(JSON.stringify({ error: ERROR_MSG.PL }), { status: 400 });
-  }
-
-  const url = new URL(req.url);
-  const lang = normalizeLang(url.searchParams.get("lang") ?? "pl");
-
-  const messages: UIMessage[] = Array.isArray(body?.messages) ? body.messages : [];
-  const systemPrompt = buildSystemPrompt(lang);
-
-  try {
-    const result = streamText({
-      model: anthropic("claude-sonnet-4-20250514"),
-      system: systemPrompt,
-      messages: await convertToModelMessages(messages),
-    });
-
-    return result.toUIMessageStreamResponse({
-      originalMessages: messages,
-    });
-  } catch (error) {
-    console.error("[chat] API error:", error);
-    return new Response(JSON.stringify({ error: ERROR_MSG[lang] }), {
-      status: 500,
-    });
-  }
-}
 </file>
 
 <file path="components/AIDuelLayout.tsx">

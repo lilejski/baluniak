@@ -194,3 +194,16 @@ export function getTimelineSummary(state: FunnelState, lang: Language = "PL"): s
   }
   return "";
 }
+
+/** Estimated days (number) for animated counter in Summary. */
+export function getEstimatedDays(state: FunnelState): number {
+  if (state.branch === "standard") {
+    const d = state.standard?.deadline;
+    if (d === "asap") return 7;
+    if (d === "2weeks") return 14;
+    if (d === "1month") return 30;
+    return 14;
+  }
+  if (state.branch === "professional") return 45;
+  return 0;
+}

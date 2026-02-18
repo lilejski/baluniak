@@ -57,6 +57,7 @@ export const translations = {
         "Przekładam idee biznesowe na gotowy SaaS. Wykorzystuję AI, aby dowozić kompletne rozwiązania dla firm.",
       ctaPrimary: "Rozpocznij projekt (MVP)",
       ctaSecondary: "Zobacz Fotarobota (Case Study)",
+      techStackTrust: "POWERED BY MODERN STACK",
     },
     about: {
       bridgeTitle: "The Bridge",
@@ -81,6 +82,23 @@ export const translations = {
           label: "Doświadczenie",
           title: "Doświadczenie skalowalne",
           body: "Doświadczenie w skali i procesach ludzkich – łączę to w produkt, który po prostu działa i zarabia.",
+        },
+      ],
+    },
+    whyProductEngineer: {
+      title: "Dlaczego współpracować z Product Engineerem?",
+      cards: [
+        {
+          title: "Speed to Market",
+          description: "MVP w 2 tygodnie, nie 2 miesiące. Gotowe do walidacji przez inwestorów.",
+        },
+        {
+          title: "Business Logic First",
+          description: "Nie tylko koduję. Rozumiem MRR, Churn i User Flow. Buduję to, co sprzedaje.",
+        },
+        {
+          title: "Scalable Foundation",
+          description: "Next.js + Serverless. Twoja aplikacja wytrzyma ruch viralowy bez zmiany kodu.",
         },
       ],
     },
@@ -426,6 +444,7 @@ export const translations = {
         "I turn business ideas into production-ready SaaS. I use AI to ship complete solutions for companies.",
       ctaPrimary: "Start your project (MVP)",
       ctaSecondary: "See Fotarobot (Case Study)",
+      techStackTrust: "POWERED BY MODERN STACK",
     },
     about: {
       bridgeTitle: "The Bridge",
@@ -450,6 +469,23 @@ export const translations = {
           label: "Experience",
           title: "Scalable experience",
           body: "Background in scale and human processes – I combine it into a product that just works and earns.",
+        },
+      ],
+    },
+    whyProductEngineer: {
+      title: "Why work with a Product Engineer?",
+      cards: [
+        {
+          title: "Speed to Market",
+          description: "MVP in 2 weeks, not 2 months. Ready for investor validation.",
+        },
+        {
+          title: "Business Logic First",
+          description: "I don't just code. I understand MRR, Churn, and User Flow. I build what sells.",
+        },
+        {
+          title: "Scalable Foundation",
+          description: "Next.js + Serverless. Your app will handle viral traffic without code changes.",
         },
       ],
     },
