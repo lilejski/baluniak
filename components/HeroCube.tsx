@@ -105,15 +105,21 @@ export function HeroCube() {
   const isInteractingRef = useRef(false);
 
   return (
-    <div className="relative h-full w-full border-none bg-transparent" style={{ background: "transparent" }}>
+    <div
+      className="relative h-full w-full border-none bg-transparent"
+      style={{ background: "transparent" }}
+    >
       <Canvas
         className="h-full w-full"
         style={{ background: "transparent" }}
         camera={{ position: [2.2, 2.2, 2.2], fov: 42 }}
-        gl={{ antialias: true, alpha: true }}
+        gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+          gl.setClearAlpha(0);
+        }}
       >
-        <color attach="background" args={["transparent"]} />
         <ambientLight intensity={0.35} />
         {/* Chłodne światło z góry – błękit */}
         <directionalLight
