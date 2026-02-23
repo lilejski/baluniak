@@ -49,7 +49,7 @@ export function Navbar() {
     <header
       className={cn(
         "sticky top-0 z-50 h-16 w-full",
-        "border-b border-white/10 bg-black/50 backdrop-blur-md"
+        "border-b border-zinc-800 bg-black/50 backdrop-blur-md"
       )}
       aria-label={dict.header.navAria}
     >

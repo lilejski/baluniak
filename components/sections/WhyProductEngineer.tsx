@@ -27,7 +27,7 @@ export function WhyProductEngineer() {
     <section
       ref={sectionRef}
       id="why-product-engineer"
-      className="relative border-t border-white/10 bg-zinc-950/50 px-5 py-16 sm:px-6 md:py-20"
+      className="relative border-t border-zinc-800 bg-zinc-950/50 px-5 py-16 sm:px-6 md:py-20"
       aria-labelledby="why-pe-heading"
     >
       <div className="mx-auto max-w-5xl">
@@ -47,7 +47,7 @@ export function WhyProductEngineer() {
                 variants={cardVariants}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
-                className="flex flex-col rounded-xl border border-white/10 bg-zinc-900/50 p-6 transition-colors hover:border-emerald-500/30 hover:bg-zinc-900/80"
+                className="flex flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-sm transition-colors hover:border-emerald-500/30 hover:bg-zinc-900/60"
               >
                 <div className="mb-4 flex size-12 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
                   <Icon className="size-6" aria-hidden />

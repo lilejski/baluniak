@@ -12,7 +12,7 @@ export function KreatorCTA() {
   return (
     <section
       id="kreator"
-      className="scroll-mt-20 border-t border-white/10 bg-black/20 px-5 py-12 sm:px-6 md:py-16"
+      className="scroll-mt-20 border-t border-zinc-800 bg-black/20 px-5 py-12 sm:px-6 md:py-16"
       aria-labelledby="kreator-heading"
     >
       <div className="mx-auto max-w-2xl text-center">

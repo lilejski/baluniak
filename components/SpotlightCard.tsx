@@ -102,7 +102,7 @@ export function SpotlightCard({
 
       <Card
         className={cn(
-          "relative z-10 m-[2px] overflow-hidden border-border bg-zinc-900/50 text-card-foreground shadow-sm backdrop-blur-sm transition-colors",
+          "relative z-10 m-[2px] overflow-hidden border border-zinc-800/80 bg-zinc-900/40 text-card-foreground shadow-sm backdrop-blur-md transition-colors",
           className
         )}
       >

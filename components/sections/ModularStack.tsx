@@ -35,7 +35,7 @@ export function ModularStack() {
     <section
       ref={sectionRef}
       id="modular-stack"
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
+      className="relative my-24 border-t border-zinc-800 bg-black/20 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="modular-stack-heading"
     >
       <div className="mx-auto max-w-5xl">

@@ -14,7 +14,7 @@ export function Footer() {
     <>
       {/* Pre-Footer CTA */}
       <section
-        className="relative z-10 border-t border-white/10 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
+        className="relative z-10 border-t border-zinc-800 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
         aria-labelledby="prefooter-cta-heading"
       >
         <div className="mx-auto max-w-2xl text-center">

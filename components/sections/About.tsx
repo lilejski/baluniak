@@ -59,7 +59,7 @@ export function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
+      className="relative my-24 border-t border-zinc-800 bg-black/20 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="bridge-heading"
     >
       <div className="mx-auto max-w-5xl">
@@ -77,7 +77,7 @@ export function About() {
           transition={{ duration: 0.5 }}
           className="mb-14 flex flex-col items-center gap-8 sm:flex-row sm:items-start sm:gap-10"
         >
-          <div className="relative size-28 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500/30 bg-zinc-800/80 sm:size-36 md:size-40">
+          <div className="relative size-28 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500 bg-zinc-800/80 shadow-[0_0_12px_rgba(16,185,129,0.4)] sm:size-36 md:size-40">
             <Image
               src="/li.jpg"
               alt=""
@@ -219,7 +219,7 @@ export function About() {
                       <Icon className="size-6" />
                     </div>
                     <div className="md:flex-1 md:pt-0">
-                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-400/90">
+                      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-emerald-400/90">
                         {stage.label}
                       </p>
                       <h3 className="mt-1 text-lg font-semibold text-zinc-100">

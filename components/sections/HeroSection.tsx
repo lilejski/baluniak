@@ -95,9 +95,14 @@ export function HeroSection() {
             "sm:text-3xl md:text-4xl lg:text-5xl"
           )}
         >
-          {h.headline}{" "}
-          <span className="text-emerald-500">{h.headlineAccent}</span>
-          {h.headlineEnd}
+          {h.headline}
+          {h.headlineAccent ? (
+            <>
+              {" "}
+              <span className="text-emerald-500">{h.headlineAccent}</span>
+              {h.headlineEnd}
+            </>
+          ) : null}
         </motion.h1>
 
         <motion.p
