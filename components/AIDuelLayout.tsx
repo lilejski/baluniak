@@ -462,32 +462,23 @@ export default function AIDuelLayout() {
                 {COPY.workshopBanner}
               </p>
             </div>
-            {/* Welcome Cards: Quick Actions */}
-            {showWelcomeCards && (
-              <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
-                <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
-                  {COPY.quickActionsTitle}
-                </p>
-                <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
-              </div>
-            )}
-            {/* Mobile: Tabs + fixed-height agent + input in flow (no sticky) */}
+            {/* Mobile: Tabs + agent window first, then quick prompts below (user sees bot output before actions) */}
             <div className="flex flex-col md:hidden">
               <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "dev" | "biz")} className="flex flex-col">
-                <TabsList className="relative z-10 mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 rounded-lg border-2 border-white/20 bg-zinc-900/95 p-1.5 shadow-lg backdrop-blur-md">
+                <TabsList className="relative mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 gap-0 rounded-xl border border-white/20 bg-zinc-900/95 p-1 shadow-lg backdrop-blur-md focus-visible:outline-none">
                   <TabsTrigger
                     value="dev"
                     className={cn(
-                      "relative z-10 min-h-10 border border-transparent bg-transparent transition-colors",
+                      "relative z-10 min-h-[calc(theme(spacing.12)-8px)] rounded-lg border-0 bg-transparent transition-colors focus-visible:!ring-0 focus-visible:!ring-offset-0 focus-visible:!outline-none",
                       "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
-                      "data-[state=active]:!text-emerald-200 data-[state=active]:shadow-none data-[state=active]:ring-0"
+                      "data-[state=active]:!text-emerald-200 data-[state=active]:!shadow-none data-[state=active]:!ring-0"
                     )}
                   >
                     {mobileTab === "dev" && (
                       <motion.div
                         layoutId="activeTab"
                         aria-hidden
-                        className="absolute inset-[2px] z-0 rounded-full border border-white/20 bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.25)]"
+                        className="absolute inset-1 z-0 rounded-lg border border-white/25 bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
                         transition={{ type: "spring", stiffness: 380, damping: 28 }}
                       />
                     )}
@@ -496,16 +487,16 @@ export default function AIDuelLayout() {
                   <TabsTrigger
                     value="biz"
                     className={cn(
-                      "relative z-10 min-h-10 border border-transparent bg-transparent transition-colors",
+                      "relative z-10 min-h-[calc(theme(spacing.12)-8px)] rounded-lg border-0 bg-transparent transition-colors focus-visible:!ring-0 focus-visible:!ring-offset-0 focus-visible:!outline-none",
                       "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
-                      "data-[state=active]:!text-amber-300 data-[state=active]:shadow-none data-[state=active]:ring-0"
+                      "data-[state=active]:!text-amber-300 data-[state=active]:!shadow-none data-[state=active]:!ring-0"
                     )}
                   >
                     {mobileTab === "biz" && (
                       <motion.div
                         layoutId="activeTab"
                         aria-hidden
-                        className="absolute inset-[2px] z-0 rounded-full border border-white/20 bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.25)]"
+                        className="absolute inset-1 z-0 rounded-lg border border-white/25 bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
                         transition={{ type: "spring", stiffness: 380, damping: 28 }}
                       />
                     )}
@@ -539,6 +530,15 @@ export default function AIDuelLayout() {
                   />
                 </TabsContent>
               </Tabs>
+              {/* Quick prompts below agent window so user sees bot output first, then actions */}
+              {showWelcomeCards && (
+                <div className="border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5 md:hidden">
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:text-sm">
+                    {COPY.quickActionsTitle}
+                  </p>
+                  <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
+                </div>
+              )}
               {/* Spacer: miejsce na fixed input (thumb zone), treść nie chowa się pod paskiem */}
               <div
                 className="min-h-[5.5rem] pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
@@ -622,6 +622,15 @@ export default function AIDuelLayout() {
                   </CardContent>
                 </Card>
               </div>
+              {/* Quick prompts below agent windows (desktop): user sees bot output first */}
+              {showWelcomeCards && (
+                <div className="border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5 hidden md:block">
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
+                    {COPY.quickActionsTitle}
+                  </p>
+                  <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
+                </div>
+              )}
               {!limitReached && (
                 <>
                   <div className="flex justify-center border-t border-white/10 py-2">

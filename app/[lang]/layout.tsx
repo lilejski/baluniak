@@ -5,8 +5,10 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Analytics } from "@vercel/analytics/next";
 import type { Language } from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 const SUPPORTED_LANGS = ["pl", "en"] as const;
+const SITE_URL = "https://baluniak.com";
 
 function toLanguage(segment: string): Language {
   return segment === "en" ? "EN" : "PL";
@@ -19,20 +21,26 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
-    return { title: "baluniak" };
+    return { title: "BALUNIAK" };
   }
-  const isPl = lang === "pl";
+  const t = translations[lang === "pl" ? "PL" : "EN"].seo;
+  const canonical = `${SITE_URL}/${lang}`;
   return {
-    title: isPl
-      ? "baluniak — Product Engineer | MVP | Projekty, współpraca"
-      : "baluniak — Product Engineer | MVP | Projects, collaboration",
-    description: isPl
-      ? "Projekty, sklep, współpraca. Pragmatyczny Product Engineering. Od pomysłu do produkcji w 80 godzin."
-      : "Projects, shop, collaboration. Pragmatic Product Engineering. From idea to production in 80 hours.",
+    title: t.homeTitle,
+    description: t.homeDescription,
     alternates: {
-      canonical: `https://baluniak.com/${lang}`,
-      languages: { pl: "https://baluniak.com/pl", en: "https://baluniak.com/en" },
+      canonical,
+      languages: { pl: `${SITE_URL}/pl`, en: `${SITE_URL}/en` },
     },
+    openGraph: {
+      title: t.homeTitle,
+      description: t.homeDescription,
+      url: canonical,
+      siteName: "BALUNIAK.COM",
+      locale: lang === "pl" ? "pl_PL" : "en_US",
+      type: "website",
+    },
+    robots: { index: true, follow: true },
   };
 }
 

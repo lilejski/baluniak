@@ -11,17 +11,17 @@ export async function generateMetadata({
   const { lang } = await params;
   const isPl = lang === "pl";
   const t = translations[isPl ? "PL" : "EN"].seo;
-  const canonical = `${SITE_URL}/${lang}/wspolpraca`;
+  const canonical = `${SITE_URL}/${lang}/kreator`;
   return {
-    title: t.wspolpracaTitle,
-    description: t.wspolpracaDescription,
+    title: t.kreatorTitle,
+    description: t.kreatorDescription,
     alternates: {
       canonical,
-      languages: { pl: `${SITE_URL}/pl/wspolpraca`, en: `${SITE_URL}/en/wspolpraca` },
+      languages: { pl: `${SITE_URL}/pl/kreator`, en: `${SITE_URL}/en/kreator` },
     },
     openGraph: {
-      title: t.wspolpracaTitle,
-      description: t.wspolpracaDescription,
+      title: t.kreatorTitle,
+      description: t.kreatorDescription,
       url: canonical,
       siteName: "BALUNIAK.COM",
       locale: isPl ? "pl_PL" : "en_US",
@@ -31,7 +31,7 @@ export async function generateMetadata({
   };
 }
 
-export default function WspolpracaLayout({
+export default function KreatorLayout({
   children,
 }: {
   children: React.ReactNode;

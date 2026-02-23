@@ -6,7 +6,6 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { KreatorCTA } from "@/components/sections/KreatorCTA";
 import { OnboardingSteps } from "@/components/sections/OnboardingSteps";
 import { Projects } from "@/components/sections/Projects";
-import { TechStack } from "@/components/sections/TechStack";
 import { TechStackTrust } from "@/components/sections/TechStackTrust";
 import { ModularStack } from "@/components/sections/ModularStack";
 
@@ -25,7 +24,6 @@ export default function Home() {
         <TryLiveIntro />
         <AIDuelLayout />
       </section>
-      <TechStack />
       <ModularStack />
       <Projects />
       <WhyProductEngineer />
