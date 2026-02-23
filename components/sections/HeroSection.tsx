@@ -15,10 +15,10 @@ const HeroCube = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="flex h-full min-h-[200px] w-full items-center justify-center rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-md md:min-h-[320px]"
+        className="flex h-full min-h-[200px] w-full items-center justify-center bg-transparent md:min-h-[320px]"
         aria-hidden
       >
-        <div className="h-24 w-24 animate-pulse rounded-xl border border-emerald-500/30 bg-zinc-800/60" />
+        <div className="h-24 w-24 animate-pulse rounded-xl border border-emerald-500/20 bg-zinc-900/40" />
       </div>
     ),
   }
@@ -169,12 +169,13 @@ export function HeroSection() {
   return (
     <motion.section
       id="hero"
-      className="relative z-10 flex min-h-[70vh] flex-col overflow-hidden px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
+      className="relative z-0 flex min-h-[70vh] flex-col overflow-hidden px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
       aria-labelledby="hero-heading"
       variants={sectionVariants}
       initial="hidden"
       animate="visible"
     >
+      {/* Tło: siatka + gradient */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0"
@@ -197,28 +198,31 @@ export function HeroSection() {
         }}
       />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-10 md:grid-cols-[1fr,1.1fr] md:gap-12 lg:gap-16">
-        {/* Left: 3D cube – ukryta na mobile, żeby layout się nie rozjeżdżał */}
-        <motion.div
-          layout
-          className="order-1 hidden justify-center md:flex md:order-1"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div variants={itemVariants} className="h-full min-h-[200px] w-full md:min-h-[320px]">
-            <HeroCube />
-          </motion.div>
-        </motion.div>
+      {/* Kostka 3D jako subtelne tło – absolute, za tekstem, nie blokuje klików */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-30 md:opacity-40 md:justify-end md:pr-[10%]"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0%, black 45%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 45%)",
+          maskSize: "100% 100%",
+          maskPosition: "center",
+          maskRepeat: "no-repeat",
+        }}
+      >
+        <div className="h-full w-full min-h-[200px] md:min-h-[320px]">
+          <HeroCube />
+        </div>
+      </div>
 
-        {/* Right: copy + CTAs */}
-        <motion.div
-          layout
-          className="relative z-10 flex flex-col items-center text-center md:order-2 md:items-start md:text-left"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+      {/* Zawartość tekstowa – na wierzchu, klikalna */}
+      <motion.div
+        layout
+        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center text-center md:items-start md:text-left"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
           <motion.p
             layout
             variants={itemVariants}
@@ -282,8 +286,7 @@ export function HeroSection() {
               </Link>
             </Button>
           </motion.div>
-        </motion.div>
-      </div>
+      </motion.div>
     </motion.section>
   );
 }
