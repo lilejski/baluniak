@@ -15,7 +15,7 @@ const HeroCube = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="flex h-full w-full min-h-[400px] items-center justify-center border-none bg-transparent lg:min-h-[600px]"
+        className="flex h-full w-full items-center justify-center border-none bg-transparent"
         aria-hidden
       >
         <div className="h-24 w-24 animate-pulse rounded-xl border border-emerald-500/20 bg-zinc-900/40" />
@@ -198,33 +198,33 @@ export function HeroSection() {
         }}
       />
 
-      {/* Układ dwukolumnowy: desktop = kostka lewo, tekst prawo; mobile = tekst góra, kostka dół */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-between gap-12 lg:flex-row lg:items-center">
-        {/* Lewa kolumna: Kostka 3D (na desktopie pierwsza, na mobile pod tekstem) */}
+      {/* Grid: desktop = 2 kolumny (kostka lewo, tekst prawo); mobile = tekst góra, kostka dół */}
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        {/* Lewa kolumna (desktop): Kostka 3D – na mobile pod tekstem (order-2) */}
         <motion.div
           layout
-          className="relative order-2 flex w-full min-h-[400px] items-center justify-center bg-transparent lg:order-1 lg:w-1/2 lg:min-h-[600px]"
+          className="relative order-2 flex h-[400px] w-full items-center justify-center lg:order-1 lg:h-[600px]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Ambient glow – subtelna poświata pod modelem, bez blokowania interakcji */}
+          {/* Ambient glow pod modelem */}
           <div
             aria-hidden
             className="absolute left-1/2 top-1/2 z-[-1] h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/15 blur-[80px] pointer-events-none md:blur-[120px]"
           />
           <motion.div
             variants={itemVariants}
-            className="relative z-0 h-full w-full min-h-[400px] cursor-grab border-none bg-transparent active:cursor-grabbing lg:min-h-[600px]"
+            className="relative z-0 h-full w-full cursor-grab border-none bg-transparent active:cursor-grabbing"
           >
             <HeroCube />
           </motion.div>
         </motion.div>
 
-        {/* Prawa kolumna: Tekst i przyciski */}
+        {/* Prawa kolumna (desktop): Tekst i CTA – na mobile na górze (order-1) */}
         <motion.div
           layout
-          className="order-1 flex w-full flex-col items-center text-center lg:order-2 lg:w-1/2 lg:items-start lg:text-left"
+          className="order-1 flex flex-col items-center text-center lg:order-2 lg:items-start lg:text-left"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
