@@ -169,7 +169,7 @@ export function HeroSection() {
   return (
     <motion.section
       id="hero"
-      className="relative z-0 flex min-h-[70vh] flex-col overflow-hidden px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
+      className="relative z-0 flex min-h-[70vh] flex-col overflow-hidden bg-zinc-950 px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
       aria-labelledby="hero-heading"
       variants={sectionVariants}
       initial="hidden"
@@ -208,10 +208,13 @@ export function HeroSection() {
           initial="hidden"
           animate="visible"
         >
-          {/* Ambient glow pod modelem */}
+          {/* Premium Glow – promieniowa poświata pod kostką, bez białego tła */}
           <div
             aria-hidden
-            className="absolute left-1/2 top-1/2 z-[-1] h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/15 blur-[80px] pointer-events-none md:blur-[120px]"
+            className="absolute inset-0 -z-10 blur-2xl pointer-events-none"
+            style={{
+              background: "radial-gradient(circle at center, rgba(16,185,129,0.15) 0%, transparent 50%, transparent 100%)",
+            }}
           />
           <motion.div
             variants={itemVariants}
