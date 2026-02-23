@@ -169,7 +169,7 @@ export function HeroSection() {
   return (
     <motion.section
       id="hero"
-      className="relative z-0 flex min-h-[70vh] flex-col overflow-hidden bg-zinc-950 px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
+      className="relative z-0 flex min-h-[70vh] w-full flex-col overflow-hidden bg-zinc-950 px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
       aria-labelledby="hero-heading"
       variants={sectionVariants}
       initial="hidden"
@@ -200,15 +200,16 @@ export function HeroSection() {
 
       {/* Grid: desktop = 2 kolumny (kostka lewo, tekst prawo); mobile = tekst góra, kostka dół */}
       <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        {/* Lewa kolumna (desktop): Kostka 3D – na mobile pod tekstem (order-2) */}
+        {/* Lewa kolumna (desktop): Kostka 3D – kontener bez jasnego tła, tylko bg-transparent */}
         <motion.div
           layout
-          className="relative order-2 flex h-[400px] w-full items-center justify-center lg:order-1 lg:h-[600px]"
+          className="relative order-2 flex h-[400px] w-full items-center justify-center bg-transparent lg:order-1 lg:h-[600px]"
+          style={{ background: "transparent" }}
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Premium Glow – promieniowa poświata pod kostką, bez białego tła */}
+          {/* Premium Glow – promieniowa poświata pod kostką */}
           <div
             aria-hidden
             className="absolute inset-0 -z-10 blur-2xl pointer-events-none"
@@ -219,6 +220,7 @@ export function HeroSection() {
           <motion.div
             variants={itemVariants}
             className="relative z-0 h-full w-full cursor-grab border-none bg-transparent active:cursor-grabbing"
+            style={{ background: "transparent" }}
           >
             <HeroCube />
           </motion.div>
@@ -274,9 +276,7 @@ export function HeroSection() {
           >
             <Button
               asChild
-              variant="default"
-              size="lg"
-              className="min-h-12 w-full border-0 bg-gradient-to-r from-emerald-600 to-emerald-400 px-6 font-semibold tracking-tight text-zinc-950 shadow-[0_0_16px_rgba(16,185,129,0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:from-emerald-500 hover:to-emerald-300 sm:w-auto sm:min-w-[200px]"
+              className="w-full rounded-lg border-none bg-gradient-to-r from-emerald-600 to-emerald-400 px-8 py-6 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] sm:w-auto"
             >
               <Link href={`/${localeSegment}/kreator`}>
                 <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
@@ -285,9 +285,7 @@ export function HeroSection() {
             </Button>
             <Button
               asChild
-              variant="outline"
-              size="lg"
-              className="min-h-12 w-full border border-white/10 bg-white/5 font-medium text-zinc-200 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-white/20 hover:bg-white/10 hover:text-white sm:w-auto"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-8 py-6 text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-white/20 hover:bg-white/10 sm:w-auto"
             >
               <Link href={`/${localeSegment}#projekty`}>
                 {h.ctaSecondary}
