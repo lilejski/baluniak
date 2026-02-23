@@ -105,7 +105,7 @@ export function HeroCube() {
   const isInteractingRef = useRef(false);
 
   return (
-    <div className="relative h-full min-h-[200px] w-full bg-transparent md:min-h-[320px]">
+    <div className="relative h-full w-full min-h-[400px] border-none bg-transparent lg:min-h-[600px]">
       <Canvas
         camera={{ position: [2.2, 2.2, 2.2], fov: 42 }}
         gl={{ antialias: true, alpha: true }}

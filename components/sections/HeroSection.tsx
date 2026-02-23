@@ -15,7 +15,7 @@ const HeroCube = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="flex h-full min-h-[200px] w-full items-center justify-center bg-transparent md:min-h-[320px]"
+        className="flex h-full w-full min-h-[400px] items-center justify-center border-none bg-transparent lg:min-h-[600px]"
         aria-hidden
       >
         <div className="h-24 w-24 animate-pulse rounded-xl border border-emerald-500/20 bg-zinc-900/40" />
@@ -198,31 +198,37 @@ export function HeroSection() {
         }}
       />
 
-      {/* Kostka 3D jako subtelne tło – absolute, za tekstem, nie blokuje klików */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-30 md:opacity-40 md:justify-end md:pr-[10%]"
-        style={{
-          maskImage: "linear-gradient(to right, transparent 0%, black 45%)",
-          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 45%)",
-          maskSize: "100% 100%",
-          maskPosition: "center",
-          maskRepeat: "no-repeat",
-        }}
-      >
-        <div className="h-full w-full min-h-[200px] md:min-h-[320px]">
-          <HeroCube />
-        </div>
-      </div>
+      {/* Układ dwukolumnowy: desktop = kostka lewo, tekst prawo; mobile = tekst góra, kostka dół */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-between gap-12 lg:flex-row lg:items-center">
+        {/* Lewa kolumna: Kostka 3D (na desktopie pierwsza, na mobile pod tekstem) */}
+        <motion.div
+          layout
+          className="relative order-2 flex w-full min-h-[400px] items-center justify-center bg-transparent lg:order-1 lg:w-1/2 lg:min-h-[600px]"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Ambient glow – subtelna poświata pod modelem, bez blokowania interakcji */}
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-1/2 z-[-1] h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/15 blur-[80px] pointer-events-none md:blur-[120px]"
+          />
+          <motion.div
+            variants={itemVariants}
+            className="relative z-0 h-full w-full min-h-[400px] cursor-grab border-none bg-transparent active:cursor-grabbing lg:min-h-[600px]"
+          >
+            <HeroCube />
+          </motion.div>
+        </motion.div>
 
-      {/* Zawartość tekstowa – na wierzchu, klikalna */}
-      <motion.div
-        layout
-        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center text-center md:items-start md:text-left"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
+        {/* Prawa kolumna: Tekst i przyciski */}
+        <motion.div
+          layout
+          className="order-1 flex w-full flex-col items-center text-center lg:order-2 lg:w-1/2 lg:items-start lg:text-left"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <motion.p
             layout
             variants={itemVariants}
@@ -286,7 +292,8 @@ export function HeroSection() {
               </Link>
             </Button>
           </motion.div>
-      </motion.div>
+        </motion.div>
+      </div>
     </motion.section>
   );
 }
