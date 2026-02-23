@@ -42,12 +42,14 @@ The content is organized as follows:
 <directory_structure>
 .cursorignore
 .gitignore
+app/[lang]/kreator/layout.tsx
 app/[lang]/kreator/page.tsx
 app/[lang]/layout.tsx
 app/[lang]/page.tsx
 app/[lang]/projekty/fotarobota/layout.tsx
 app/[lang]/projekty/fotarobota/page.tsx
 app/[lang]/projekty/page.tsx
+app/[lang]/sklep/layout.tsx
 app/[lang]/sklep/page.tsx
 app/[lang]/wspolpraca/layout.tsx
 app/[lang]/wspolpraca/page.tsx
@@ -70,6 +72,7 @@ components/BackgroundGrid.tsx
 components/CalEmbed.tsx
 components/Footer.tsx
 components/GrainTexture.tsx
+components/HeroCube.tsx
 components/LanguageSwitcher.tsx
 components/Navbar.tsx
 components/ProjectsSection.tsx
@@ -79,7 +82,8 @@ components/sections/KreatorCTA.tsx
 components/sections/ModularStack.tsx
 components/sections/OnboardingSteps.tsx
 components/sections/Projects.tsx
-components/sections/TechStack.tsx
+components/sections/TechStackTrust.tsx
+components/sections/WhyProductEngineer.tsx
 components/SiteHeader.tsx
 components/SpotlightCard.tsx
 components/TryLiveIntro.tsx
@@ -168,8 +172,11 @@ yarn-error.log*
 next-env.d.ts
 </file>
 
-<file path="app/[lang]/projekty/fotarobota/layout.tsx">
+<file path="app/[lang]/kreator/layout.tsx">
 import type { Metadata } from "next";
+import { translations } from "@/lib/translations";
+
+const SITE_URL = "https://baluniak.com";
 
 export async function generateMetadata({
   params,
@@ -178,15 +185,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const isPl = lang === "pl";
+  const t = translations[isPl ? "PL" : "EN"].seo;
+  const canonical = `${SITE_URL}/${lang}/kreator`;
   return {
-    title: "Fotarobota — Case Study | BALUNIAK",
-    description: isPl
-      ? "AI-Powered Photo Transformation. Od pomysłu do działającego SaaS w 2 tygodnie. Next.js, Fal.ai, automatyzacja zdjęć produktowych."
-      : "AI-Powered Photo Transformation. From idea to working SaaS in 2 weeks. Next.js, Fal.ai, product photo automation.",
+    title: t.kreatorTitle,
+    description: t.kreatorDescription,
+    alternates: {
+      canonical,
+      languages: { pl: `${SITE_URL}/pl/kreator`, en: `${SITE_URL}/en/kreator` },
+    },
+    openGraph: {
+      title: t.kreatorTitle,
+      description: t.kreatorDescription,
+      url: canonical,
+      siteName: "BALUNIAK.COM",
+      locale: isPl ? "pl_PL" : "en_US",
+      type: "website",
+    },
+    robots: { index: true, follow: true },
   };
 }
 
-export default function FotarobotaLayout({
+export default function KreatorLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -195,22 +215,11 @@ export default function FotarobotaLayout({
 }
 </file>
 
-<file path="app/[lang]/sklep/page.tsx">
-export default function SklepPage() {
-  return (
-    <main className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-2xl font-semibold text-zinc-100">Sklep</h1>
-      <p className="mt-4 text-zinc-400">
-        Oferta skryptów (np. cała strona Fotarobota do kupienia lub pojedynczy
-        skrypt). Wkrótce: dostępy do szkoleń AI.
-      </p>
-    </main>
-  );
-}
-</file>
-
-<file path="app/[lang]/wspolpraca/layout.tsx">
+<file path="app/[lang]/sklep/layout.tsx">
 import type { Metadata } from "next";
+import { translations } from "@/lib/translations";
+
+const SITE_URL = "https://baluniak.com";
 
 export async function generateMetadata({
   params,
@@ -219,17 +228,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const isPl = lang === "pl";
+  const t = translations[isPl ? "PL" : "EN"].seo;
+  const canonical = `${SITE_URL}/${lang}/sklep`;
   return {
-    title: isPl
-      ? "Współpraca — Fast-Track | Product Engineer | BALUNIAK"
-      : "Collaboration — Fast-Track | Product Engineer | BALUNIAK",
-    description: isPl
-      ? "Zacznijmy budować. Wybierz termin w kalendarzu lub zostaw wiadomość. Od startu Twojego projektu dzieli Cię 30 sekund."
-      : "Let's build. Pick a slot in the calendar or leave a message. You're 30 seconds away from starting your project.",
+    title: t.sklepTitle,
+    description: t.sklepDescription,
+    alternates: {
+      canonical,
+      languages: { pl: `${SITE_URL}/pl/sklep`, en: `${SITE_URL}/en/sklep` },
+    },
+    openGraph: {
+      title: t.sklepTitle,
+      description: t.sklepDescription,
+      url: canonical,
+      siteName: "BALUNIAK.COM",
+      locale: isPl ? "pl_PL" : "en_US",
+      type: "website",
+    },
+    robots: { index: true, follow: true },
   };
 }
 
-export default function WspolpracaLayout({
+export default function SklepLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -338,173 +358,105 @@ export async function POST(req: Request) {
 }
 </file>
 
-<file path="components/sections/KreatorCTA.tsx">
+<file path="components/sections/TechStackTrust.tsx">
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function KreatorCTA() {
-  const { dict, localeSegment } = useLanguage();
-  const k = dict.kreator;
+const LOGOS = [
+  {
+    name: "Next.js",
+    href: "https://nextjs.org",
+    svg: (
+      <svg viewBox="0 0 180 180" fill="currentColor" className="h-6 w-auto sm:h-7" aria-hidden>
+        <mask id="next-a" maskUnits="userSpaceOnUse" x="0" y="0" width="180" height="180">
+          <circle cx="90" cy="90" r="90" fill="white" />
+        </mask>
+        <g mask="url(#next-a)">
+          <circle cx="90" cy="90" r="90" fill="black" />
+          <path fill="white" d="M90 18v72l-45-52.5v21L90 111l45-52.5v-21L90 90 45 37.5V18l45 45 45-45v19.5L90 81 45 18v19.5L90 72l45-52.5V18H90z" />
+        </g>
+      </svg>
+    ),
+  },
+  {
+    name: "Vercel",
+    href: "https://vercel.com",
+    svg: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-auto sm:h-7" aria-hidden>
+        <path d="M12 1L2 21h20L12 1zm0 4.5L18.5 19h-13L12 5.5z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Stripe",
+    href: "https://stripe.com",
+    svg: (
+      <svg viewBox="0 0 60 25" fill="currentColor" className="h-5 w-auto sm:h-6" aria-hidden>
+        <path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 2.96-1.39 0-.69-.57-1.15-1.66-1.34l-2.33-.49c-2.59-.55-4.01-1.84-4.01-3.88 0-2.52 2.03-4.25 5.26-4.25 3.2 0 5.39 1.76 5.5 4.35h-7.92c-.11-1.46-1.19-2.36-2.81-2.36-1.61 0-2.72.71-2.72 1.58 0 .69.63 1.11 1.79 1.34l2.19.43c2.69.55 4.04 1.77 4.04 3.9 0 2.76-2.14 4.51-5.57 4.51-3.42 0-5.74-1.77-5.93-4.44zM40.95 20.3v-5.83h5.62v-2.15h-5.62V4.02h-2.73V0h9.09v20.3h-6.36zM29.57 4.02h2.73v16.28h-2.73V4.02zM20.37 4.02h2.75v12.26c0 2.52 1.28 4.06 3.54 4.06 1.23 0 2.27-.24 3.02-.68v2.4c-.79.34-1.76.57-2.95.57-3.61 0-5.83-2.31-5.83-6.41V4.02h.02zM9.46 4.02h2.75v12.26c0 2.52 1.28 4.06 3.54 4.06 1.23 0 2.27-.24 3.02-.68v2.4c-.79.34-1.76.57-2.95.57-3.61 0-5.83-2.31-5.83-6.41V4.02zM2.73 0h2.75v20.3H2.73V0z" />
+      </svg>
+    ),
+  },
+  {
+    name: "OpenAI",
+    href: "https://openai.com",
+    svg: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-auto sm:h-7" aria-hidden>
+        <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0-.3879.6765L3.095 15.023 2.3408 7.8956zm16.5963 3.8558L18.106 9.3644v-3.167a4.504 4.504 0 0 1 2.3655 1.9728l-.5328 6.7722-1.0016-.5774zm2.0107-4.2294l-.142-.0852-4.7735-2.7813a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.7834-2.7582a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0807.0807 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.5328 6.7722-4.7849 2.7702a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Supabase",
+    href: "https://supabase.com",
+    svg: (
+      <svg viewBox="0 0 109 113" fill="currentColor" className="h-5 w-auto sm:h-6" aria-hidden>
+        <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" />
+        <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" opacity="0.4" />
+        <path d="M45.317 2.07103C48.1765 -1.53037 53.9745 0.442937 54.0434 5.04074L54.4841 72.2922H9.83113C1.64038 72.2922 -2.92775 62.8321 2.1655 56.4175L45.317 2.07103Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Tailwind CSS",
+    href: "https://tailwindcss.com",
+    svg: (
+      <svg viewBox="0 0 54 33" fill="currentColor" className="h-5 w-auto sm:h-6" aria-hidden>
+        <path d="M27 0c-6 0-9.5 3-12 6 3 3 6.5 6 13.5 6 5.5 0 9-2.5 11-5-3 3-6.5 6-13.5 6-6 0-9.5-3-12-6 3-3 6.5-6 13.5-6 5.5 0 9 2.5 11 5-3-3-6.5-6-13.5-6-6 0-9.5 3-12 6 3 3 6.5 6 13.5 6 11 0 17.5-6 17.5-11 0-5-2.5-8.5-6.5-11 4-2 6.5-5 6.5-9 0-4-2.5-7-6.5-9.5 4-2 6.5-5 6.5-9 0-2.5-1-5-3-7 2-2 4-3.5 6-4.5-2 .5-4 2-5.5 4-1.5 2-2.5 4.5-2.5 7 0 4 2.5 7 6.5 9.5-4 2-6.5 5-6.5 9 0 4 2.5 7 6.5 9.5-4 2-6.5 5-6.5 9 0 6 6.5 11 17.5 11 7 0 10.5-3 13.5-6-3 3-7.5 6-13.5 6-6 0-9.5-3-12-6 3-3 6.5-6 13.5-6z" />
+      </svg>
+    ),
+  },
+] as const;
+
+export function TechStackTrust() {
+  const { dict } = useLanguage();
+  const heading = dict.hero.techStackTrust;
 
   return (
     <section
-      id="kreator"
-      className="scroll-mt-20 border-t border-white/10 bg-black/20 px-5 py-12 sm:px-6 md:py-16"
-      aria-labelledby="kreator-heading"
+      className="relative z-10 border-y border-white/5 bg-zinc-950/50 py-8 sm:py-10"
+      aria-label={heading}
     >
-      <div className="mx-auto max-w-2xl text-center">
-        <h2 id="kreator-heading" className="text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl">
-          {k.title}
-        </h2>
-        <p className="mt-2 text-sm text-zinc-400 sm:text-base">{k.subtitle}</p>
-        <Button asChild size="lg" className="mt-6 min-h-12 bg-emerald-600 px-6 font-semibold shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-500">
-          <Link href={`/${localeSegment}/kreator`}>
-            {k.ctaButton}
-            <ArrowRight className="ml-2 size-5 shrink-0" />
-          </Link>
-        </Button>
+      <div className="mx-auto max-w-5xl px-5 sm:px-6">
+        <p className="mb-6 text-center text-xs font-medium uppercase tracking-widest text-zinc-500 sm:mb-8">
+          {heading}
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 sm:gap-x-12 md:gap-x-14">
+          {LOGOS.map(({ name, href, svg }) => (
+            <a
+              key={name}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center opacity-50 transition-opacity duration-200 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 focus:ring-offset-zinc-950"
+              aria-label={name}
+            >
+              <span className="text-zinc-400 [&>svg]:max-h-[28px]">{svg}</span>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
-  );
-}
-</file>
-
-<file path="components/SpotlightCard.tsx">
-"use client";
-
-import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { GrainTexture } from "@/components/GrainTexture";
-import { cn } from "@/lib/utils";
-
-const beamVariants = {
-  rest: { rotate: 0 },
-  hover: { rotate: 360 },
-} as const;
-
-const beamTransition = {
-  duration: 3,
-  repeat: Infinity,
-  ease: "linear",
-} as const;
-
-const glowVariants = {
-  rest: { opacity: 0 },
-  hover: { opacity: 1 },
-} as const;
-
-const tiltVariants = {
-  rest: { rotateX: 0, rotateY: 0, scale: 1 },
-  hover: { rotateX: -2, rotateY: 2, scale: 1.05 },
-} as const;
-
-const tiltTransition = { type: "tween", duration: 0.2 } as const;
-
-type Accent = "emerald" | "amber";
-
-const accentConfig: Record<
-  Accent,
-  { beamBackground: string; glowShadow: string; spotColor: string }
-> = {
-  emerald: {
-    beamBackground:
-      "conic-gradient(from 0deg, transparent 0deg 180deg, rgba(16,185,129,0.4) 200deg 280deg, transparent 320deg)",
-    glowShadow: "0 0 24px 2px rgba(16,185,129,0.28)",
-    spotColor: "rgba(16,185,129,0.45)",
-  },
-  amber: {
-    beamBackground:
-      "conic-gradient(from 0deg, transparent 0deg 180deg, rgba(245,158,11,0.35) 200deg 280deg, transparent 320deg)",
-    glowShadow: "0 0 24px 2px rgba(245,158,11,0.24)",
-    spotColor: "rgba(245,158,11,0.45)",
-  },
-};
-
-type SpotlightCardProps = {
-  /** Grid span classes for the outer wrapper, e.g. `md:col-span-2`. */
-  spanClassName?: string;
-  /** Accent color for border beam + glow. */
-  accent?: Accent;
-  /** Extra classes for the inner Card. */
-  className?: string;
-  children: React.ReactNode;
-};
-
-export function SpotlightCard({
-  spanClassName,
-  accent = "emerald",
-  className,
-  children,
-}: SpotlightCardProps) {
-  const accentStyles = accentConfig[accent];
-
-  return (
-    <motion.div
-      className={cn("group relative overflow-hidden", spanClassName)}
-      initial="rest"
-      whileHover="hover"
-      variants={tiltVariants}
-      transition={tiltTransition}
-      style={{ transformStyle: "preserve-3d" }}
-      onMouseMove={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 100;
-        const y = ((event.clientY - rect.top) / rect.height) * 100;
-        event.currentTarget.style.setProperty("--spot-x", `${x}%`);
-        event.currentTarget.style.setProperty("--spot-y", `${y}%`);
-      }}
-    >
-      {/* Border beam: rotating accent gradient */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -inset-[2px] z-0 rounded-xl"
-        style={{ background: accentStyles.beamBackground }}
-        variants={beamVariants}
-        transition={beamTransition}
-      />
-
-      {/* Subtle glow ring on hover */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -inset-[1px] z-0 rounded-xl opacity-0"
-        style={{ boxShadow: accentStyles.glowShadow }}
-        variants={glowVariants}
-        transition={{ duration: 0.25 }}
-      />
-
-      <Card
-        className={cn(
-          "relative z-10 m-[2px] overflow-hidden border-border bg-zinc-900/50 text-card-foreground shadow-sm backdrop-blur-sm transition-colors",
-          className
-        )}
-      >
-        {/* Subtle noise texture in the card background */}
-        <GrainTexture
-          opacity={0.06}
-          position="absolute"
-          className="z-0"
-        />
-
-        {/* Spotlight hover: soft radial highlight that follows the cursor, accent-colored */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{
-            background: `radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 50%), ${accentStyles.spotColor} 0%, transparent 55%)`,
-            mixBlendMode: "screen",
-          }}
-        />
-
-        {/* Card content above all effects */}
-        <div className="relative z-20">
-          {children}
-        </div>
-      </Card>
-    </motion.div>
   );
 }
 </file>
@@ -1072,20 +1024,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 }
 </file>
 
-<file path="app/[lang]/layout.tsx">
+<file path="app/[lang]/projekty/fotarobota/layout.tsx">
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { Analytics } from "@vercel/analytics/next";
-import type { Language } from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
-const SUPPORTED_LANGS = ["pl", "en"] as const;
-
-function toLanguage(segment: string): Language {
-  return segment === "en" ? "EN" : "PL";
-}
+const SITE_URL = "https://baluniak.com";
 
 export async function generateMetadata({
   params,
@@ -1093,79 +1036,34 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
-    return { title: "baluniak" };
-  }
   const isPl = lang === "pl";
+  const t = translations[isPl ? "PL" : "EN"].seo;
+  const canonical = `${SITE_URL}/${lang}/projekty/fotarobota`;
   return {
-    title: isPl
-      ? "baluniak — Product Engineer | MVP | Projekty, współpraca"
-      : "baluniak — Product Engineer | MVP | Projects, collaboration",
-    description: isPl
-      ? "Projekty, sklep, współpraca. Pragmatyczny Product Engineering. Od pomysłu do produkcji w 80 godzin."
-      : "Projects, shop, collaboration. Pragmatic Product Engineering. From idea to production in 80 hours.",
+    title: t.fotarobotaTitle,
+    description: t.fotarobotaDescription,
     alternates: {
-      canonical: `https://baluniak.com/${lang}`,
-      languages: { pl: "https://baluniak.com/pl", en: "https://baluniak.com/en" },
+      canonical,
+      languages: { pl: `${SITE_URL}/pl/projekty/fotarobota`, en: `${SITE_URL}/en/projekty/fotarobota` },
     },
+    openGraph: {
+      title: t.fotarobotaTitle,
+      description: t.fotarobotaDescription,
+      url: canonical,
+      siteName: "BALUNIAK.COM",
+      locale: isPl ? "pl_PL" : "en_US",
+      type: "article",
+    },
+    robots: { index: true, follow: true },
   };
 }
 
-export default async function LangLayout({
+export default function FotarobotaLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ lang: string }>;
 }) {
-  const { lang } = await params;
-  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
-    notFound();
-  }
-  const initialLang = toLanguage(lang);
-
-  return (
-    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
-      <Navbar />
-      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
-      <Footer />
-      <Analytics />
-    </LanguageProvider>
-  );
-}
-</file>
-
-<file path="app/[lang]/page.tsx">
-import AIDuelLayout from "@/components/AIDuelLayout";
-import { TryLiveIntro } from "@/components/TryLiveIntro";
-import { About } from "@/components/sections/About";
-import { HeroSection } from "@/components/sections/HeroSection";
-import { KreatorCTA } from "@/components/sections/KreatorCTA";
-import { OnboardingSteps } from "@/components/sections/OnboardingSteps";
-import { Projects } from "@/components/sections/Projects";
-import { TechStack } from "@/components/sections/TechStack";
-import { ModularStack } from "@/components/sections/ModularStack";
-
-export default function Home() {
-  return (
-    <>
-      <HeroSection />
-      <KreatorCTA />
-      <OnboardingSteps />
-      <section
-        id="ai-duel"
-        className="scroll-mt-20 pb-[max(2rem,env(safe-area-inset-bottom))] md:pb-0"
-        aria-label="AI Duel – try live"
-      >
-        <TryLiveIntro />
-        <AIDuelLayout />
-      </section>
-      <TechStack />
-      <ModularStack />
-      <Projects />
-      <About />
-    </>
-  );
+  return children;
 }
 </file>
 
@@ -1417,270 +1315,64 @@ export default function FotarobotaCaseStudyPage() {
 }
 </file>
 
-<file path="app/[lang]/wspolpraca/page.tsx">
+<file path="app/[lang]/sklep/page.tsx">
 "use client";
 
-import { useState, useRef, useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Send, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CalEmbed } from "@/components/CalEmbed";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
 
-const PROJECT_TYPE_VALUES = ["mvp80", "konsultacja-ai", "audyt", "inne"] as const;
-type ProjectType = (typeof PROJECT_TYPE_VALUES)[number];
-
-function getProjectTypeOptions(w: {
-  projectTypeMvp80: string;
-  projectTypeKonsultacjaAi: string;
-  projectTypeAudyt: string;
-  projectTypeInne: string;
-}): { value: ProjectType; label: string }[] {
-  return [
-    { value: "mvp80", label: w.projectTypeMvp80 },
-    { value: "konsultacja-ai", label: w.projectTypeKonsultacjaAi },
-    { value: "audyt", label: w.projectTypeAudyt },
-    { value: "inne", label: w.projectTypeInne },
-  ];
-}
-
-export default function WspolpracaPage() {
-  const { dict, lang } = useLanguage();
-  const [submitted, setSubmitted] = useState(false);
-  const calRef = useRef<HTMLDivElement>(null);
-  const fp = dict.formPlaceholders;
-  const w = dict.wspolpraca;
-
-  const fastTrackSchema = useMemo(
-    () =>
-      z.object({
-        name: z.string().min(1, w.errorName),
-        email: z.string().email(w.errorEmail),
-        projectType: z.enum(PROJECT_TYPE_VALUES, { message: w.errorProjectType }),
-        message: z.string().min(1, w.errorMessage),
-      }),
-    [w.errorName, w.errorEmail, w.errorProjectType, w.errorMessage]
-  );
-
-  type FastTrackFormData = z.infer<typeof fastTrackSchema>;
-
-  const projectTypeOptions = useMemo(() => getProjectTypeOptions(w), [w]);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<FastTrackFormData>({
-    resolver: zodResolver(fastTrackSchema),
-    defaultValues: {
-      projectType: undefined,
-    },
-  });
-
-  const onSubmit = async (data: FastTrackFormData) => {
-    const subjectLabel = projectTypeOptions.find((o) => o.value === data.projectType)?.label ?? data.projectType ?? "";
-    const res = await fetch("/api/send-contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: data.name.trim(),
-        email: data.email.trim(),
-        subject: subjectLabel,
-        message: data.message.trim(),
-      }),
-    });
-    const json = (await res.json()) as { success?: boolean; error?: string };
-    if (res.ok && json.success) {
-      setSubmitted(true);
-      reset({ name: "", email: "", projectType: undefined, message: "" });
-      calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      alert(json.error ?? w.sendError ?? "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.");
-    }
-  };
+export default function SklepPage() {
+  const { dict } = useLanguage();
+  const s = dict.sklep;
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(3rem,env(safe-area-inset-bottom))]">
-      <div className="mx-auto max-w-6xl px-4 py-12 pb-28 sm:px-6 sm:pb-24 lg:py-16 lg:pb-16">
-        <header className="mb-10 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
-            {w.pageTitle}
-          </h1>
-          <p className="mt-3 text-zinc-400 sm:text-lg">
-            {w.pageSubtitle}
-          </p>
-        </header>
-
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
-          <div className="order-2 lg:order-1">
-            <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-xl">
-              <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
-                <span className="size-2 rounded-full bg-emerald-500/80" />
-                <span className="size-2 rounded-full bg-zinc-600" />
-                <span className="size-2 rounded-full bg-zinc-600" />
-                <span className="ml-2 text-xs font-medium text-zinc-500">
-                  {w.formTitle}
-                </span>
-              </div>
-              <div className="p-5 sm:p-6">
-                <AnimatePresence mode="wait">
-                  {submitted ? (
-                    <motion.div
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex flex-col items-center justify-center py-8 text-center"
-                    >
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                        className="mb-4 flex size-16 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-emerald-950/50"
-                      >
-                        <CheckCircle className="size-8 text-emerald-400" />
-                      </motion.div>
-                      <p className="text-lg font-medium text-zinc-100">
-                        {w.successTitle}
-                      </p>
-                      <p className="mt-1 text-sm text-zinc-500">
-                        {w.successHint}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <motion.form
-                      key={`form-${lang}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onSubmit={handleSubmit(onSubmit)}
-                      className="space-y-5"
-                    >
-                      <div>
-                        <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          {w.labelName}
-                        </label>
-                        <input
-                          id="name"
-                          {...register("name")}
-                          className={cn(
-                            "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                            errors.name ? "border-rose-500/50" : "border-zinc-700"
-                          )}
-                          placeholder={fp.namePlaceholder}
-                        />
-                        {errors.name && (
-                          <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          {w.labelEmail}
-                        </label>
-                        <input
-                          id="email"
-                          type="email"
-                          {...register("email")}
-                          className={cn(
-                            "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                            errors.email ? "border-rose-500/50" : "border-zinc-700"
-                          )}
-                          placeholder={fp.emailPlaceholder}
-                        />
-                        {errors.email && (
-                          <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label htmlFor="projectType" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          {w.labelHowCanIHelp}
-                        </label>
-                        <select
-                          id="projectType"
-                          {...register("projectType")}
-                          className={cn(
-                            "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                            errors.projectType ? "border-rose-500/50" : "border-zinc-700"
-                          )}
-                        >
-                          <option value="">{w.selectPlaceholder}</option>
-                          {projectTypeOptions.map(({ value, label }) => (
-                            <option key={value} value={value}>
-                              {label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.projectType && (
-                          <p className="mt-1 text-xs text-rose-400">{errors.projectType.message}</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label htmlFor="message" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                          {w.labelMessage}
-                        </label>
-                        <textarea
-                          id="message"
-                          {...register("message")}
-                          rows={3}
-                          className={cn(
-                            "w-full resize-none rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                            errors.message ? "border-rose-500/50" : "border-zinc-700"
-                          )}
-                          placeholder={fp.messagePlaceholder}
-                        />
-                        {errors.message && (
-                          <p className="mt-1 text-xs text-rose-400">{errors.message.message}</p>
-                        )}
-                      </div>
-
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        size="lg"
-                        className="min-h-12 w-full bg-emerald-600 font-semibold hover:bg-emerald-500"
-                      >
-                        <Send className="mr-2 size-5 shrink-0" />
-                        {isSubmitting ? w.submitting : w.submitButton}
-                      </Button>
-
-                      <p className="text-center text-xs text-zinc-500">
-                        {w.guarantee}
-                      </p>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-
-          <div ref={calRef} className="order-1 lg:order-2 min-w-0 flex-1">
-            <div className="relative overflow-visible rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-[0_0_60px_rgba(16,185,129,0.08)]">
-              <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
-                <Calendar className="size-4 text-emerald-500" />
-                <span className="text-sm font-medium text-zinc-300">
-                  {w.calendarTitle}
-                </span>
-              </div>
-              <div className="relative min-h-[700px] w-full">
-                <CalEmbed
-                  fallbackMessage={w.calendarLoadError}
-                  fallbackEmail={dict.footer.email}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <main className="mx-auto max-w-4xl px-4 py-12">
+      <h1 className="text-2xl font-semibold text-zinc-100">{s.pageTitle}</h1>
+      <p className="mt-4 text-zinc-400">{s.pageSubtitle}</p>
+    </main>
   );
+}
+</file>
+
+<file path="app/[lang]/wspolpraca/layout.tsx">
+import type { Metadata } from "next";
+import { translations } from "@/lib/translations";
+
+const SITE_URL = "https://baluniak.com";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const isPl = lang === "pl";
+  const t = translations[isPl ? "PL" : "EN"].seo;
+  const canonical = `${SITE_URL}/${lang}/wspolpraca`;
+  return {
+    title: t.wspolpracaTitle,
+    description: t.wspolpracaDescription,
+    alternates: {
+      canonical,
+      languages: { pl: `${SITE_URL}/pl/wspolpraca`, en: `${SITE_URL}/en/wspolpraca` },
+    },
+    openGraph: {
+      title: t.wspolpracaTitle,
+      description: t.wspolpracaDescription,
+      url: canonical,
+      siteName: "BALUNIAK.COM",
+      locale: isPl ? "pl_PL" : "en_US",
+      type: "website",
+    },
+    robots: { index: true, follow: true },
+  };
+}
+
+export default function WspolpracaLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return children;
 }
 </file>
 
@@ -2045,6 +1737,177 @@ export function ProjectsSection() {
 }
 </file>
 
+<file path="components/sections/KreatorCTA.tsx">
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+export function KreatorCTA() {
+  const { dict, localeSegment } = useLanguage();
+  const k = dict.kreator;
+
+  return (
+    <section
+      id="kreator"
+      className="scroll-mt-20 border-t border-zinc-800 bg-black/20 px-5 py-12 sm:px-6 md:py-16"
+      aria-labelledby="kreator-heading"
+    >
+      <div className="mx-auto max-w-2xl text-center">
+        <h2 id="kreator-heading" className="text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl">
+          {k.title}
+        </h2>
+        <p className="mt-2 text-sm text-zinc-400 sm:text-base">{k.subtitle}</p>
+        <Button asChild size="lg" className="mt-6 min-h-12 bg-emerald-600 px-6 font-semibold shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-500">
+          <Link href={`/${localeSegment}/kreator`}>
+            {k.ctaButton}
+            <ArrowRight className="ml-2 size-5 shrink-0" />
+          </Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
+</file>
+
+<file path="components/SpotlightCard.tsx">
+"use client";
+
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { GrainTexture } from "@/components/GrainTexture";
+import { cn } from "@/lib/utils";
+
+const beamVariants = {
+  rest: { rotate: 0 },
+  hover: { rotate: 360 },
+} as const;
+
+const beamTransition = {
+  duration: 3,
+  repeat: Infinity,
+  ease: "linear",
+} as const;
+
+const glowVariants = {
+  rest: { opacity: 0 },
+  hover: { opacity: 1 },
+} as const;
+
+const tiltVariants = {
+  rest: { rotateX: 0, rotateY: 0, scale: 1 },
+  hover: { rotateX: -2, rotateY: 2, scale: 1.05 },
+} as const;
+
+const tiltTransition = { type: "tween", duration: 0.2 } as const;
+
+type Accent = "emerald" | "amber";
+
+const accentConfig: Record<
+  Accent,
+  { beamBackground: string; glowShadow: string; spotColor: string }
+> = {
+  emerald: {
+    beamBackground:
+      "conic-gradient(from 0deg, transparent 0deg 180deg, rgba(16,185,129,0.4) 200deg 280deg, transparent 320deg)",
+    glowShadow: "0 0 24px 2px rgba(16,185,129,0.28)",
+    spotColor: "rgba(16,185,129,0.45)",
+  },
+  amber: {
+    beamBackground:
+      "conic-gradient(from 0deg, transparent 0deg 180deg, rgba(245,158,11,0.35) 200deg 280deg, transparent 320deg)",
+    glowShadow: "0 0 24px 2px rgba(245,158,11,0.24)",
+    spotColor: "rgba(245,158,11,0.45)",
+  },
+};
+
+type SpotlightCardProps = {
+  /** Grid span classes for the outer wrapper, e.g. `md:col-span-2`. */
+  spanClassName?: string;
+  /** Accent color for border beam + glow. */
+  accent?: Accent;
+  /** Extra classes for the inner Card. */
+  className?: string;
+  children: React.ReactNode;
+};
+
+export function SpotlightCard({
+  spanClassName,
+  accent = "emerald",
+  className,
+  children,
+}: SpotlightCardProps) {
+  const accentStyles = accentConfig[accent];
+
+  return (
+    <motion.div
+      className={cn("group relative overflow-hidden", spanClassName)}
+      initial="rest"
+      whileHover="hover"
+      variants={tiltVariants}
+      transition={tiltTransition}
+      style={{ transformStyle: "preserve-3d" }}
+      onMouseMove={(event) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+        event.currentTarget.style.setProperty("--spot-x", `${x}%`);
+        event.currentTarget.style.setProperty("--spot-y", `${y}%`);
+      }}
+    >
+      {/* Border beam: rotating accent gradient */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -inset-[2px] z-0 rounded-xl"
+        style={{ background: accentStyles.beamBackground }}
+        variants={beamVariants}
+        transition={beamTransition}
+      />
+
+      {/* Subtle glow ring on hover */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -inset-[1px] z-0 rounded-xl opacity-0"
+        style={{ boxShadow: accentStyles.glowShadow }}
+        variants={glowVariants}
+        transition={{ duration: 0.25 }}
+      />
+
+      <Card
+        className={cn(
+          "relative z-10 m-[2px] overflow-hidden border border-zinc-800/80 bg-zinc-900/40 text-card-foreground shadow-sm backdrop-blur-md transition-colors",
+          className
+        )}
+      >
+        {/* Subtle noise texture in the card background */}
+        <GrainTexture
+          opacity={0.06}
+          position="absolute"
+          className="z-0"
+        />
+
+        {/* Spotlight hover: soft radial highlight that follows the cursor, accent-colored */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background: `radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 50%), ${accentStyles.spotColor} 0%, transparent 55%)`,
+            mixBlendMode: "screen",
+          }}
+        />
+
+        {/* Card content above all effects */}
+        <div className="relative z-20">
+          {children}
+        </div>
+      </Card>
+    </motion.div>
+  );
+}
+</file>
+
 <file path="components/TryLiveIntro.tsx">
 "use client";
 
@@ -2102,60 +1965,6 @@ Input.displayName = "Input";
 export { Input }
 </file>
 
-<file path="middleware.ts">
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-
-const LOCALE_COOKIE = "baluniak-lang";
-const SUPPORTED_LOCALES = ["pl", "en"] as const;
-const VERCEL_COUNTRY_HEADER = "x-vercel-ip-country";
-
-function getPreferredLocale(request: NextRequest): "pl" | "en" {
-  const cookie = request.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
-  if (cookie === "en" || cookie === "pl") return cookie;
-
-  const country = request.headers.get(VERCEL_COUNTRY_HEADER)?.toUpperCase();
-  if (country === "PL") return "pl";
-  if (country) return "en";
-
-  const acceptLang = request.headers.get("accept-language");
-  if (acceptLang?.toLowerCase().includes("en")) return "en";
-  return "pl";
-}
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Skip API, static assets, and Next internals
-  if (
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/favicon") ||
-    pathname.includes(".")
-  ) {
-    return NextResponse.next();
-  }
-
-  const segments = pathname.split("/").filter(Boolean);
-  const firstSegment = segments[0]?.toLowerCase();
-
-  // Already has a valid locale
-  if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as "pl" | "en")) {
-    return NextResponse.next();
-  }
-
-  const locale = getPreferredLocale(request);
-  const newPath = `/${locale}${pathname === "/" ? "" : pathname}`;
-  const url = request.nextUrl.clone();
-  url.pathname = newPath;
-  return NextResponse.redirect(url);
-}
-
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-};
-</file>
-
 <file path="app/[lang]/projekty/page.tsx">
 import { redirect } from "next/navigation";
 
@@ -2164,6 +1973,275 @@ type Props = { params: Promise<{ lang: string }> };
 export default async function ProjektyPage({ params }: Props) {
   const { lang } = await params;
   redirect(`/${lang}#projekty`);
+}
+</file>
+
+<file path="app/[lang]/wspolpraca/page.tsx">
+"use client";
+
+import { useState, useRef, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Send, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalEmbed } from "@/components/CalEmbed";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const PROJECT_TYPE_VALUES = ["mvp80", "strona-internetowa", "konsultacja-ai", "audyt", "inne"] as const;
+type ProjectType = (typeof PROJECT_TYPE_VALUES)[number];
+
+function getProjectTypeOptions(w: {
+  projectTypeMvp80: string;
+  projectTypeStronaInternetowa: string;
+  projectTypeKonsultacjaAi: string;
+  projectTypeAudyt: string;
+  projectTypeInne: string;
+}): { value: ProjectType; label: string }[] {
+  return [
+    { value: "mvp80", label: w.projectTypeMvp80 },
+    { value: "strona-internetowa", label: w.projectTypeStronaInternetowa },
+    { value: "konsultacja-ai", label: w.projectTypeKonsultacjaAi },
+    { value: "audyt", label: w.projectTypeAudyt },
+    { value: "inne", label: w.projectTypeInne },
+  ];
+}
+
+export default function WspolpracaPage() {
+  const { dict, lang } = useLanguage();
+  const [submitted, setSubmitted] = useState(false);
+  const calRef = useRef<HTMLDivElement>(null);
+  const fp = dict.formPlaceholders;
+  const w = dict.wspolpraca;
+
+  const fastTrackSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, w.errorName),
+        email: z.string().email(w.errorEmail),
+        projectType: z.enum(PROJECT_TYPE_VALUES, { message: w.errorProjectType }),
+        message: z.string().min(1, w.errorMessage),
+      }),
+    [w.errorName, w.errorEmail, w.errorProjectType, w.errorMessage]
+  );
+
+  type FastTrackFormData = z.infer<typeof fastTrackSchema>;
+
+  const projectTypeOptions = useMemo(() => getProjectTypeOptions(w), [w]);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FastTrackFormData>({
+    resolver: zodResolver(fastTrackSchema),
+    defaultValues: {
+      projectType: undefined,
+    },
+  });
+
+  const onSubmit = async (data: FastTrackFormData) => {
+    const subjectLabel = projectTypeOptions.find((o) => o.value === data.projectType)?.label ?? data.projectType ?? "";
+    const res = await fetch("/api/send-contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: data.name.trim(),
+        email: data.email.trim(),
+        subject: subjectLabel,
+        message: data.message.trim(),
+      }),
+    });
+    const json = (await res.json()) as { success?: boolean; error?: string };
+    if (res.ok && json.success) {
+      setSubmitted(true);
+      reset({ name: "", email: "", projectType: undefined, message: "" });
+      calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      alert(json.error ?? w.sendError ?? "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950 pb-[max(3rem,env(safe-area-inset-bottom))]">
+      <div className="mx-auto max-w-6xl px-4 py-12 pb-28 sm:px-6 sm:pb-24 lg:py-16 lg:pb-16">
+        <header className="mb-10 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
+            {w.pageTitle}
+          </h1>
+          <p className="mt-3 text-zinc-400 sm:text-lg">
+            {w.pageSubtitle}
+          </p>
+        </header>
+
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="order-2 lg:order-1">
+            <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-xl">
+              <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
+                <span className="size-2 rounded-full bg-emerald-500/80" />
+                <span className="size-2 rounded-full bg-zinc-600" />
+                <span className="size-2 rounded-full bg-zinc-600" />
+                <span className="ml-2 text-xs font-medium text-zinc-500">
+                  {w.formTitle}
+                </span>
+              </div>
+              <div className="p-5 sm:p-6">
+                <AnimatePresence mode="wait">
+                  {submitted ? (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col items-center justify-center py-8 text-center"
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                        className="mb-4 flex size-16 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-emerald-950/50"
+                      >
+                        <CheckCircle className="size-8 text-emerald-400" />
+                      </motion.div>
+                      <p className="text-lg font-medium text-zinc-100">
+                        {w.successTitle}
+                      </p>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {w.successHint}
+                      </p>
+                    </motion.div>
+                  ) : (
+                    <motion.form
+                      key={`form-${lang}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onSubmit={handleSubmit(onSubmit)}
+                      className="space-y-5"
+                    >
+                      <div>
+                        <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+                          {w.labelName}
+                        </label>
+                        <input
+                          id="name"
+                          {...register("name")}
+                          className={cn(
+                            "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
+                            errors.name ? "border-rose-500/50" : "border-zinc-700"
+                          )}
+                          placeholder={fp.namePlaceholder}
+                        />
+                        {errors.name && (
+                          <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+                          {w.labelEmail}
+                        </label>
+                        <input
+                          id="email"
+                          type="email"
+                          {...register("email")}
+                          className={cn(
+                            "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
+                            errors.email ? "border-rose-500/50" : "border-zinc-700"
+                          )}
+                          placeholder={fp.emailPlaceholder}
+                        />
+                        {errors.email && (
+                          <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="projectType" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+                          {w.labelHowCanIHelp}
+                        </label>
+                        <select
+                          id="projectType"
+                          {...register("projectType")}
+                          className={cn(
+                            "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
+                            errors.projectType ? "border-rose-500/50" : "border-zinc-700"
+                          )}
+                        >
+                          <option value="">{w.selectPlaceholder}</option>
+                          {projectTypeOptions.map(({ value, label }) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.projectType && (
+                          <p className="mt-1 text-xs text-rose-400">{errors.projectType.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="message" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+                          {w.labelMessage}
+                        </label>
+                        <textarea
+                          id="message"
+                          {...register("message")}
+                          rows={3}
+                          className={cn(
+                            "w-full resize-none rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
+                            errors.message ? "border-rose-500/50" : "border-zinc-700"
+                          )}
+                          placeholder={fp.messagePlaceholder}
+                        />
+                        {errors.message && (
+                          <p className="mt-1 text-xs text-rose-400">{errors.message.message}</p>
+                        )}
+                      </div>
+
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        size="lg"
+                        className="min-h-12 w-full bg-emerald-600 font-semibold hover:bg-emerald-500"
+                      >
+                        <Send className="mr-2 size-5 shrink-0" />
+                        {isSubmitting ? w.submitting : w.submitButton}
+                      </Button>
+
+                      <p className="text-center text-xs text-zinc-500">
+                        {w.guarantee}
+                      </p>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+
+          <div ref={calRef} className="order-1 lg:order-2 min-w-0 flex-1">
+            <div className="relative overflow-visible rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-[0_0_60px_rgba(16,185,129,0.08)]">
+              <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
+                <Calendar className="size-4 text-emerald-500" />
+                <span className="text-sm font-medium text-zinc-300">
+                  {w.calendarTitle}
+                </span>
+              </div>
+              <div className="relative min-h-[700px] w-full">
+                <CalEmbed
+                  fallbackMessage={w.calendarLoadError}
+                  fallbackEmail={dict.footer.email}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 </file>
 
@@ -2327,77 +2405,75 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
 }
 </file>
 
-<file path="components/ui/button.tsx">
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { Slot } from "radix-ui"
+<file path="components/sections/WhyProductEngineer.tsx">
+"use client";
 
-import { cn } from "@/lib/utils"
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Zap, Brain, Shield } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default:
-          "h-9 min-h-[2.25rem] px-4 py-2 has-[>svg]:px-3 max-md:min-h-12",
-        xs:
-          "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3 max-md:min-h-12 max-md:min-w-[3rem]",
-        sm:
-          "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 min-h-[2rem] max-md:min-h-12",
-        lg: "h-12 min-h-12 rounded-md px-6 has-[>svg]:px-4",
-        icon:
-          "size-9 min-h-9 min-w-9 max-md:min-h-12 max-md:min-w-12 max-md:size-12",
-        "icon-xs":
-          "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3 max-md:min-h-12 max-md:min-w-12",
-        "icon-sm":
-          "size-8 min-h-8 min-w-8 max-md:min-h-12 max-md:min-w-12",
-        "icon-lg": "size-12 min-h-12 min-w-12",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
+const CARD_ICONS = [Zap, Brain, Shield] as const;
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot.Root : "button"
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.12, duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  }),
+};
+
+export function WhyProductEngineer() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
+  const { dict } = useLanguage();
+  const section = dict.whyProductEngineer;
+  const cards = section.cards;
 
   return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+    <section
+      ref={sectionRef}
+      id="why-product-engineer"
+      className="relative border-t border-zinc-800 bg-zinc-950/50 px-5 py-16 sm:px-6 md:py-20"
+      aria-labelledby="why-pe-heading"
+    >
+      <div className="mx-auto max-w-5xl">
+        <h2
+          id="why-pe-heading"
+          className="mb-10 text-center text-2xl font-bold tracking-tight text-zinc-100 md:text-3xl"
+        >
+          {section.title}
+        </h2>
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card, i) => {
+            const Icon = CARD_ICONS[i];
+            return (
+              <motion.article
+                key={card.title}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                animate={isInView ? "visible" : "hidden"}
+                className="flex flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-sm transition-colors hover:border-emerald-500/30 hover:bg-zinc-900/60"
+              >
+                <div className="mb-4 flex size-12 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
+                  <Icon className="size-6" aria-hidden />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-zinc-100">
+                  {card.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-zinc-400">
+                  {card.description}
+                </p>
+              </motion.article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
 }
-
-export { Button, buttonVariants }
 </file>
 
 <file path="components/ui/sheet.tsx">
@@ -2545,6 +2621,177 @@ export {
   SheetFooter,
   SheetTitle,
   SheetDescription,
+}
+</file>
+
+<file path="middleware.ts">
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const LOCALE_COOKIE = "baluniak-lang";
+const SUPPORTED_LOCALES = ["pl", "en"] as const;
+const VERCEL_IP_COUNTRY_HEADER = "x-vercel-ip-country";
+
+/**
+ * Geolocation-based locale: PL → /pl, non-PL or unknown → /en.
+ * Cookie (explicit user choice) overrides geolocation to avoid redirect loops
+ * when user has already chosen a language.
+ */
+function getPreferredLocale(request: NextRequest): "pl" | "en" {
+  const cookie = request.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
+  if (cookie === "en" || cookie === "pl") return cookie;
+
+  const country = request.headers.get(VERCEL_IP_COUNTRY_HEADER)?.toUpperCase();
+  if (country === "PL") return "pl";
+  if (country) return "en";
+
+  const acceptLang = request.headers.get("accept-language");
+  if (acceptLang?.toLowerCase().includes("pl")) return "pl";
+  return "en";
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Skip API, static assets, and Next internals (no redirect)
+  if (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/favicon") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase();
+
+  // Already on a locale path → no redirect (prevents redirect loops)
+  if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as "pl" | "en")) {
+    return NextResponse.next();
+  }
+
+  const locale = getPreferredLocale(request);
+  const newPath = `/${locale}${pathname === "/" ? "" : pathname}`;
+  const url = request.nextUrl.clone();
+  url.pathname = newPath;
+  return NextResponse.redirect(url);
+}
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
+</file>
+
+<file path="app/[lang]/layout.tsx">
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/next";
+import type { Language } from "@/lib/translations";
+import { translations } from "@/lib/translations";
+
+const SUPPORTED_LANGS = ["pl", "en"] as const;
+const SITE_URL = "https://baluniak.com";
+
+function toLanguage(segment: string): Language {
+  return segment === "en" ? "EN" : "PL";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
+    return { title: "BALUNIAK" };
+  }
+  const t = translations[lang === "pl" ? "PL" : "EN"].seo;
+  const canonical = `${SITE_URL}/${lang}`;
+  const keywords =
+    "homeKeywords" in t && typeof (t as { homeKeywords?: string }).homeKeywords === "string"
+      ? (t as { homeKeywords: string }).homeKeywords
+      : undefined;
+  return {
+    title: t.homeTitle,
+    description: t.homeDescription,
+    ...(keywords && { keywords: keywords.split(",").map((k) => k.trim()) }),
+    alternates: {
+      canonical,
+      languages: { pl: `${SITE_URL}/pl`, en: `${SITE_URL}/en` },
+    },
+    openGraph: {
+      title: t.homeTitle,
+      description: t.homeDescription,
+      url: canonical,
+      siteName: "BALUNIAK.COM",
+      locale: lang === "pl" ? "pl_PL" : "en_US",
+      type: "website",
+    },
+    robots: { index: true, follow: true },
+  };
+}
+
+export default async function LangLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  if (!SUPPORTED_LANGS.includes(lang as (typeof SUPPORTED_LANGS)[number])) {
+    notFound();
+  }
+  const initialLang = toLanguage(lang);
+
+  return (
+    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
+      <Navbar />
+      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <Footer />
+      <Analytics />
+    </LanguageProvider>
+  );
+}
+</file>
+
+<file path="app/[lang]/page.tsx">
+import AIDuelLayout from "@/components/AIDuelLayout";
+import { TryLiveIntro } from "@/components/TryLiveIntro";
+import { About } from "@/components/sections/About";
+import { WhyProductEngineer } from "@/components/sections/WhyProductEngineer";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { KreatorCTA } from "@/components/sections/KreatorCTA";
+import { OnboardingSteps } from "@/components/sections/OnboardingSteps";
+import { Projects } from "@/components/sections/Projects";
+import { TechStackTrust } from "@/components/sections/TechStackTrust";
+import { ModularStack } from "@/components/sections/ModularStack";
+
+export default function Home() {
+  return (
+    <>
+      <HeroSection />
+      <TechStackTrust />
+      <KreatorCTA />
+      <OnboardingSteps />
+      <section
+        id="ai-duel"
+        className="scroll-mt-20 pb-[max(2rem,env(safe-area-inset-bottom))] md:pb-0"
+        aria-label="AI Duel – try live"
+      >
+        <TryLiveIntro />
+        <AIDuelLayout />
+      </section>
+      <ModularStack />
+      <Projects />
+      <WhyProductEngineer />
+      <About />
+    </>
+  );
 }
 </file>
 
@@ -2809,103 +3056,78 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
 }
 </file>
 
-<file path="components/sections/OnboardingSteps.tsx">
-"use client";
+<file path="components/ui/button.tsx">
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { Slot } from "radix-ui"
 
-import { motion } from "framer-motion";
-import { MessageSquare, Cpu, GitCompare } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-const STEP_ICONS = [MessageSquare, Cpu, GitCompare] as const;
-const STEP_ACCENTS: Array<"emerald" | "amber"> = ["emerald", "amber", "emerald"];
-
-export function OnboardingSteps() {
-  const { t, mounted } = useLanguage();
-  const steps = [
-    { step: 1, title: t("howItWorks.step1Title"), description: t("howItWorks.step1Desc") },
-    { step: 2, title: t("howItWorks.step2Title"), description: t("howItWorks.step2Desc") },
-    { step: 3, title: t("howItWorks.step3Title"), description: t("howItWorks.step3Desc") },
-  ];
-
-  if (!mounted) {
-    return (
-      <section
-        id="jak-to-dziala"
-        className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 sm:py-16 md:py-20 md:pb-20"
-        aria-labelledby="onboarding-heading"
-      >
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-10 h-8 w-48 animate-pulse rounded bg-zinc-700/50 sm:mb-12" aria-hidden />
-          <ol className="space-y-6 sm:space-y-8">
-            {[1, 2, 3].map((i) => (
-              <li key={i} className="flex gap-4 sm:gap-5">
-                <div className="size-11 shrink-0 rounded-xl border border-zinc-600/50 bg-zinc-800/30 sm:size-12" />
-                <div className="min-w-0 flex-1 space-y-2 pt-0.5">
-                  <div className="h-5 w-3/4 animate-pulse rounded bg-zinc-700/50" />
-                  <div className="h-4 w-full animate-pulse rounded bg-zinc-700/30" />
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-    );
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:scale-105 active:scale-[0.98]",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary text-primary-foreground shadow-sm hover:bg-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] dark:bg-emerald-600 dark:text-zinc-950 dark:hover:bg-emerald-500 dark:hover:shadow-[0_0_20px_rgba(16,185,129,0.25)]",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "border border-zinc-700 bg-transparent text-white shadow-none hover:bg-zinc-800/50 hover:border-zinc-600 dark:border-zinc-700 dark:bg-transparent dark:text-white dark:hover:bg-zinc-800/50",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-9 min-h-[2.25rem] px-4 py-2 has-[>svg]:px-3 max-md:min-h-12",
+        xs:
+          "h-6 gap-1 rounded-full px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3 max-md:min-h-12 max-md:min-w-[3rem]",
+        sm:
+          "h-8 rounded-full gap-1.5 px-3 has-[>svg]:px-2.5 min-h-[2rem] max-md:min-h-12",
+        lg: "h-12 min-h-12 rounded-full px-6 has-[>svg]:px-4",
+        icon:
+          "size-9 min-h-9 min-w-9 max-md:min-h-12 max-md:min-w-12 max-md:size-12 rounded-full",
+        "icon-xs":
+          "size-6 rounded-full [&_svg:not([class*='size-'])]:size-3 max-md:min-h-12 max-md:min-w-12",
+        "icon-sm":
+          "size-8 min-h-8 min-w-8 rounded-full max-md:min-h-12 max-md:min-w-12",
+        "icon-lg": "size-12 min-h-12 min-w-12 rounded-full",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
   }
+)
+
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot.Root : "button"
 
   return (
-    <section
-      id="jak-to-dziala"
-      className="relative z-10 border-t border-white/10 bg-black/20 px-5 py-12 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 sm:py-16 md:py-20 md:pb-20"
-      aria-labelledby="onboarding-heading"
-    >
-      <div className="mx-auto max-w-3xl">
-        <h2
-          id="onboarding-heading"
-          className="mb-10 text-center text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl md:mb-12 md:text-3xl"
-        >
-          {t("howItWorks.title")}
-        </h2>
-        <ol className="space-y-6 sm:space-y-8">
-          {steps.map(({ step, title, description }, i) => {
-            const Icon = STEP_ICONS[i];
-            const accent = STEP_ACCENTS[i];
-            return (
-              <motion.li
-                key={step}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.35, delay: i * 0.08 }}
-                className="flex gap-4 sm:gap-5"
-              >
-                <div
-                  className={cn(
-                    "flex size-11 shrink-0 items-center justify-center rounded-xl border sm:size-12",
-                    accent === "emerald"
-                      ? "border-emerald-500/40 bg-emerald-950/50 text-emerald-400"
-                      : "border-amber-500/40 bg-amber-950/30 text-amber-400"
-                  )}
-                  aria-hidden
-                >
-                  <Icon className="size-5 sm:size-6" />
-                </div>
-                <div className="min-w-0 flex-1 pt-0.5">
-                  <h3 className="mb-2 text-lg font-semibold text-zinc-100 sm:text-xl">
-                    {title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
-                    {description}
-                  </p>
-                </div>
-              </motion.li>
-            );
-          })}
-        </ol>
-      </div>
-    </section>
-  );
+    <Comp
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
 }
+
+export { Button, buttonVariants }
 </file>
 
 <file path="components/WelcomeCards.tsx">
@@ -3107,6 +3329,543 @@ export function useLanguage(): LanguageContextValue {
 }
 </file>
 
+<file path="app/api/finalize-workshop/route.ts">
+import { NextResponse } from "next/server";
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { Resend } from "resend";
+
+const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
+const ADMIN_EMAIL = "lukasz@baluniak.com";
+
+type ChatEntry = { role: string; content: string };
+
+type Body = {
+  chatHistory?: ChatEntry[];
+  userEmail?: string;
+  userContactInfo?: Record<string, string>;
+  language?: string;
+  lang?: string;
+};
+
+type Lang = "PL" | "EN";
+
+function normalizeLang(value: unknown): Lang {
+  if (value === "EN" || value === "en") return "EN";
+  return "PL";
+}
+
+/** Dynamic summarizer prompts by language */
+const SUMMARIZER_PROMPT: Record<Lang, string> = {
+  PL: `Jesteś polskim Project Managerem. Przeanalizuj rozmowę i stwórz HTML Brief po POLSKU. Sekcje: Cel, Technologia, Biznes.
+
+Output: tylko poprawny HTML (bez markdown, bez \`\`\`). Użyj struktury:
+1. <h3>Cel</h3> + krótki akapit
+2. <h3>Technologia</h3> + lista (z DEV)
+3. <h3>Biznes</h3> + lista (z BIZ)
+4. <h3>Rekomendowane kolejne kroki</h3> + lista numerowana
+
+Używaj <p>, <ul>, <ol>, <li>. Zwięźle i po polsku. Jeśli czegoś brakuje w rozmowie, wpisz "Do doprecyzowania." w danej sekcji.`,
+  EN: `You are a Senior Project Manager. Analyze the chat and create an HTML Brief in ENGLISH. Sections: Goal, Tech Stack, Business Context.
+
+Output: valid HTML only (no markdown, no \`\`\`). Use this structure:
+1. <h3>Goal</h3> + one short paragraph
+2. <h3>Tech Stack</h3> + bullet list (from DEV)
+3. <h3>Business Context</h3> + bullet list (from BIZ)
+4. <h3>Recommended Next Steps</h3> + ordered list
+
+Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`,
+};
+
+function buildConversationText(chatHistory: ChatEntry[]): string {
+  return chatHistory
+    .map((m) => {
+      const label = m.role === "user" ? "User" : m.role === "assistant" ? "Agents (DEV & BIZ)" : m.role;
+      return `[${label}]\n${(m.content || "").trim()}`;
+    })
+    .join("\n\n");
+}
+
+function countUserMessages(chatHistory: ChatEntry[]): number {
+  return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Email wrapper for client: brief only */
+function wrapClientEmailHtml(htmlBody: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
+  return `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
+  </table>
+</body></html>`.trim();
+}
+
+/** Email wrapper for admin: brief + full chat history */
+function wrapAdminEmailHtml(htmlBody: string, chatHistory: ChatEntry[], userEmail: string, lang: Lang): string {
+  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
+  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
+  const historyLabel = lang === "EN" ? "Full conversation history:" : "Pełna historia rozmowy:";
+  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
+
+  const historyHtml = chatHistory
+    .map((m) => {
+      const role = m.role === "user" ? (lang === "EN" ? "User" : "Użytkownik") : (lang === "EN" ? "Agents" : "Agenci");
+      const content = escapeHtml(m.content || "");
+      return `<div style="margin-bottom:12px;padding:12px;background:#27272a;border-radius:8px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#71717a;margin-bottom:4px;">${role}</div>
+        <div style="font-size:13px;line-height:1.5;white-space:pre-wrap;">${content}</div>
+      </div>`;
+    })
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
+    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${escapeHtml(userEmail)}</td></tr>
+    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
+    <tr><td style="padding:24px 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;border-top:1px solid #27272a;margin-top:24px;">${historyLabel}</td></tr>
+    <tr><td style="padding:8px 0 16px;">${historyHtml}</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
+  </table>
+</body></html>`.trim();
+}
+
+function getProjectIdeaForSubject(chatHistory: ChatEntry[]): string {
+  const firstUser = chatHistory.find((m) => m.role === "user" && (m.content || "").trim());
+  const text = (firstUser?.content || "").trim().slice(0, 50);
+  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "";
+}
+
+/** Email subject by language */
+function getSubject(projectName: string, lang: Lang): string {
+  const fallback = lang === "EN" ? "Workshop" : "Warsztat";
+  const name = projectName || fallback;
+  return lang === "EN" ? `AI Workshop Summary: ${name}` : `Podsumowanie Warsztatu AI: ${name}`;
+}
+
+const ERROR_MSG = {
+  emailRequired: { PL: "Email jest wymagany.", EN: "Email is required." },
+  minMessages: {
+    PL: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief.",
+    EN: "We need at least 3 messages from you to generate the Brief.",
+  },
+  config: { PL: "Konfiguracja email nie jest ustawiona.", EN: "Email configuration is not set." },
+  sendFailed: { PL: "Nie udało się wysłać Briefu.", EN: "Failed to send the Brief." },
+  generic: {
+    PL: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie.",
+    EN: "Could not generate or send the Brief. Please try again.",
+  },
+} as const;
+
+export async function POST(req: Request) {
+  let lang: Lang = "PL";
+  try {
+    const body = (await req.json()) as Body;
+    const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
+    const userEmail = (body.userEmail ?? "").trim();
+    lang = normalizeLang(body.language ?? body.lang);
+
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: ERROR_MSG.emailRequired[lang] },
+        { status: 400 }
+      );
+    }
+
+    const userMessageCount = countUserMessages(chatHistory);
+    if (userMessageCount < 3) {
+      return NextResponse.json(
+        { error: ERROR_MSG.minMessages[lang] },
+        { status: 400 }
+      );
+    }
+
+    const conversationText = buildConversationText(chatHistory);
+    const userPrompt =
+      lang === "EN"
+        ? `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only (in English).`
+        : `Rozmowa:\n\n${conversationText}\n\nNa wyjściu podaj tylko Brief w HTML (po polsku).`;
+
+    const { text: htmlBrief } = await generateText({
+      model: anthropic("claude-sonnet-4-20250514"),
+      system: SUMMARIZER_PROMPT[lang],
+      prompt: userPrompt,
+    });
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("[finalize-workshop] Missing RESEND_API_KEY");
+      return NextResponse.json(
+        { error: ERROR_MSG.config[lang] },
+        { status: 500 }
+      );
+    }
+
+    const projectName = getProjectIdeaForSubject(chatHistory);
+    const subject = getSubject(projectName, lang);
+    const briefHtml = htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>");
+
+    const resend = new Resend(apiKey);
+
+    // Send TWO emails in parallel: admin (brief + history) + client (brief only)
+    const [adminResult, clientResult] = await Promise.all([
+      resend.emails.send({
+        from: FROM,
+        to: ADMIN_EMAIL,
+        subject: `[Admin] ${subject}`,
+        html: wrapAdminEmailHtml(briefHtml, chatHistory, userEmail, lang),
+        replyTo: userEmail,
+      }),
+      resend.emails.send({
+        from: FROM,
+        to: userEmail,
+        subject,
+        html: wrapClientEmailHtml(briefHtml, lang),
+      }),
+    ]);
+
+    if (adminResult.error) {
+      console.error("[finalize-workshop] Admin email error:", adminResult.error);
+      return NextResponse.json(
+        { error: adminResult.error.message ?? ERROR_MSG.sendFailed[lang] },
+        { status: 500 }
+      );
+    }
+
+    if (clientResult.error) {
+      console.error("[finalize-workshop] Client email error:", clientResult.error);
+      return NextResponse.json(
+        { error: ERROR_MSG.sendFailed[lang] },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[finalize-workshop]", err);
+    return NextResponse.json(
+      { error: ERROR_MSG.generic[lang] },
+      { status: 500 }
+    );
+  }
+}
+</file>
+
+<file path="components/HeroCube.tsx">
+"use client";
+
+import { useRef, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Edges, Float } from "@react-three/drei";
+import * as THREE from "three";
+
+const GRID = 3;
+const GAP = 0.06;
+const BOX_SIZE = (1 - (GRID - 1) * GAP) / GRID;
+
+/** Pojedynczy mini-sześcian: ciemne szkło (MeshPhysicalMaterial) + neonowe krawędzie */
+function MiniCube({ position }: { position: [number, number, number] }) {
+  const geom = useMemo(
+    () => new THREE.BoxGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE),
+    []
+  );
+  return (
+    <group position={position}>
+      <mesh>
+        <primitive object={geom} attach="geometry" />
+        <meshPhysicalMaterial
+          color="#18181b"
+          metalness={0.8}
+          roughness={0.2}
+          clearcoat={1}
+          clearcoatRoughness={0.2}
+          envMapIntensity={0.6}
+          transparent
+          opacity={0.92}
+        />
+      </mesh>
+      <Edges geometry={geom} threshold={5} color="#10b981" />
+    </group>
+  );
+}
+
+/** Siatka 3x3x3 w stylu Rubika + auto-obrót gdy użytkownik nie dotyka */
+function RubikGroup({
+  groupRef,
+  isInteractingRef,
+}: {
+  groupRef: React.RefObject<THREE.Group | null>;
+  isInteractingRef: React.RefObject<boolean>;
+}) {
+  const cubes = useMemo(() => {
+    const out: [number, number, number][] = [];
+    const offset = (GRID - 1) / 2;
+    for (let x = 0; x < GRID; x++) {
+      for (let y = 0; y < GRID; y++) {
+        for (let z = 0; z < GRID; z++) {
+          out.push([
+            (x - offset) * (BOX_SIZE + GAP),
+            (y - offset) * (BOX_SIZE + GAP),
+            (z - offset) * (BOX_SIZE + GAP),
+          ]);
+        }
+      }
+    }
+    return out;
+  }, []);
+
+  useFrame((_, delta) => {
+    const group = groupRef.current;
+    if (!group || isInteractingRef.current) return;
+    group.rotation.x += delta * 0.12;
+    group.rotation.y += delta * 0.18;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {cubes.map((pos, i) => (
+        <MiniCube key={i} position={pos} />
+      ))}
+    </group>
+  );
+}
+
+/** Śledzi OrbitControls – pauzuje auto-obrót podczas przeciągania */
+function InteractionTracker({
+  isInteractingRef,
+}: {
+  isInteractingRef: React.RefObject<boolean>;
+}) {
+  return (
+    <OrbitControls
+      enableZoom={false}
+      enablePan={false}
+      onStart={() => {
+        isInteractingRef.current = true;
+      }}
+      onEnd={() => {
+        isInteractingRef.current = false;
+      }}
+      minPolarAngle={Math.PI / 4}
+      maxPolarAngle={Math.PI / 2 + Math.PI / 4}
+      dampingFactor={0.08}
+      rotateSpeed={0.8}
+    />
+  );
+}
+
+export function HeroCube() {
+  const groupRef = useRef<THREE.Group>(null);
+  const isInteractingRef = useRef(false);
+
+  return (
+    <div className="relative h-full w-full border-none bg-transparent" style={{ background: "transparent" }}>
+      <Canvas
+        className="h-full w-full"
+        style={{ background: "transparent" }}
+        camera={{ position: [2.2, 2.2, 2.2], fov: 42 }}
+        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 2]}
+      >
+        <color attach="background" args={["transparent"]} />
+        <ambientLight intensity={0.35} />
+        {/* Chłodne światło z góry – błękit */}
+        <directionalLight
+          position={[0, 5, 3]}
+          intensity={2}
+          color="#0ea5e9"
+          castShadow={false}
+        />
+        {/* Ciepłe światło z dołu – zieleń/szmaragd */}
+        <pointLight
+          position={[0, -2, 1]}
+          intensity={3}
+          color="#34d399"
+          distance={8}
+        />
+        <pointLight
+          position={[2, 1, 2]}
+          intensity={0.4}
+          color="#10b981"
+          distance={6}
+        />
+        {/* Lewitacja (Float) + kostka z auto-obrotem */}
+        <Float
+          speed={1.8}
+          rotationIntensity={0}
+          floatIntensity={0.4}
+        >
+          <RubikGroup groupRef={groupRef} isInteractingRef={isInteractingRef} />
+        </Float>
+        <InteractionTracker isInteractingRef={isInteractingRef} />
+      </Canvas>
+    </div>
+  );
+}
+</file>
+
+<file path="components/sections/OnboardingSteps.tsx">
+"use client";
+
+import { motion } from "framer-motion";
+import { MessageSquare, Cpu, GitCompare } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const STEP_ICONS = [MessageSquare, Cpu, GitCompare] as const;
+const STEP_ACCENTS: Array<"emerald" | "amber"> = ["emerald", "amber", "emerald"];
+
+export function OnboardingSteps() {
+  const { t, mounted } = useLanguage();
+  const steps = [
+    { step: 1, title: t("howItWorks.step1Title"), description: t("howItWorks.step1Desc") },
+    { step: 2, title: t("howItWorks.step2Title"), description: t("howItWorks.step2Desc") },
+    { step: 3, title: t("howItWorks.step3Title"), description: t("howItWorks.step3Desc") },
+  ];
+
+  if (!mounted) {
+    return (
+      <section
+        id="jak-to-dziala"
+        className="relative z-10 border-t border-zinc-800 bg-black/20 px-5 py-12 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 sm:py-16 md:py-20 md:pb-20"
+        aria-labelledby="onboarding-heading"
+      >
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-10 h-8 w-48 animate-pulse rounded bg-zinc-700/50 sm:mb-12" aria-hidden />
+          <ol className="space-y-6 sm:space-y-8">
+            {[1, 2, 3].map((i) => (
+              <li key={i} className="flex gap-4 sm:gap-5">
+                <div className="size-11 shrink-0 rounded-xl border border-zinc-600/50 bg-zinc-800/30 sm:size-12" />
+                <div className="min-w-0 flex-1 space-y-2 pt-0.5">
+                  <div className="h-5 w-3/4 animate-pulse rounded bg-zinc-700/50" />
+                  <div className="h-4 w-full animate-pulse rounded bg-zinc-700/30" />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      id="jak-to-dziala"
+      className="relative z-10 border-t border-zinc-800 bg-black/20 px-5 py-12 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 sm:py-16 md:py-20 md:pb-20"
+      aria-labelledby="onboarding-heading"
+    >
+      <div className="mx-auto max-w-3xl">
+        <h2
+          id="onboarding-heading"
+          className="mb-10 text-center text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl md:mb-12 md:text-3xl"
+        >
+          {t("howItWorks.title")}
+        </h2>
+        <ol className="space-y-6 sm:space-y-8">
+          {steps.map(({ step, title, description }, i) => {
+            const Icon = STEP_ICONS[i];
+            const accent = STEP_ACCENTS[i];
+            return (
+              <motion.li
+                key={step}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.35, delay: i * 0.08 }}
+                className="flex gap-4 sm:gap-5"
+              >
+                <div
+                  className={cn(
+                    "flex size-11 shrink-0 items-center justify-center rounded-xl border sm:size-12",
+                    accent === "emerald"
+                      ? "border-emerald-500/40 bg-emerald-950/50 text-emerald-400"
+                      : "border-amber-500/40 bg-amber-950/30 text-amber-400"
+                  )}
+                  aria-hidden
+                >
+                  <Icon className="size-5 sm:size-6" />
+                </div>
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <h3 className="mb-2 text-lg font-semibold text-zinc-100 sm:text-xl">
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+                    {description}
+                  </p>
+                </div>
+              </motion.li>
+            );
+          })}
+        </ol>
+      </div>
+    </section>
+  );
+}
+</file>
+
+<file path="components/SiteHeader.tsx">
+"use client";
+
+import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const navItems = [
+  { label: "Strona główna", href: "/" },
+  { label: "Projekty", href: "#projekty" },
+  { label: "Kreator", href: "/kreator" },
+  { label: "Case Study", href: "/projekty/fotarobota" },
+  { label: "Współpraca", href: "/wspolpraca" },
+] as const;
+
+export function SiteHeader() {
+  const { localeSegment } = useLanguage();
+  return (
+    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
+      <nav
+        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3"
+        aria-label="Menu główne"
+      >
+        <Link
+          href={`/${localeSegment}`}
+          className="font-semibold text-zinc-100 transition-colors hover:text-white"
+        >
+          baluniak
+        </Link>
+        <ul className="flex items-center gap-6">
+          {navItems.map(({ label, href }) => (
+            <li key={href}>
+              <Link
+                href={`/${localeSegment}${href}`}
+                className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+  );
+}
+</file>
+
 <file path="lib/kreator-funnel.ts">
 /**
  * Kreator Projektu: branching funnel types and step config.
@@ -3304,6 +4063,19 @@ export function getTimelineSummary(state: FunnelState, lang: Language = "PL"): s
   }
   return "";
 }
+
+/** Estimated days (number) for animated counter in Summary. */
+export function getEstimatedDays(state: FunnelState): number {
+  if (state.branch === "standard") {
+    const d = state.standard?.deadline;
+    if (d === "asap") return 7;
+    if (d === "2weeks") return 14;
+    if (d === "1month") return 30;
+    return 14;
+  }
+  if (state.branch === "professional") return 45;
+  return 0;
+}
 </file>
 
 <file path="app/[lang]/kreator/page.tsx">
@@ -3340,6 +4112,7 @@ import {
   getStackSummary,
   getTimelineSummary,
   getPriceBreakdown,
+  getEstimatedDays,
   ADVANCED_MODULE_IDS,
 } from "@/lib/kreator-funnel";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -3427,6 +4200,8 @@ export default function KreatorPage() {
   const discountAmount = isPortfolioDiscount ? Math.round(0.1 * totalPrice) : 0;
   const finalTotal = totalPrice - discountAmount;
   const displayTotal = useCountUp(finalTotal);
+  const estimatedDays = useMemo(() => getEstimatedDays(state), [state]);
+  const displayEstimatedDays = useCountUp(estimatedDays, 500);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const totalSteps = branch ? getTotalSteps(branch) : 0;
   const currentStepLabel =
@@ -3683,6 +4458,11 @@ export default function KreatorPage() {
               </motion.p>
             )}
           </div>
+          {estimatedDays > 0 && (
+            <p className="text-sm text-zinc-400">
+              {k.estimatedTime}: <span className="tabular-nums font-medium text-zinc-200">{displayEstimatedDays}</span> {lang === "PL" ? "dni" : "days"}
+            </p>
+          )}
           <p className="text-xs text-zinc-500">
             {k.billingNote}
           </p>
@@ -4035,17 +4815,17 @@ export default function KreatorPage() {
             </CardContent>
           </Card>
 
-          {/* Desktop: sticky price summary sidebar (premium checkout feel) */}
-          <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-            <Card className="border-zinc-800 bg-zinc-950 shadow-xl">
+          {/* Desktop: sticky price summary sidebar (SaaS e‑commerce style) */}
+          <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
+            <Card className="border-zinc-800 bg-zinc-950/95 shadow-xl ring-1 ring-white/5">
               <CardContent className="p-6">
                 {priceSummaryContent}
               </CardContent>
             </Card>
           </div>
 
-          {/* Mobile: bottom bar + drawer */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800 bg-zinc-950 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+          {/* Mobile: fixed bottom bar + drawer (always at hand) */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800/80 bg-zinc-950/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:hidden">
             <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
               <SheetTrigger asChild>
                 <button
@@ -4195,21 +4975,26 @@ function StandardSteps({
               { id: "portfolio" as const, labelKey: "brandingPortfolio" as const },
               { id: "kontakt" as const, labelKey: "brandingKontakt" as const },
             ] as const
-            ).map(({ id, labelKey }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setStandard((s) => ({ ...s, branding: id }))}
-              className={cn(
-                "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                standard.branding === id
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-              )}
-            >
-              {options[labelKey]}
-            </button>
-          ))}
+            ).map(({ id, labelKey }) => {
+            const selected = standard.branding === id;
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                onClick={() => setStandard((s) => ({ ...s, branding: id }))}
+                animate={{ scale: selected ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-left text-sm font-medium transition-all",
+                  selected
+                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
+                )}
+              >
+                {options[labelKey]}
+              </motion.button>
+            );
+          })}
         </motion.div>
       )}
       {step === 2 && (
@@ -4219,10 +5004,19 @@ function StandardSteps({
           transition={transition}
           className="space-y-3"
         >
-          {(["about", "gallery", "contact"] as const).map((key) => (
-            <label
+          {(["about", "gallery", "contact"] as const).map((key) => {
+            const checked = standard.sections?.[key] ?? false;
+            return (
+            <motion.label
               key={key}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-zinc-800/50 px-4 py-3"
+              animate={{ scale: checked ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className={cn(
+                "flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+                checked
+                  ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                  : "border-white/10 bg-zinc-800/50"
+              )}
             >
               <input
                 type="checkbox"
@@ -4245,8 +5039,9 @@ function StandardSteps({
                 {key === "gallery" && o.sectionGallery}
                 {key === "contact" && o.sectionContact}
               </span>
-            </label>
-          ))}
+            </motion.label>
+            );
+          })}
         </motion.div>
       )}
       {step === 3 && (
@@ -4262,21 +5057,26 @@ function StandardSteps({
               { id: "2weeks" as const, labelKey: "deadline2weeks" as const },
               { id: "1month" as const, labelKey: "deadline1month" as const },
             ] as const
-          ).map(({ id, labelKey }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setStandard((s) => ({ ...s, deadline: id }))}
-              className={cn(
-                "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                standard.deadline === id
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-              )}
-            >
-              {o[labelKey]}
-            </button>
-          ))}
+          ).map(({ id, labelKey }) => {
+            const selected = standard.deadline === id;
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                onClick={() => setStandard((s) => ({ ...s, deadline: id }))}
+                animate={{ scale: selected ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
+                  selected
+                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
+                )}
+              >
+                {o[labelKey]}
+              </motion.button>
+            );
+          })}
         </motion.div>
       )}
     </>
@@ -4316,51 +5116,60 @@ function ProfessionalSteps({
               { id: "openai" as const, labelKey: "aiOpenai" as const },
               { id: "both" as const, labelKey: "aiBoth" as const },
             ] as const
-          ).map(({ id, labelKey }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, aiIntegration: id }))}
-              className={cn(
-                "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                professional.aiIntegration === id
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-              )}
-            >
-              {o[labelKey]}
-            </button>
-          ))}
+          ).map(({ id, labelKey }) => {
+            const selected = professional.aiIntegration === id;
+            return (
+              <motion.button
+                key={id}
+                type="button"
+                onClick={() => setProfessional((s) => ({ ...s, aiIntegration: id }))}
+                animate={{ scale: selected ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
+                  selected
+                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
+                )}
+              >
+                {o[labelKey]}
+              </motion.button>
+            );
+          })}
         </motion.div>
       )}
       {step === 2 && (
         <motion.div key="p2" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">{o.paymentsQuestion}</p>
           <div className="flex gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, payments: true }))}
+              animate={{ scale: professional.payments === true ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.payments === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.yes}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, payments: false }))}
+              animate={{ scale: professional.payments === false ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.payments === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.no}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -4368,30 +5177,34 @@ function ProfessionalSteps({
         <motion.div key="p3" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">{o.authQuestion}</p>
           <div className="flex gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, userAuth: true }))}
+              animate={{ scale: professional.userAuth === true ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.userAuth === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.yes}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, userAuth: false }))}
+              animate={{ scale: professional.userAuth === false ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.userAuth === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.no}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -4399,30 +5212,34 @@ function ProfessionalSteps({
         <motion.div key="p4" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
           <p className="mb-3 text-sm text-zinc-400">{o.scaleQuestion}</p>
           <div className="flex gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, scalability: true }))}
+              animate={{ scale: professional.scalability === true ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.scalability === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.yes}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               onClick={() => setProfessional((s) => ({ ...s, scalability: false }))}
+              animate={{ scale: professional.scalability === false ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium",
+                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
                 professional.scalability === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                   : "border-white/10 bg-zinc-800/50 text-zinc-400"
               )}
             >
               {o.no}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -4468,14 +5285,22 @@ function ModulesStep({
     >
       {ADVANCED_MODULE_IDS.map((id) => {
         const subtitle = options[MODULE_SUBTITLE_KEYS[id]];
+        const checked = modules[id] ?? false;
         return (
-          <label
+          <motion.label
             key={id}
-            className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-zinc-800/50 px-4 py-3 transition-colors hover:border-white/20"
+            animate={{ scale: checked ? 1.05 : 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className={cn(
+              "flex cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+              checked
+                ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                : "border-white/10 bg-zinc-800/50 hover:border-white/20"
+            )}
           >
             <input
               type="checkbox"
-              checked={modules[id] ?? false}
+              checked={checked}
               onChange={(e) =>
                 setModules((m) => ({ ...m, [id]: e.target.checked }))
               }
@@ -4491,491 +5316,10 @@ function ModulesStep({
                 </p>
               )}
             </div>
-          </label>
+          </motion.label>
         );
       })}
     </motion.div>
-  );
-}
-</file>
-
-<file path="app/api/finalize-workshop/route.ts">
-import { NextResponse } from "next/server";
-import { generateText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
-import { Resend } from "resend";
-
-const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const ADMIN_EMAIL = "lukasz@baluniak.com";
-
-type ChatEntry = { role: string; content: string };
-
-type Body = {
-  chatHistory?: ChatEntry[];
-  userEmail?: string;
-  userContactInfo?: Record<string, string>;
-  language?: string;
-  lang?: string;
-};
-
-type Lang = "PL" | "EN";
-
-function normalizeLang(value: unknown): Lang {
-  if (value === "EN" || value === "en") return "EN";
-  return "PL";
-}
-
-/** Dynamic summarizer prompts by language */
-const SUMMARIZER_PROMPT: Record<Lang, string> = {
-  PL: `Jesteś polskim Project Managerem. Przeanalizuj rozmowę i stwórz HTML Brief po POLSKU. Sekcje: Cel, Technologia, Biznes.
-
-Output: tylko poprawny HTML (bez markdown, bez \`\`\`). Użyj struktury:
-1. <h3>Cel</h3> + krótki akapit
-2. <h3>Technologia</h3> + lista (z DEV)
-3. <h3>Biznes</h3> + lista (z BIZ)
-4. <h3>Rekomendowane kolejne kroki</h3> + lista numerowana
-
-Używaj <p>, <ul>, <ol>, <li>. Zwięźle i po polsku. Jeśli czegoś brakuje w rozmowie, wpisz "Do doprecyzowania." w danej sekcji.`,
-  EN: `You are a Senior Project Manager. Analyze the chat and create an HTML Brief in ENGLISH. Sections: Goal, Tech Stack, Business Context.
-
-Output: valid HTML only (no markdown, no \`\`\`). Use this structure:
-1. <h3>Goal</h3> + one short paragraph
-2. <h3>Tech Stack</h3> + bullet list (from DEV)
-3. <h3>Business Context</h3> + bullet list (from BIZ)
-4. <h3>Recommended Next Steps</h3> + ordered list
-
-Use <p>, <ul>, <ol>, <li>. Keep it concise and professional. If something is missing from the conversation, write "To be clarified." for that section.`,
-};
-
-function buildConversationText(chatHistory: ChatEntry[]): string {
-  return chatHistory
-    .map((m) => {
-      const label = m.role === "user" ? "User" : m.role === "assistant" ? "Agents (DEV & BIZ)" : m.role;
-      return `[${label}]\n${(m.content || "").trim()}`;
-    })
-    .join("\n\n");
-}
-
-function countUserMessages(chatHistory: ChatEntry[]): number {
-  return chatHistory.filter((m) => m.role === "user" && (m.content || "").trim().length > 0).length;
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-/** Email wrapper for client: brief only */
-function wrapClientEmailHtml(htmlBody: string, lang: Lang): string {
-  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
-  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
-  return `
-<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
-    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
-  </table>
-</body></html>`.trim();
-}
-
-/** Email wrapper for admin: brief + full chat history */
-function wrapAdminEmailHtml(htmlBody: string, chatHistory: ChatEntry[], userEmail: string, lang: Lang): string {
-  const title = lang === "EN" ? "AI Workshop Summary" : "Podsumowanie Warsztatu AI";
-  const sentLabel = lang === "EN" ? "Sent to:" : "Wysłano do:";
-  const historyLabel = lang === "EN" ? "Full conversation history:" : "Pełna historia rozmowy:";
-  const footer = lang === "EN" ? "Workshop · baluniak.com" : "Warsztat · baluniak.com";
-
-  const historyHtml = chatHistory
-    .map((m) => {
-      const role = m.role === "user" ? (lang === "EN" ? "User" : "Użytkownik") : (lang === "EN" ? "Agents" : "Agenci");
-      const content = escapeHtml(m.content || "");
-      return `<div style="margin-bottom:12px;padding:12px;background:#27272a;border-radius:8px;">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#71717a;margin-bottom:4px;">${role}</div>
-        <div style="font-size:13px;line-height:1.5;white-space:pre-wrap;">${content}</div>
-      </div>`;
-    })
-    .join("");
-
-  return `
-<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">${title}</td></tr>
-    <tr><td style="padding:8px 0 16px;font-size:12px;color:#71717a;">${sentLabel} ${escapeHtml(userEmail)}</td></tr>
-    <tr><td style="padding:16px 0;font-size:14px;line-height:1.6;border-top:1px solid #27272a;">${htmlBody}</td></tr>
-    <tr><td style="padding:24px 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;border-top:1px solid #27272a;margin-top:24px;">${historyLabel}</td></tr>
-    <tr><td style="padding:8px 0 16px;">${historyHtml}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">${footer}</td></tr>
-  </table>
-</body></html>`.trim();
-}
-
-function getProjectIdeaForSubject(chatHistory: ChatEntry[]): string {
-  const firstUser = chatHistory.find((m) => m.role === "user" && (m.content || "").trim());
-  const text = (firstUser?.content || "").trim().slice(0, 50);
-  return text ? text.replace(/\n/g, " ") + (text.length >= 50 ? "…" : "") : "";
-}
-
-/** Email subject by language */
-function getSubject(projectName: string, lang: Lang): string {
-  const fallback = lang === "EN" ? "Workshop" : "Warsztat";
-  const name = projectName || fallback;
-  return lang === "EN" ? `AI Workshop Summary: ${name}` : `Podsumowanie Warsztatu AI: ${name}`;
-}
-
-const ERROR_MSG = {
-  emailRequired: { PL: "Email jest wymagany.", EN: "Email is required." },
-  minMessages: {
-    PL: "Potrzebujemy co najmniej 3 wiadomości od Ciebie, aby wygenerować Brief.",
-    EN: "We need at least 3 messages from you to generate the Brief.",
-  },
-  config: { PL: "Konfiguracja email nie jest ustawiona.", EN: "Email configuration is not set." },
-  sendFailed: { PL: "Nie udało się wysłać Briefu.", EN: "Failed to send the Brief." },
-  generic: {
-    PL: "Nie udało się wygenerować lub wysłać Briefu. Spróbuj ponownie.",
-    EN: "Could not generate or send the Brief. Please try again.",
-  },
-} as const;
-
-export async function POST(req: Request) {
-  let lang: Lang = "PL";
-  try {
-    const body = (await req.json()) as Body;
-    const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
-    const userEmail = (body.userEmail ?? "").trim();
-    lang = normalizeLang(body.language ?? body.lang);
-
-    if (!userEmail) {
-      return NextResponse.json(
-        { error: ERROR_MSG.emailRequired[lang] },
-        { status: 400 }
-      );
-    }
-
-    const userMessageCount = countUserMessages(chatHistory);
-    if (userMessageCount < 3) {
-      return NextResponse.json(
-        { error: ERROR_MSG.minMessages[lang] },
-        { status: 400 }
-      );
-    }
-
-    const conversationText = buildConversationText(chatHistory);
-    const userPrompt =
-      lang === "EN"
-        ? `Conversation:\n\n${conversationText}\n\nOutput the structured Brief as HTML only (in English).`
-        : `Rozmowa:\n\n${conversationText}\n\nNa wyjściu podaj tylko Brief w HTML (po polsku).`;
-
-    const { text: htmlBrief } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
-      system: SUMMARIZER_PROMPT[lang],
-      prompt: userPrompt,
-    });
-
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.error("[finalize-workshop] Missing RESEND_API_KEY");
-      return NextResponse.json(
-        { error: ERROR_MSG.config[lang] },
-        { status: 500 }
-      );
-    }
-
-    const projectName = getProjectIdeaForSubject(chatHistory);
-    const subject = getSubject(projectName, lang);
-    const briefHtml = htmlBrief.trim() || (lang === "EN" ? "<p>No content generated.</p>" : "<p>Brak wygenerowanej treści.</p>");
-
-    const resend = new Resend(apiKey);
-
-    // Send TWO emails in parallel: admin (brief + history) + client (brief only)
-    const [adminResult, clientResult] = await Promise.all([
-      resend.emails.send({
-        from: FROM,
-        to: ADMIN_EMAIL,
-        subject: `[Admin] ${subject}`,
-        html: wrapAdminEmailHtml(briefHtml, chatHistory, userEmail, lang),
-        replyTo: userEmail,
-      }),
-      resend.emails.send({
-        from: FROM,
-        to: userEmail,
-        subject,
-        html: wrapClientEmailHtml(briefHtml, lang),
-      }),
-    ]);
-
-    if (adminResult.error) {
-      console.error("[finalize-workshop] Admin email error:", adminResult.error);
-      return NextResponse.json(
-        { error: adminResult.error.message ?? ERROR_MSG.sendFailed[lang] },
-        { status: 500 }
-      );
-    }
-
-    if (clientResult.error) {
-      console.error("[finalize-workshop] Client email error:", clientResult.error);
-      return NextResponse.json(
-        { error: ERROR_MSG.sendFailed[lang] },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("[finalize-workshop]", err);
-    return NextResponse.json(
-      { error: ERROR_MSG.generic[lang] },
-      { status: 500 }
-    );
-  }
-}
-</file>
-
-<file path="components/sections/ModularStack.tsx">
-"use client";
-
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { Layers, Brain, Wallet, Cloud } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
-
-const BLOCK_ICONS = [Layers, Brain, Wallet, Cloud] as const;
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
-  },
-};
-
-const blockVariants = {
-  hidden: { opacity: 0, scale: 0.92, y: 20 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { type: "spring" as const, stiffness: 400, damping: 28 },
-  },
-};
-
-export function ModularStack() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
-  const { dict, lang } = useLanguage();
-  const blocks = dict.modularStack.blocks;
-
-  return (
-    <section
-      ref={sectionRef}
-      id="modular-stack"
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
-      aria-labelledby="modular-stack-heading"
-    >
-      <div className="mx-auto max-w-5xl">
-        <motion.header
-          layout
-          initial={{ opacity: 0, y: 12 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.4 }}
-          className="mb-12 text-center"
-        >
-          <h2
-            id="modular-stack-heading"
-            className="mb-3 text-2xl font-bold tracking-tight text-zinc-100 md:text-3xl"
-          >
-            {dict.modularStack.heading}
-          </h2>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
-            {dict.modularStack.subtext}
-          </p>
-        </motion.header>
-
-        <motion.div
-          className="relative grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-        >
-          <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden>
-            <span className="absolute left-[25%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
-            <span className="absolute left-[50%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
-            <span className="absolute left-[75%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
-            <div className="absolute left-[12.5%] right-[12.5%] top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
-          </div>
-
-          {blocks.map((block, i) => {
-            const Icon = BLOCK_ICONS[i];
-            return (
-              <motion.div
-                key={`stack-${i}`}
-                variants={blockVariants}
-                className="group relative z-10"
-              >
-                <div
-                  className={cn(
-                    "relative flex flex-col rounded-xl border border-zinc-700/80 bg-zinc-900/90 p-5 shadow-lg transition-all duration-300",
-                    "hover:-translate-y-2 hover:border-emerald-500/30 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4),0_0_20px_rgba(16,185,129,0.08)]",
-                    "md:p-6"
-                  )}
-                >
-                  <div className="mb-3 flex size-10 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-950/50 text-emerald-500 transition-colors group-hover:bg-emerald-500/10">
-                    <Icon className="size-5" aria-hidden />
-                  </div>
-                  <p className="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-400/90 md:text-xs">
-                    {block.subtitle}
-                  </p>
-                  <h3 className="mb-1 text-base font-semibold text-zinc-100 md:text-lg">
-                    {block.title}
-                  </h3>
-                  <p className="text-xs font-medium text-zinc-400 md:text-sm">
-                    {block.tech}
-                  </p>
-                  <p className="mt-1 text-[0.7rem] text-zinc-500 md:text-xs">
-                    {block.description}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-
-        {/* Mobile: vertical connector dots between row 1 and row 2 */}
-        <div className="mt-4 flex justify-center gap-8 md:hidden" aria-hidden>
-          <span className="size-1.5 rounded-full bg-emerald-500/50" />
-          <span className="size-1.5 rounded-full bg-emerald-500/50" />
-        </div>
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="components/sections/TechStack.tsx">
-"use client";
-
-import { Card, CardContent } from "@/components/ui/card";
-
-const MARQUEE_ITEMS = [
-  "Next.js (App Router)",
-  "Tailwind CSS",
-  "Lucide React",
-  "React",
-  "TypeScript",
-  "Vercel",
-  "AI SDK",
-  "Radix UI",
-  "Framer Motion",
-] as const;
-
-function MarqueeRow({ items }: { items: readonly string[] }) {
-  return (
-    <div className="flex w-max shrink-0 gap-4 pr-4">
-      {items.map((item) => (
-        <Card
-          key={item}
-          className="group relative shrink-0 overflow-hidden rounded-full border border-white/10 bg-zinc-900/40 px-4 py-2 text-card-foreground shadow-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:border-emerald-400/60 hover:bg-zinc-900/70 hover:shadow-[0_0_16px_rgba(16,185,129,0.35)]"
-        >
-          {/* Subtle inner glow for the chip on hover */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-            style={{
-              background:
-                "radial-gradient(circle at 50% 0%, rgba(56,189,248,0.18), transparent 55%)",
-              mixBlendMode: "screen",
-            }}
-          />
-          <CardContent className="relative z-10 flex items-center justify-center p-0">
-            <span className="whitespace-nowrap text-sm font-medium text-zinc-300 transition-colors group-hover:text-emerald-100 md:text-base">
-              {item}
-            </span>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-export function TechStack() {
-  return (
-    <section
-      id="tech-stack"
-      className="relative my-24 overflow-hidden border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
-      aria-labelledby="tech-stack-heading"
-    >
-      <div className="mx-auto max-w-5xl">
-        <h2
-          id="tech-stack-heading"
-          className="mb-10 text-2xl font-semibold tracking-tight text-zinc-100 md:text-3xl"
-        >
-          Tech Stack
-        </h2>
-        {/* Infinite horizontal marquee: one strip, content duplicated for seamless loop */}
-        <div className="overflow-hidden" aria-hidden>
-          <div
-            className="flex w-max"
-            style={{ animation: "marquee 30s linear infinite" }}
-          >
-            <MarqueeRow items={MARQUEE_ITEMS} />
-            <MarqueeRow items={MARQUEE_ITEMS} />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="components/SiteHeader.tsx">
-"use client";
-
-import Link from "next/link";
-import { useLanguage } from "@/contexts/LanguageContext";
-
-const navItems = [
-  { label: "Strona główna", href: "/" },
-  { label: "Projekty", href: "#projekty" },
-  { label: "Kreator", href: "/kreator" },
-  { label: "Case Study", href: "/projekty/fotarobota" },
-  { label: "Współpraca", href: "/wspolpraca" },
-] as const;
-
-export function SiteHeader() {
-  const { localeSegment } = useLanguage();
-  return (
-    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
-      <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3"
-        aria-label="Menu główne"
-      >
-        <Link
-          href={`/${localeSegment}`}
-          className="font-semibold text-zinc-100 transition-colors hover:text-white"
-        >
-          baluniak
-        </Link>
-        <ul className="flex items-center gap-6">
-          {navItems.map(({ label, href }) => (
-            <li key={href}>
-              <Link
-                href={`/${localeSegment}${href}`}
-                className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </header>
   );
 }
 </file>
@@ -5111,6 +5455,126 @@ export async function POST(req: Request) {
 }
 </file>
 
+<file path="components/sections/ModularStack.tsx">
+"use client";
+
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Layers, Brain, Wallet, Cloud } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const BLOCK_ICONS = [Layers, Brain, Wallet, Cloud] as const;
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+  },
+};
+
+const blockVariants = {
+  hidden: { opacity: 0, scale: 0.92, y: 20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 400, damping: 28 },
+  },
+};
+
+export function ModularStack() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
+  const { dict, lang } = useLanguage();
+  const blocks = dict.modularStack.blocks;
+
+  return (
+    <section
+      ref={sectionRef}
+      id="modular-stack"
+      className="relative my-24 border-t border-zinc-800 bg-black/20 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
+      aria-labelledby="modular-stack-heading"
+    >
+      <div className="mx-auto max-w-5xl">
+        <motion.header
+          layout
+          initial={{ opacity: 0, y: 12 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.4 }}
+          className="mb-12 text-center"
+        >
+          <h2
+            id="modular-stack-heading"
+            className="mb-3 text-2xl font-bold tracking-tight text-zinc-100 md:text-3xl"
+          >
+            {dict.modularStack.heading}
+          </h2>
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
+            {dict.modularStack.subtext}
+          </p>
+        </motion.header>
+
+        <motion.div
+          className="relative grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+        >
+          <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden>
+            <span className="absolute left-[25%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
+            <span className="absolute left-[50%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
+            <span className="absolute left-[75%] top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/60" />
+            <div className="absolute left-[12.5%] right-[12.5%] top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+          </div>
+
+          {blocks.map((block, i) => {
+            const Icon = BLOCK_ICONS[i];
+            return (
+              <motion.div
+                key={`stack-${i}`}
+                variants={blockVariants}
+                className="group relative z-10"
+              >
+                <div
+                  className={cn(
+                    "relative flex flex-col rounded-xl border border-zinc-700/80 bg-zinc-900/90 p-5 shadow-lg transition-all duration-300",
+                    "hover:-translate-y-2 hover:border-emerald-500/30 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4),0_0_20px_rgba(16,185,129,0.08)]",
+                    "md:p-6"
+                  )}
+                >
+                  <div className="mb-3 flex size-10 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-950/50 text-emerald-500 transition-colors group-hover:bg-emerald-500/10">
+                    <Icon className="size-5" aria-hidden />
+                  </div>
+                  <p className="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-400/90 md:text-xs">
+                    {block.subtitle}
+                  </p>
+                  <h3 className="mb-1 text-base font-semibold text-zinc-100 md:text-lg">
+                    {block.title}
+                  </h3>
+                  <p className="text-xs font-medium text-zinc-400 md:text-sm">
+                    {block.tech}
+                  </p>
+                  <p className="mt-1 text-[0.7rem] text-zinc-500 md:text-xs">
+                    {block.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Mobile: vertical connector dots between row 1 and row 2 */}
+        <div className="mt-4 flex justify-center gap-8 md:hidden" aria-hidden>
+          <span className="size-1.5 rounded-full bg-emerald-500/50" />
+          <span className="size-1.5 rounded-full bg-emerald-500/50" />
+        </div>
+      </div>
+    </section>
+  );
+}
+</file>
+
 <file path="app/globals.css">
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -5122,9 +5586,8 @@ export async function POST(req: Request) {
   --color-accent-green: var(--accent-green);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-vt323: var(--font-vt323);
+  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -5202,42 +5665,42 @@ html {
 }
 
 html.dark {
-  background: oklch(0.09 0.005 285.823);
+  background: #09090b; /* zinc-950 */
 }
 
 .dark {
-  --accent-green: #00FF85;
-  --background: oklch(0.141 0.005 285.823);
+  --accent-green: #10b981; /* emerald-500 */
+  --background: #09090b; /* zinc-950 */
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
+  --card: #27272a; /* zinc-800 */
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
+  --popover: #27272a;
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
+  --primary: #059669; /* emerald-600 */
+  --primary-foreground: #09090b; /* zinc-950, max contrast */
+  --secondary: #27272a; /* zinc-800 */
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
+  --muted: #27272a;
   --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
+  --accent: #27272a;
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  --border: rgba(39, 39, 42, 0.5); /* zinc-800/50 */
+  --input: rgba(39, 39, 42, 0.6);
+  --ring: #10b981; /* emerald-500 */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar: #27272a;
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-primary: #059669;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #27272a;
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --sidebar-border: rgba(39, 39, 42, 0.5);
+  --sidebar-ring: #10b981;
 }
 
 @layer base {
@@ -5247,14 +5710,11 @@ html.dark {
   body {
     @apply min-h-screen bg-background text-foreground;
   }
-  /* Subtle gradient overlay for depth when dark (does not override page content) */
+  /* Subtle dot grid in dark mode (Product Builder aesthetic) */
   .dark body {
-    background: radial-gradient(
-        ellipse 120% 80% at 50% 0%,
-        oklch(0.18 0.008 285.823) 0%,
-        transparent 50%
-      ),
-      var(--background);
+    background-image: radial-gradient(circle, #27272a 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-color: var(--background);
   }
 }
 
@@ -5330,6 +5790,30 @@ html.dark {
     opacity: 0;
   }
 }
+
+/* Hero: subtle float for 3D card (respects reduced motion, PageSpeed-friendly) */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-3d-float-wrapper {
+    animation: hero-3d-float 8s ease-in-out infinite;
+  }
+}
+@keyframes hero-3d-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+</file>
+
+<file path="app/page.tsx">
+import { redirect } from "next/navigation";
+
+export default function RootPage() {
+  redirect("/pl");
+}
 </file>
 
 <file path="package.json">
@@ -5348,6 +5832,8 @@ html.dark {
     "@ai-sdk/react": "^3.0.71",
     "@calcom/embed-react": "^1.5.3",
     "@hookform/resolvers": "^5.2.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@vercel/analytics": "^1.6.1",
     "ai": "^6.0.69",
     "class-variance-authority": "^0.7.1",
@@ -5362,6 +5848,7 @@ html.dark {
     "react-markdown": "^10.1.0",
     "resend": "^6.9.2",
     "tailwind-merge": "^3.4.0",
+    "three": "^0.183.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -5375,14 +5862,6 @@ html.dark {
     "tw-animate-css": "^1.4.0",
     "typescript": "^5"
   }
-}
-</file>
-
-<file path="app/page.tsx">
-import { redirect } from "next/navigation";
-
-export default function RootPage() {
-  redirect("/pl");
 }
 </file>
 
@@ -5403,7 +5882,7 @@ export function Footer() {
     <>
       {/* Pre-Footer CTA */}
       <section
-        className="relative z-10 border-t border-white/10 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
+        className="relative z-10 border-t border-zinc-800 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
         aria-labelledby="prefooter-cta-heading"
       >
         <div className="mx-auto max-w-2xl text-center">
@@ -5504,25 +5983,21 @@ export function Footer() {
 </file>
 
 <file path="app/layout.tsx">
-import { Geist, Geist_Mono, VT323 } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { BackgroundGrid } from "@/components/BackgroundGrid";
 import { GrainTexture } from "@/components/GrainTexture";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-ibm-plex-sans",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const vt323 = VT323({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-vt323",
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
 });
 
 export default function RootLayout({
@@ -5533,18 +6008,18 @@ export default function RootLayout({
   return (
     <html lang="pl" className="dark" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${vt323.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
+        className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
       >
-        <BackgroundGrid opacity={0.2} variant="lines" />
+        <BackgroundGrid color="39, 39, 42" opacity={0.15} variant="lines" />
         <div
           aria-hidden
           className="pointer-events-none fixed inset-0 z-0"
           style={{
             background: `
-              radial-gradient(ellipse 140% 90% at 50% -10%, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.7) 40%, transparent 65%),
-              radial-gradient(ellipse 130% 80% at 50% 120%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 45%, transparent 75%),
-              radial-gradient(circle at 15% 0%, rgba(56,189,248,0.16), transparent 55%),
-              radial-gradient(circle at 85% 100%, rgba(245,158,11,0.18), transparent 55%)
+              radial-gradient(ellipse 140% 90% at 50% -10%, rgba(9,9,11,0.92) 0%, rgba(9,9,11,0.6) 40%, transparent 65%),
+              radial-gradient(ellipse 130% 80% at 50% 120%, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 45%, transparent 75%),
+              radial-gradient(circle at 15% 0%, rgba(16,185,129,0.12), transparent 55%),
+              radial-gradient(circle at 85% 100%, rgba(16,185,129,0.08), transparent 55%)
             `,
           }}
         />
@@ -5618,7 +6093,7 @@ export function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
+      className="relative my-24 border-t border-zinc-800 bg-black/20 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="bridge-heading"
     >
       <div className="mx-auto max-w-5xl">
@@ -5636,7 +6111,7 @@ export function About() {
           transition={{ duration: 0.5 }}
           className="mb-14 flex flex-col items-center gap-8 sm:flex-row sm:items-start sm:gap-10"
         >
-          <div className="relative size-28 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500/30 bg-zinc-800/80 sm:size-36 md:size-40">
+          <div className="relative size-28 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500 bg-zinc-800/80 shadow-[0_0_12px_rgba(16,185,129,0.4)] sm:size-36 md:size-40">
             <Image
               src="/li.jpg"
               alt=""
@@ -5778,7 +6253,7 @@ export function About() {
                       <Icon className="size-6" />
                     </div>
                     <div className="md:flex-1 md:pt-0">
-                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-400/90">
+                      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-emerald-400/90">
                         {stage.label}
                       </p>
                       <h3 className="mt-1 text-lg font-semibold text-zinc-100">
@@ -5796,151 +6271,6 @@ export function About() {
         </div>
       </div>
     </section>
-  );
-}
-</file>
-
-<file path="components/sections/HeroSection.tsx">
-"use client";
-
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Zap, Rocket, ArrowRight } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
-
-const sectionVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.08,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 14 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
-  },
-};
-
-export function HeroSection() {
-  const { dict, lang, localeSegment } = useLanguage();
-  const h = dict.hero;
-
-  return (
-    <motion.section
-      id="hero"
-      className="relative z-10 flex min-h-[70vh] flex-col items-center justify-center overflow-hidden px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
-      aria-labelledby="hero-heading"
-      variants={sectionVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: `
-            radial-gradient(ellipse 100% 80% at 50% -20%, rgba(16,185,129,0.18) 0%, transparent 55%),
-            radial-gradient(ellipse 80% 50% at 50% 60%, rgba(16,185,129,0.06) 0%, transparent 50%)
-          `,
-        }}
-      />
-
-      <motion.div
-        layout
-        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-start text-center md:justify-center"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.p
-          layout
-          variants={itemVariants}
-          className="mb-5 flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/90 backdrop-blur-sm sm:text-sm"
-        >
-          <Zap className="size-3.5 text-emerald-400" aria-hidden />
-          {h.badge}
-        </motion.p>
-
-        <motion.h1
-          id="hero-heading"
-          layout
-          variants={itemVariants}
-          className={cn(
-            "mb-5 text-2xl font-bold leading-tight tracking-tight text-zinc-100 text-balance",
-            "sm:text-3xl md:text-4xl lg:text-5xl"
-          )}
-        >
-          {h.headline}{" "}
-          <span className="text-emerald-500">{h.headlineAccent}</span>
-          {h.headlineEnd}
-        </motion.h1>
-
-        <motion.p
-          layout
-          variants={itemVariants}
-          className="mb-6 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:mb-8 sm:text-base"
-        >
-          {h.subtext}
-        </motion.p>
-
-        {/* Spacer: on mobile pushes CTAs into bottom 30% (thumb zone) */}
-        <div className="flex-1 min-h-[15vh] md:hidden" aria-hidden />
-
-        <motion.div
-          variants={itemVariants}
-          className="mt-auto flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4 md:mt-0"
-        >
-          <Button
-            asChild
-            size="lg"
-            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
-          >
-            <Link href={`/${localeSegment}/kreator`}>
-              <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
-              {h.ctaPrimary}
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            className="min-h-12 w-full border border-emerald-500/60 bg-emerald-600 px-6 text-sm font-semibold tracking-tight text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.2)] transition-all hover:border-emerald-400/70 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_24px_rgba(16,185,129,0.25)] sm:w-auto sm:text-base"
-          >
-            <Link href={`/${localeSegment}#projekty`}>
-              {h.ctaSecondary}
-              <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
-            </Link>
-          </Button>
-        </motion.div>
-      </motion.div>
-    </motion.section>
   );
 }
 </file>
@@ -5996,7 +6326,7 @@ export function Projects() {
     <section
       id="projekty"
       key={`projects-${lang}`}
-      className="relative my-24 border-t border-white/10 bg-black/30 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
+      className="relative my-24 border-t border-zinc-800 bg-black/20 px-5 py-16 pb-[max(2rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-6 md:py-24 md:pb-24"
       aria-labelledby="projects-heading"
     >
       <div className="mx-auto max-w-5xl">
@@ -6008,7 +6338,7 @@ export function Projects() {
         </h2>
 
         {/* Fotarobota: compact split view — desktop 50/50 max-h 500px, mobile stacked image 16:9 */}
-        <div className="mb-10 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 shadow-xl md:flex md:max-h-[500px]">
+        <div className="mb-10 overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl backdrop-blur-md md:flex md:max-h-[500px]">
           <div className="relative w-full shrink-0 aspect-video md:aspect-auto md:h-auto md:min-h-0 md:w-1/2 md:max-h-[500px]">
             <Image
               src="/fotarobota-preview.png"
@@ -6020,11 +6350,11 @@ export function Projects() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r md:from-transparent md:via-transparent md:to-black/40" aria-hidden />
           </div>
           <div className="flex flex-col justify-center p-6 md:w-1/2 md:min-w-0">
-            <span className="mb-2 inline-block w-fit rounded-full border border-emerald-400/80 bg-black/80 px-2.5 py-0.5 text-[0.7rem] font-medium uppercase tracking-[0.16em] text-emerald-200">
+            <span className="mb-2 inline-block w-fit rounded-full border border-emerald-500/60 bg-black/80 px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-emerald-200">
               {p.caseStudyTag}
             </span>
             <h3 className="text-xl font-semibold text-zinc-100 md:text-2xl">Fotarobota</h3>
-            <p className="mt-1 text-xs font-medium uppercase tracking-wider text-zinc-500">
+            <p className="mt-1 font-mono text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
               {p.fotarobotaSubtitle}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-400">
@@ -6047,7 +6377,7 @@ export function Projects() {
               })}
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Button variant="default" size="sm" asChild className="bg-emerald-600 text-white hover:bg-emerald-500">
+              <Button variant="default" size="sm" asChild>
                 <a href="https://www.fotarobota.pl" target="_blank" rel="noopener noreferrer">
                   {p.visit}
                   <ExternalLink className="ml-1 size-4" />
@@ -6076,7 +6406,7 @@ export function Projects() {
               className={project.placeholder ? "border-muted bg-muted/30 opacity-90" : undefined}
             >
               <CardHeader className="pb-2">
-                <span className="mb-2 inline-block rounded-full border border-amber-400/80 bg-black/80 px-2.5 py-0.5 text-[0.7rem] font-medium uppercase tracking-[0.16em] text-amber-200">
+                <span className="mb-2 inline-block rounded-full border border-amber-400/80 bg-black/80 px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-amber-200">
                   {p.comingSoon}
                 </span>
                 <CardTitle className="text-lg font-semibold text-card-foreground md:text-xl">
@@ -6167,7 +6497,7 @@ export function Navbar() {
     <header
       className={cn(
         "sticky top-0 z-50 h-16 w-full",
-        "border-b border-white/10 bg-black/50 backdrop-blur-md"
+        "border-b border-zinc-800 bg-black/50 backdrop-blur-md"
       )}
       aria-label={dict.header.navAria}
     >
@@ -6300,6 +6630,309 @@ export function Navbar() {
         </div>
       </nav>
     </header>
+  );
+}
+</file>
+
+<file path="components/sections/HeroSection.tsx">
+"use client";
+
+import dynamic from "next/dynamic";
+import { useRef, useEffect, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Zap, Rocket, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const HeroCube = dynamic(
+  () => import("@/components/HeroCube").then((m) => ({ default: m.HeroCube })),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="flex h-full w-full items-center justify-center border-none bg-transparent"
+        aria-hidden
+      >
+        <div className="h-24 w-24 animate-pulse rounded-xl border border-emerald-500/20 bg-zinc-900/40" />
+      </div>
+    ),
+  }
+);
+
+const sectionVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.4, ease: "easeOut" as const },
+  },
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+  },
+};
+
+/** Lightweight 3D floating card – CSS 3D + optional mouse parallax. No heavy libs for PageSpeed. */
+function Hero3DVisual() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number>(0);
+  const transformRef = useRef({ rotateX: 0, rotateY: 0 });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+
+    const throttleMs = 50;
+    let last = 0;
+
+    const onMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - last < throttleMs) return;
+      last = now;
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const update = () => {
+      rafRef.current = requestAnimationFrame(update);
+      const { x, y } = mouseRef.current;
+      const rect = wrap.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (x - cx) / rect.width;
+      const dy = (y - cy) / rect.height;
+      const maxTilt = 12;
+      const targetX = dy * maxTilt;
+      const targetY = -dx * maxTilt;
+      const t = 0.08;
+      transformRef.current.rotateX += (targetX - transformRef.current.rotateX) * t;
+      transformRef.current.rotateY += (targetY - transformRef.current.rotateY) * t;
+      const { rotateX, rotateY } = transformRef.current;
+      wrap.style.setProperty("--hero-3d-x", `${rotateX}deg`);
+      wrap.style.setProperty("--hero-3d-y", `${rotateY}deg`);
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    rafRef.current = requestAnimationFrame(update);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [mounted]);
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative flex min-h-[200px] w-full items-center justify-center md:min-h-[320px]"
+      style={{
+        transform: "perspective(800px)",
+        // CSS vars set by JS for parallax
+        ["--hero-3d-x" as string]: "0deg",
+        ["--hero-3d-y" as string]: "0deg",
+      }}
+    >
+      {/* Outer glow */}
+      <div
+        aria-hidden
+        className="absolute inset-0 flex items-center justify-center"
+        style={{
+          background: "radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 60%)",
+          transform: "scale(1.2)",
+        }}
+      />
+      {/* 3D card – pure CSS transform; wrapper has float animation in globals */}
+      <div className="hero-3d-float-wrapper">
+        <div
+          className="hero-3d-card relative h-[180px] w-[280px] rounded-2xl border border-zinc-700/80 bg-zinc-900/60 shadow-2xl backdrop-blur-md md:h-[220px] md:w-[320px]"
+          style={{
+          transformStyle: "preserve-3d",
+          transform:
+            "rotateX(var(--hero-3d-x, 0deg)) rotateY(var(--hero-3d-y, 0deg)) translateZ(0)",
+          boxShadow:
+            "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05), 0 0 40px -10px rgba(16,185,129,0.2)",
+        }}
+      >
+        {/* Inner gradient overlay */}
+        <div
+          className="absolute inset-0 rounded-2xl opacity-60"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, transparent 50%, rgba(16,185,129,0.06) 100%)",
+          }}
+        />
+        {/* Fake UI lines – decorative only */}
+        <div className="absolute left-5 top-5 right-5 flex gap-2">
+          <span className="h-2 w-12 rounded-full bg-zinc-600/80" />
+          <span className="h-2 w-8 rounded-full bg-zinc-600/60" />
+          <span className="h-2 w-6 rounded-full bg-zinc-600/40" />
+        </div>
+        <div className="absolute bottom-5 left-5 right-5 space-y-2">
+          <div className="h-2 w-full rounded-full bg-zinc-700/50" />
+          <div className="h-2 w-3/4 rounded-full bg-zinc-700/30" />
+        </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function HeroSection() {
+  const { dict, localeSegment } = useLanguage();
+  const h = dict.hero;
+
+  return (
+    <motion.section
+      id="hero"
+      className="relative z-0 flex min-h-[70vh] w-full flex-col overflow-hidden bg-zinc-950 px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
+      aria-labelledby="hero-heading"
+      variants={sectionVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Tło: siatka + gradient */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: "32px 32px",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 100% 80% at 50% -20%, rgba(16,185,129,0.18) 0%, transparent 55%),
+            radial-gradient(ellipse 80% 50% at 50% 60%, rgba(16,185,129,0.06) 0%, transparent 50%)
+          `,
+        }}
+      />
+
+      {/* Grid: desktop = 2 kolumny (kostka lewo, tekst prawo); mobile = tekst góra, kostka dół */}
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        {/* Lewa kolumna (desktop): Kostka 3D – kontener bez jasnego tła, tylko bg-transparent */}
+        <motion.div
+          layout
+          className="relative order-2 flex h-[400px] w-full items-center justify-center bg-transparent lg:order-1 lg:h-[600px]"
+          style={{ background: "transparent" }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Premium Glow – promieniowa poświata pod kostką */}
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 blur-2xl pointer-events-none"
+            style={{
+              background: "radial-gradient(circle at center, rgba(16,185,129,0.15) 0%, transparent 50%, transparent 100%)",
+            }}
+          />
+          <motion.div
+            variants={itemVariants}
+            className="relative z-0 h-full w-full cursor-grab border-none bg-transparent active:cursor-grabbing"
+            style={{ background: "transparent" }}
+          >
+            <HeroCube />
+          </motion.div>
+        </motion.div>
+
+        {/* Prawa kolumna (desktop): Tekst i CTA – na mobile na górze (order-1) */}
+        <motion.div
+          layout
+          className="order-1 flex flex-col items-center text-center lg:order-2 lg:items-start lg:text-left"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.p
+            layout
+            variants={itemVariants}
+            className="mb-5 flex w-fit items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/90 backdrop-blur-sm sm:text-sm"
+          >
+            <Zap className="size-3.5 text-emerald-400" aria-hidden />
+            {h.badge}
+          </motion.p>
+
+          <motion.h1
+            id="hero-heading"
+            layout
+            variants={itemVariants}
+            className={cn(
+              "mb-5 text-2xl font-bold leading-tight tracking-tight text-zinc-100 text-balance",
+              "sm:text-3xl md:text-4xl lg:text-5xl"
+            )}
+          >
+            {h.headline}
+            {h.headlineAccent ? (
+              <>
+                {" "}
+                <span className="text-emerald-500">{h.headlineAccent}</span>
+                {h.headlineEnd}
+              </>
+            ) : null}
+          </motion.h1>
+
+          <motion.p
+            layout
+            variants={itemVariants}
+            className="mb-6 max-w-lg text-sm leading-relaxed text-zinc-400 text-balance sm:mb-8 sm:text-base"
+          >
+            {h.subtext}
+          </motion.p>
+
+          <motion.div
+            variants={itemVariants}
+            className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4"
+          >
+            <Button
+              asChild
+              className="w-full rounded-lg border-none bg-gradient-to-r from-emerald-600 to-emerald-400 px-8 py-6 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] sm:w-auto"
+            >
+              <Link href={`/${localeSegment}/kreator`}>
+                <Rocket className="mr-2 size-5 shrink-0" aria-hidden />
+                {h.ctaPrimary}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-8 py-6 text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-white/20 hover:bg-white/10 sm:w-auto"
+            >
+              <Link href={`/${localeSegment}#projekty`}>
+                {h.ctaSecondary}
+                <ArrowRight className="ml-2 size-5 shrink-0" aria-hidden />
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </motion.section>
   );
 }
 </file>
@@ -6442,7 +7075,7 @@ export const translations = {
       navAbout: "O mnie",
       navShop: "Sklep",
       navCaseStudy: "Case Study",
-      cta: "Zbuduj MVP",
+      cta: "Zbuduj stronę / MVP",
       bookCall: "Umów Rozmowę",
       menu: "Menu",
       openMenu: "Otwórz menu",
@@ -6450,12 +7083,12 @@ export const translations = {
       navAria: "Nawigacja",
     },
     footer: {
-      preCtaHeader: "Masz pomysł na aplikację?",
-      preCtaSubtext: "Nie trać miesięcy na development. Zbudujmy MVP.",
-      preCtaButton: "Rozpocznij Wycenę",
+      preCtaHeader: "Potrzebujesz strony lub aplikacji?",
+      preCtaSubtext: "Nie trać miesięcy ani fortuny. Nowoczesna strona lub MVP bez budżetów agencji.",
+      preCtaButton: "Odbierz Darmową Wycenę",
       finalNudge: "Twój pomysł zasługuje na coś więcej niż tylko arkusz w Excelu.",
-      ctaLabel: "Zamów wycenę MVP",
-      brandTagline: "Pragmatyczny Product Engineering. Od pomysłu do produkcji w 80 godzin.",
+      ctaLabel: "Zamów darmową wycenę projektu",
+      brandTagline: "Strony WWW, aplikacje i MVP — szybciej i taniej niż software house'y.",
       productEngineerTagline: "Product Engineer",
       statusLabel: "Dostępny na nowe projekty",
       navTitle: "Nawigacja",
@@ -6479,38 +7112,56 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Dostępny na wdrożenia MVP / AI",
-      headline: "Product Engineer - szybkie prototypowanie ",
-      headlineAccent: "MVP",
-      headlineEnd: ".",
+      badge: "Strony WWW, Aplikacje i MVP",
+      headline: "Profesjonalne Strony Internetowe i Aplikacje Webowe.",
+      headlineAccent: "",
+      headlineEnd: "",
       subtext:
-        "Przekładam idee biznesowe na gotowy SaaS. Wykorzystuję AI, aby dowozić kompletne rozwiązania dla firm.",
-      ctaPrimary: "Rozpocznij projekt (MVP)",
-      ctaSecondary: "Zobacz Fotarobota (Case Study)",
+        "Od nowoczesnych i błyskawicznych wizytówek dla Twojego biznesu, po zaawansowane prototypy MVP i automatyzacje AI. Dostarczam gotowe rozwiązania szybciej i taniej niż tradycyjne software house'y.",
+      ctaPrimary: "Darmowa Wycena Projektu",
+      ctaSecondary: "Zobacz Moje Realizacje",
+      techStackTrust: "POWERED BY MODERN STACK",
     },
     about: {
       bridgeTitle: "The Bridge",
       roleTitle: "Fullstack Product Builder",
-      headline: "Analiza PostHog & Ergonomia: Nie zgaduję, sprawdzam dane. Projektuję pod 'konkretne przypadki', bo wiem, że każda aplikacja wymaga indywidualnego podejścia.",
-      subheadline: "Buduję produkty, które konwertują – poparte doświadczeniem w analityce danych.",
+      headline: "Zbuduję Twój projekt od zera. Od bazy danych po interfejs.",
+      subheadline: "Integracje AI, nowoczesne UX i stack, który wytrzyma ruch.",
       stages: [
         {
-          id: "data",
-          label: "Dane",
-          title: "Optymalizacja danymi (PostHog)",
-          body: "Nie zgaduję – analizuję. Używam narzędzi takich jak PostHog, aby widzieć, jak użytkownicy realnie poruszają się po moich produktach. Każda zmiana w kodzie ma swoje uzasadnienie w danych.",
+          id: "fullstack",
+          label: "Produkt",
+          title: "Fullstack Product Builder",
+          body: "Zbuduję Twój projekt od zera. Od bazy danych po interfejs.",
         },
         {
-          id: "thumb",
-          label: "Modern UX",
-          title: "Ergonomia kciuka",
-          body: "Projektuję interfejsy z myślą o naturalnym ruchu dłoni. Najważniejsze akcje umieszczam w strefie kciuka (Thumb Zone). To sprawia, że aplikacja po prostu dobrze leży w dłoni, co realnie podnosi konwersję na urządzeniach mobilnych.",
+          id: "ai",
+          label: "AI",
+          title: "Integracje AI",
+          body: "Pomagam wdrożyć sztuczną inteligencję w Twoim biznesie. Konsultuję, co można zautomatyzować, aby zaoszczędzić Twój czas.",
         },
         {
-          id: "scale",
-          label: "Doświadczenie",
-          title: "Doświadczenie skalowalne",
-          body: "Doświadczenie w skali i procesach ludzkich – łączę to w produkt, który po prostu działa i zarabia.",
+          id: "ux",
+          label: "UX",
+          title: "Nowoczesne UX",
+          body: "Projektuję pod 'Thumb Zone'. Moje aplikacje idealnie leżą w dłoni, bo większość klientów przegląda je na telefonie.",
+        },
+      ],
+    },
+    whyProductEngineer: {
+      title: "Dlaczego współpracować z Product Engineerem?",
+      cards: [
+        {
+          title: "Nowoczesne Strony WWW",
+          description: "Buduję ultraszybkie strony, które świetnie wyglądają na telefonach i zajmują najwyższe pozycje w Google. Zostaw w tyle powolne szablony z WordPressa.",
+        },
+        {
+          title: "Prototypowanie i SaaS",
+          description: "Masz pomysł na aplikację lub startup? Zbuduję dla Ciebie pierwszą, działającą wersję (MVP), abyś mógł zacząć zarabiać i testować rynek bez palenia ogromnych budżetów.",
+        },
+        {
+          title: "Sztuczna Inteligencja w Twojej firmie",
+          description: "Wdrażam inteligentne chatboty i automatyzacje, które odciążą Cię z powtarzalnej pracy i zajmą się obsługą Twoich klientów 24/7.",
         },
       ],
     },
@@ -6526,7 +7177,7 @@ export const translations = {
     },
     kreator: {
       title: "AI Architect: Zaplanujmy Twój sukces.",
-      subtitle: "Wybierz ścieżkę, a ja przygotuję dla Ciebie wstępną architekturę i wycenę.",
+      subtitle: "Wybierz ścieżkę, a ja przygotuję dla Ciebie architekturę i realną wycenę bez ukrytych kosztów.",
       ctaButton: "Przejdź do konfiguratora",
       choosePath: "Wybierz ścieżkę",
       yourConfig: "Twoja Konfiguracja",
@@ -6787,6 +7438,7 @@ export const translations = {
       labelHowCanIHelp: "W czym mogę pomóc?",
       selectPlaceholder: "— wybierz —",
       projectTypeMvp80: "MVP",
+      projectTypeStronaInternetowa: "Stworzenie strony internetowej",
       projectTypeKonsultacjaAi: "Konsultacja AI",
       projectTypeAudyt: "Audyt Produktu",
       projectTypeInne: "Inne",
@@ -6804,6 +7456,23 @@ export const translations = {
       errorMessage: "Opisz krótko wyzwanie",
       sendError: "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.",
     },
+    seo: {
+      homeTitle: "Łukasz Baluniak | Profesjonalne Strony Internetowe, Aplikacje Webowe i MVP",
+      homeDescription: "Tworzę nowoczesne, ultraszybkie strony internetowe dla firm, aplikacje webowe, systemy SaaS oraz automatyzacje AI. Zbuduj zyskowną obecność w sieci bez budżetów wielkich agencji.",
+      homeKeywords: "tworzenie stron internetowych, strony www, nowoczesne strony, aplikacje webowe, programista na zlecenie, prototypowanie MVP, systemy SaaS, automatyzacje AI dla firm",
+      kreatorTitle: "Wycena MVP i architektura projektu | Kreator wyceny | BALUNIAK",
+      kreatorDescription: "Otrzymaj realną wycenę MVP w kilka minut. Wybierz ścieżkę (wizytówka lub SaaS), dodaj moduły – wycena i rekomendowany stack od Product Buildera.",
+      wspolpracaTitle: "Umów rozmowę | Fast-Track MVP | Product Builder | BALUNIAK",
+      wspolpracaDescription: "Zacznijmy budować. Wybierz termin w kalendarzu lub zostaw wiadomość. Odpowiedź w 12h. MVP, konsultacje AI, audyt – Polska i zagranica.",
+      fotarobotaTitle: "Fotarobota – Case Study SaaS AI | Product Builder | BALUNIAK",
+      fotarobotaDescription: "Case study: od pomysłu do działającego SaaS w 2 tygodnie. Next.js, Fal.ai, automatyzacja zdjęć produktowych. Realizacja Product Buildera.",
+      sklepTitle: "Sklep – skrypty i szkolenia AI | BALUNIAK",
+      sklepDescription: "Oferta skryptów (m.in. Fotarobota) oraz szkoleń AI. Gotowe rozwiązania i wiedza wdrożeniowa od Product Buildera.",
+    },
+    sklep: {
+      pageTitle: "Sklep",
+      pageSubtitle: "Skrypty (np. cała strona Fotarobota) i pojedyncze rozwiązania. Wkrótce: dostępy do szkoleń AI.",
+    },
   },
   EN: {
     header: {
@@ -6811,7 +7480,7 @@ export const translations = {
       navAbout: "About",
       navShop: "Shop",
       navCaseStudy: "Case Study",
-      cta: "Build MVP",
+      cta: "Build website / MVP",
       bookCall: "Book a Call",
       menu: "Menu",
       openMenu: "Open menu",
@@ -6819,12 +7488,12 @@ export const translations = {
       navAria: "Navigation",
     },
     footer: {
-      preCtaHeader: "Got an app idea?",
-      preCtaSubtext: "Don't spend months on development. Let's build your MVP.",
-      preCtaButton: "Start Your Quote",
+      preCtaHeader: "Need a website or an app?",
+      preCtaSubtext: "Don't spend months or a fortune. Get a modern site or MVP without agency budgets.",
+      preCtaButton: "Get a Free Quote",
       finalNudge: "Your idea deserves more than a spreadsheet.",
-      ctaLabel: "Get an MVP quote",
-      brandTagline: "Pragmatic Product Engineering. From idea to production in 80 hours.",
+      ctaLabel: "Get a free project quote",
+      brandTagline: "Websites, apps & MVP — faster and cheaper than software houses.",
       productEngineerTagline: "Product Engineer",
       statusLabel: "Available for new projects",
       navTitle: "Navigation",
@@ -6848,38 +7517,56 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Available for MVP / AI implementations",
-      headline: "Product Engineer – rapid ",
-      headlineAccent: "MVP",
-      headlineEnd: " prototyping.",
+      badge: "Websites, Apps & MVP",
+      headline: "Professional Websites and Web Applications.",
+      headlineAccent: "",
+      headlineEnd: "",
       subtext:
-        "I turn business ideas into production-ready SaaS. I use AI to ship complete solutions for companies.",
-      ctaPrimary: "Start your project (MVP)",
-      ctaSecondary: "See Fotarobot (Case Study)",
+        "From modern, lightning-fast business sites to advanced MVP prototypes and AI automation. I deliver ready solutions faster and cheaper than traditional software houses.",
+      ctaPrimary: "Free Project Quote",
+      ctaSecondary: "See My Work",
+      techStackTrust: "POWERED BY MODERN STACK",
     },
     about: {
       bridgeTitle: "The Bridge",
       roleTitle: "Fullstack Product Builder",
-      headline: "PostHog Analysis & Ergonomics: I don't guess, I track. I design for concrete use cases, because every app needs an individual approach.",
-      subheadline: "I build products that convert – backed by experience in data analytics.",
+      headline: "I build your project from scratch. From database to interface.",
+      subheadline: "AI integrations, modern UX, and a stack that handles real traffic.",
       stages: [
         {
-          id: "data",
-          label: "Data",
-          title: "Data-driven optimization (PostHog)",
-          body: "I don’t guess – I analyze. I use tools like PostHog to see how users actually move through my products. Every code change is justified by data.",
+          id: "fullstack",
+          label: "Build",
+          title: "Fullstack Product Builder",
+          body: "I build your project from scratch. From database to interface.",
         },
         {
-          id: "thumb",
-          label: "Modern UX",
-          title: "Thumb Zone ergonomics",
-          body: "I design interfaces with natural hand movement in mind. I place key actions in the thumb zone. That makes the app feel right in the user’s hand and reliably boosts conversion on mobile.",
+          id: "ai",
+          label: "AI",
+          title: "AI integrations",
+          body: "I help you bring AI into your business. I advise what to automate so you save time.",
         },
         {
-          id: "scale",
-          label: "Experience",
-          title: "Scalable experience",
-          body: "Background in scale and human processes – I combine it into a product that just works and earns.",
+          id: "ux",
+          label: "UX",
+          title: "Modern UX",
+          body: "I design for the Thumb Zone. My apps sit right in the user's hand, because most traffic is on mobile.",
+        },
+      ],
+    },
+    whyProductEngineer: {
+      title: "Why work with a Product Engineer?",
+      cards: [
+        {
+          title: "Modern Websites",
+          description: "I build ultra-fast sites that look great on mobile and rank at the top of Google. Leave slow WordPress templates behind.",
+        },
+        {
+          title: "Prototyping & SaaS",
+          description: "Got an app or startup idea? I’ll build your first working version (MVP) so you can start earning and testing the market without burning huge budgets.",
+        },
+        {
+          title: "AI in Your Business",
+          description: "I deploy smart chatbots and automation that take repetitive work off your plate and handle your customers 24/7.",
         },
       ],
     },
@@ -6895,7 +7582,7 @@ export const translations = {
     },
     kreator: {
       title: "AI Architect: Let’s plan your success.",
-      subtitle: "Choose a path and I’ll prepare a preliminary architecture and quote for you.",
+      subtitle: "Choose a path and I’ll prepare architecture and a real quote with no hidden costs.",
       ctaButton: "Go to configurator",
       choosePath: "Choose path",
       yourConfig: "Your configuration",
@@ -7156,6 +7843,7 @@ export const translations = {
       labelHowCanIHelp: "How can I help?",
       selectPlaceholder: "— select —",
       projectTypeMvp80: "MVP",
+      projectTypeStronaInternetowa: "Website creation",
       projectTypeKonsultacjaAi: "AI Consultation",
       projectTypeAudyt: "Product Audit",
       projectTypeInne: "Other",
@@ -7172,6 +7860,23 @@ export const translations = {
       errorProjectType: "Please select a collaboration type",
       errorMessage: "Please briefly describe your challenge",
       sendError: "Send failed. Try again or email directly.",
+    },
+    seo: {
+      homeTitle: "Łukasz Baluniak | Professional Websites, Web Apps & MVP",
+      homeDescription: "I build modern, ultra-fast websites for businesses, web applications, SaaS systems and AI automation. Build a strong online presence without big agency budgets.",
+      homeKeywords: "web development, websites, modern websites, web applications, freelance developer, MVP prototyping, SaaS systems, AI automation for business",
+      kreatorTitle: "MVP quote & project architecture | Quote configurator | BALUNIAK",
+      kreatorDescription: "Get a real MVP quote in minutes. Choose a path (showcase or SaaS), add modules – instant quote and recommended stack from a Product Builder.",
+      wspolpracaTitle: "Book a call | Fast-Track MVP | Product Builder | BALUNIAK",
+      wspolpracaDescription: "Let's build. Pick a slot in the calendar or leave a message. Reply within 12h. MVP, AI consulting, audit – Poland and international.",
+      fotarobotaTitle: "Fotarobota – AI SaaS Case Study | Product Builder | BALUNIAK",
+      fotarobotaDescription: "Case study: from idea to working SaaS in 2 weeks. Next.js, Fal.ai, product photo automation. Delivered by a Product Builder.",
+      sklepTitle: "Shop – scripts & AI training | BALUNIAK",
+      sklepDescription: "Scripts (including Fotarobota) and AI training. Ready-made solutions and implementation know-how from a Product Builder.",
+    },
+    sklep: {
+      pageTitle: "Shop",
+      pageSubtitle: "Scripts (e.g. full Fotarobota site) and single solutions. Coming soon: AI training access.",
     },
   },
 } as const;
@@ -7674,32 +8379,23 @@ export default function AIDuelLayout() {
                 {COPY.workshopBanner}
               </p>
             </div>
-            {/* Welcome Cards: Quick Actions */}
-            {showWelcomeCards && (
-              <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
-                <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
-                  {COPY.quickActionsTitle}
-                </p>
-                <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
-              </div>
-            )}
-            {/* Mobile: Tabs + fixed-height agent + input in flow (no sticky) */}
+            {/* Mobile: Tabs + agent window first, then quick prompts below (user sees bot output before actions) */}
             <div className="flex flex-col md:hidden">
               <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "dev" | "biz")} className="flex flex-col">
-                <TabsList className="relative z-10 mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 rounded-lg border-2 border-white/20 bg-zinc-900/95 p-1.5 shadow-lg backdrop-blur-md">
+                <TabsList className="relative mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 gap-0 rounded-xl border border-white/20 bg-zinc-900/95 p-1 shadow-lg backdrop-blur-md focus-visible:outline-none">
                   <TabsTrigger
                     value="dev"
                     className={cn(
-                      "relative z-10 min-h-10 border border-transparent bg-transparent transition-colors",
+                      "relative z-10 min-h-[calc(theme(spacing.12)-8px)] rounded-lg border-0 bg-transparent transition-colors focus-visible:!ring-0 focus-visible:!ring-offset-0 focus-visible:!outline-none",
                       "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
-                      "data-[state=active]:!text-emerald-200 data-[state=active]:shadow-none data-[state=active]:ring-0"
+                      "data-[state=active]:!text-emerald-200 data-[state=active]:!shadow-none data-[state=active]:!ring-0"
                     )}
                   >
                     {mobileTab === "dev" && (
                       <motion.div
                         layoutId="activeTab"
                         aria-hidden
-                        className="absolute inset-[2px] z-0 rounded-full border border-white/20 bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.25)]"
+                        className="absolute inset-1 z-0 rounded-lg border border-white/25 bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
                         transition={{ type: "spring", stiffness: 380, damping: 28 }}
                       />
                     )}
@@ -7708,16 +8404,16 @@ export default function AIDuelLayout() {
                   <TabsTrigger
                     value="biz"
                     className={cn(
-                      "relative z-10 min-h-10 border border-transparent bg-transparent transition-colors",
+                      "relative z-10 min-h-[calc(theme(spacing.12)-8px)] rounded-lg border-0 bg-transparent transition-colors focus-visible:!ring-0 focus-visible:!ring-offset-0 focus-visible:!outline-none",
                       "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
-                      "data-[state=active]:!text-amber-300 data-[state=active]:shadow-none data-[state=active]:ring-0"
+                      "data-[state=active]:!text-amber-300 data-[state=active]:!shadow-none data-[state=active]:!ring-0"
                     )}
                   >
                     {mobileTab === "biz" && (
                       <motion.div
                         layoutId="activeTab"
                         aria-hidden
-                        className="absolute inset-[2px] z-0 rounded-full border border-white/20 bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.25)]"
+                        className="absolute inset-1 z-0 rounded-lg border border-white/25 bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
                         transition={{ type: "spring", stiffness: 380, damping: 28 }}
                       />
                     )}
@@ -7751,6 +8447,15 @@ export default function AIDuelLayout() {
                   />
                 </TabsContent>
               </Tabs>
+              {/* Quick prompts below agent window so user sees bot output first, then actions */}
+              {showWelcomeCards && (
+                <div className="border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5 md:hidden">
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:text-sm">
+                    {COPY.quickActionsTitle}
+                  </p>
+                  <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
+                </div>
+              )}
               {/* Spacer: miejsce na fixed input (thumb zone), treść nie chowa się pod paskiem */}
               <div
                 className="min-h-[5.5rem] pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
@@ -7834,6 +8539,15 @@ export default function AIDuelLayout() {
                   </CardContent>
                 </Card>
               </div>
+              {/* Quick prompts below agent windows (desktop): user sees bot output first */}
+              {showWelcomeCards && (
+                <div className="border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5 hidden md:block">
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
+                    {COPY.quickActionsTitle}
+                  </p>
+                  <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
+                </div>
+              )}
               {!limitReached && (
                 <>
                   <div className="flex justify-center border-t border-white/10 py-2">

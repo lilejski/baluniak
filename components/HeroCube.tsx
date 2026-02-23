@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Edges, Float } from "@react-three/drei";
+import { OrbitControls, Edges, Float, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
 const GRID = 3;
@@ -143,6 +143,15 @@ export function HeroCube() {
         >
           <RubikGroup groupRef={groupRef} isInteractingRef={isInteractingRef} />
         </Float>
+        {/* Premium glow / miękki cień pod kostką – bez białego tła, przezroczysty canvas */}
+        <ContactShadows
+          position={[0, -1.5, 0]}
+          opacity={0.7}
+          scale={10}
+          blur={2.5}
+          far={4}
+          color="#4a1d91"
+        />
         <InteractionTracker isInteractingRef={isInteractingRef} />
       </Canvas>
     </div>
