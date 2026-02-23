@@ -25,9 +25,14 @@ export async function generateMetadata({
   }
   const t = translations[lang === "pl" ? "PL" : "EN"].seo;
   const canonical = `${SITE_URL}/${lang}`;
+  const keywords =
+    "homeKeywords" in t && typeof (t as { homeKeywords?: string }).homeKeywords === "string"
+      ? (t as { homeKeywords: string }).homeKeywords
+      : undefined;
   return {
     title: t.homeTitle,
     description: t.homeDescription,
+    ...(keywords && { keywords: keywords.split(",").map((k) => k.trim()) }),
     alternates: {
       canonical,
       languages: { pl: `${SITE_URL}/pl`, en: `${SITE_URL}/en` },

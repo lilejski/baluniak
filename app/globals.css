@@ -212,3 +212,19 @@ html.dark {
     opacity: 0;
   }
 }
+
+/* Hero: subtle float for 3D card (respects reduced motion, PageSpeed-friendly) */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-3d-float-wrapper {
+    animation: hero-3d-float 8s ease-in-out infinite;
+  }
+}
+@keyframes hero-3d-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
