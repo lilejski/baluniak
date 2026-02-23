@@ -111,7 +111,7 @@ export function HeroCube() {
     >
       <Canvas
         className="h-full w-full"
-        style={{ background: "transparent" }}
+        style={{ background: "transparent", touchAction: "pan-y" }}
         camera={{ position: [2.2, 2.2, 2.2], fov: 42 }}
         gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}

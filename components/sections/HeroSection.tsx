@@ -169,7 +169,7 @@ export function HeroSection() {
   return (
     <motion.section
       id="hero"
-      className="relative z-0 flex min-h-[70vh] w-full flex-col overflow-hidden bg-zinc-950 px-5 py-12 sm:min-h-[75vh] sm:px-6 sm:py-16 md:min-h-[80vh] md:py-20"
+      className="relative z-0 flex min-h-[70vh] w-full flex-col overflow-hidden bg-zinc-950 px-5 pt-24 pb-12 sm:min-h-[75vh] sm:px-6 sm:pt-24 sm:pb-16 md:min-h-[80vh] md:pt-28 md:pb-20"
       aria-labelledby="hero-heading"
       variants={sectionVariants}
       initial="hidden"
@@ -198,12 +198,12 @@ export function HeroSection() {
         }}
       />
 
-      {/* Grid: desktop = 2 kolumny (kostka lewo, tekst prawo); mobile = tekst góra, kostka dół */}
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        {/* Lewa kolumna (desktop): Kostka 3D – kontener bez jasnego tła, tylko bg-transparent */}
+      {/* Grid: desktop = 2 kolumny (kostka lewo, tekst prawo); mobile = tekst góra (order-1), kostka poniżej (order-2) z ograniczoną wysokością */}
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+        {/* Lewa kolumna (desktop): Kostka 3D. Na mobile pod tekstem, max 40vh żeby nie rozpychała. */}
         <motion.div
           layout
-          className="relative order-2 flex h-[400px] w-full items-center justify-center bg-transparent lg:order-1 lg:h-[600px]"
+          className="relative order-2 flex h-[40vh] min-h-[240px] w-full max-h-[380px] items-center justify-center bg-transparent md:max-h-none lg:order-1 lg:h-[600px]"
           style={{ background: "transparent" }}
           variants={containerVariants}
           initial="hidden"
