@@ -6,7 +6,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 const CARD_ICONS = [Globe, Bot, Workflow] as const;
-const CARD_ACCENTS = ["emerald", "amber", "violet"] as const;
 const CARD_KEYS = ["website", "agents", "automation"] as const;
 
 type WelcomeCardsProps = {
@@ -19,9 +18,9 @@ export function WelcomeCards({ onSelect, disabled, className }: WelcomeCardsProp
   const { dict } = useLanguage();
   const w = dict.welcomeCards;
   const items = [
-    { id: CARD_KEYS[0], title: w.websiteTitle, label: w.websiteLabel, prompt: w.websitePrompt, icon: CARD_ICONS[0], accent: CARD_ACCENTS[0] },
-    { id: CARD_KEYS[1], title: w.agentsTitle, label: w.agentsLabel, prompt: w.agentsPrompt, icon: CARD_ICONS[1], accent: CARD_ACCENTS[1] },
-    { id: CARD_KEYS[2], title: w.automationTitle, label: w.automationLabel, prompt: w.automationPrompt, icon: CARD_ICONS[2], accent: CARD_ACCENTS[2] },
+    { id: CARD_KEYS[0], title: w.websiteTitle, label: w.websiteLabel, prompt: w.websitePrompt, icon: CARD_ICONS[0] },
+    { id: CARD_KEYS[1], title: w.agentsTitle, label: w.agentsLabel, prompt: w.agentsPrompt, icon: CARD_ICONS[1] },
+    { id: CARD_KEYS[2], title: w.automationTitle, label: w.automationLabel, prompt: w.automationPrompt, icon: CARD_ICONS[2] },
   ];
 
   return (
@@ -42,28 +41,30 @@ export function WelcomeCards({ onSelect, disabled, className }: WelcomeCardsProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06, duration: 0.25 }}
             className={cn(
-              "flex flex-col items-start gap-2 rounded-xl border px-4 py-3 text-left transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0d]",
-              "disabled:pointer-events-none disabled:opacity-50",
-              item.accent === "emerald" &&
-                "border-emerald-500/30 bg-emerald-950/30 hover:border-emerald-500/50 hover:bg-emerald-950/50 focus-visible:ring-emerald-500/50",
-              item.accent === "amber" &&
-                "border-amber-500/30 bg-amber-950/20 hover:border-amber-500/50 hover:bg-amber-950/40 focus-visible:ring-amber-500/50",
-              item.accent === "violet" &&
-                "border-violet-500/30 bg-violet-950/20 hover:border-violet-500/50 hover:bg-violet-950/40 focus-visible:ring-violet-500/50"
+              "group relative overflow-hidden rounded-xl p-4 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] backdrop-blur-sm",
+              "bg-white/[0.02] transition-all duration-300 ease-out",
+              "hover:bg-white/[0.05] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_8px_20px_rgba(0,0,0,0.4)] hover:-translate-y-0.5",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0d]",
+              "disabled:pointer-events-none disabled:opacity-50"
             )}
           >
-            <Icon
-              className={cn(
-                "size-5 shrink-0",
-                item.accent === "emerald" && "text-emerald-400/80",
-                item.accent === "amber" && "text-amber-400/80",
-                item.accent === "violet" && "text-violet-400/80"
-              )}
+            {/* Subtelny radial gradient na hover – rozświetlenie od środka (fiolet/błękit) */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(139,92,246,0.06) 0%, rgba(59,130,246,0.03) 50%, transparent 70%)",
+              }}
               aria-hidden
             />
-            <span className="text-sm font-medium text-zinc-200">{item.title}</span>
-            <span className="text-xs leading-relaxed text-zinc-500">
+            <Icon
+              className="size-5 shrink-0 text-zinc-400 transition-colors group-hover:text-zinc-100"
+              aria-hidden
+            />
+            <span className="mt-2 block text-sm font-medium text-zinc-200 group-hover:text-zinc-100">
+              {item.title}
+            </span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-zinc-500">
               {item.label}
             </span>
           </motion.button>

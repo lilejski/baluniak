@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Code2, Briefcase } from "lucide-react";
+import { Code2, Briefcase, Send, FileText } from "lucide-react";
 import { WelcomeCards } from "@/components/WelcomeCards";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -399,24 +399,24 @@ export default function AIDuelLayout() {
       <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0d] font-sans text-base">
         <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
           <div className="w-full max-w-5xl">
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-xl backdrop-blur-md">
-              <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
+            <div className="overflow-hidden rounded-xl bg-black/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.06] backdrop-blur-md">
+              <div className="px-4 py-4 sm:px-5 sm:py-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
                 <div className="mb-3 h-4 w-32 animate-pulse rounded bg-zinc-700/50 sm:mb-4" aria-hidden />
                 <div className="grid gap-3 sm:grid-cols-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-20 animate-pulse rounded-lg border border-white/10 bg-zinc-800/30" aria-hidden />
+                    <div key={i} className="h-20 animate-pulse rounded-xl bg-white/[0.02] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05]" aria-hidden />
                   ))}
                 </div>
               </div>
               <div className="flex flex-col p-4 md:flex-row md:gap-4">
-                <div className="h-[300px] flex-1 animate-pulse rounded border border-white/10 bg-zinc-800/20 md:h-[350px]" aria-hidden />
+                <div className="h-[300px] flex-1 animate-pulse rounded-lg bg-zinc-800/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.06] md:h-[350px]" aria-hidden />
                 <div className="hidden h-[350px] w-12 flex-shrink-0 md:block" aria-hidden />
-                <div className="h-[300px] flex-1 animate-pulse rounded border border-white/10 bg-zinc-800/20 md:h-[350px]" aria-hidden />
+                <div className="h-[300px] flex-1 animate-pulse rounded-lg bg-zinc-800/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.06] md:h-[350px]" aria-hidden />
               </div>
-              <div className="border-t border-white/10 px-4 py-4">
-                <div className="mx-auto flex max-w-[600px] items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5">
-                  <div className="h-10 flex-1 animate-pulse rounded bg-zinc-700/30" aria-hidden />
-                  <div className="h-10 w-24 animate-pulse rounded bg-zinc-700/40" aria-hidden />
+              <div className="px-4 py-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
+                <div className="mx-auto flex max-w-[600px] items-center gap-3 rounded-full bg-zinc-900/50 px-3 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05]">
+                  <div className="h-10 flex-1 animate-pulse rounded-full bg-zinc-700/30" aria-hidden />
+                  <div className="h-10 w-10 animate-pulse rounded-full bg-zinc-700/40" aria-hidden />
                 </div>
               </div>
             </div>
@@ -433,7 +433,7 @@ export default function AIDuelLayout() {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="absolute left-1/2 top-20 z-[110] -translate-x-1/2 rounded-lg border border-red-500/40 bg-red-950/90 px-5 py-2.5 text-sm font-medium text-red-200 shadow-lg"
+          className="absolute left-1/2 top-20 z-[110] -translate-x-1/2 rounded-xl bg-red-950/90 px-5 py-2.5 text-sm font-medium text-red-200 shadow-lg ring-1 ring-red-500/30"
         >
           {COPY.connectionError}
         </motion.div>
@@ -444,7 +444,7 @@ export default function AIDuelLayout() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          className="fixed left-1/2 top-24 z-[110] -translate-x-1/2 rounded-lg border border-emerald-500/50 bg-emerald-950/95 px-5 py-3 text-sm font-medium text-emerald-100 shadow-lg"
+          className="fixed left-1/2 top-24 z-[110] -translate-x-1/2 rounded-xl bg-zinc-900/95 px-5 py-3 text-sm font-medium text-zinc-100 shadow-xl ring-1 ring-white/[0.1]"
           role="status"
           aria-live="polite"
         >
@@ -455,17 +455,17 @@ export default function AIDuelLayout() {
       {/* Compact console: centered module (agents + input in one device) */}
       <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
         <div className="w-full max-w-5xl">
-          <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-xl backdrop-blur-md">
+          <div className="overflow-hidden rounded-xl bg-black/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.06] backdrop-blur-md">
             {/* Workshop mode banner */}
-            <div className="border-b border-white/10 bg-emerald-950/30 px-4 py-2.5 text-center">
-              <p className="text-xs font-medium text-emerald-200/95 sm:text-sm">
+            <div className="bg-white/[0.02] px-4 py-2.5 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
+              <p className="text-xs font-medium text-zinc-300 sm:text-sm">
                 {COPY.workshopBanner}
               </p>
             </div>
             {/* Mobile: Tabs + agent window first, then quick prompts below (user sees bot output before actions) */}
             <div className="flex flex-col md:hidden">
               <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "dev" | "biz")} className="flex flex-col">
-                <TabsList className="relative mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 gap-0 rounded-xl border border-white/20 bg-zinc-900/95 p-1 shadow-lg backdrop-blur-md focus-visible:outline-none">
+                <TabsList className="relative mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 gap-0 rounded-xl bg-white/[0.03] p-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] backdrop-blur-md focus-visible:outline-none">
                   <TabsTrigger
                     value="dev"
                     className={cn(
@@ -532,7 +532,7 @@ export default function AIDuelLayout() {
               </Tabs>
               {/* Quick prompts below agent window so user sees bot output first, then actions */}
               {showWelcomeCards && (
-                <div className="border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5 md:hidden">
+                <div className="px-4 py-4 sm:px-5 sm:py-5 md:hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
                   <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:text-sm">
                     {COPY.quickActionsTitle}
                   </p>
@@ -549,7 +549,7 @@ export default function AIDuelLayout() {
             {/* Mobile: input przyklejony do dołu z safe-area */}
             {!limitReached && (
               <div
-                className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/80 pt-3 backdrop-blur-md md:hidden pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))]"
+                className="fixed bottom-0 left-0 right-0 z-50 bg-black/80 pt-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] backdrop-blur-md md:hidden pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))]"
               >
                 <div className="mb-2 flex justify-center">
                   <span className="text-xs font-medium tabular-nums text-zinc-500">
@@ -558,7 +558,7 @@ export default function AIDuelLayout() {
                 </div>
                 <form
                   onSubmit={handleCustomSubmit}
-                  className="flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 shadow-[0_0_24px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] transition-all duration-200 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/25"
+                  className="flex items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] transition-all duration-200 focus-within:ring-white/[0.15] focus-within:bg-zinc-900/80"
                 >
                   <Input
                     ref={inputRefMobile}
@@ -567,15 +567,16 @@ export default function AIDuelLayout() {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
                     disabled={isLoading}
-                      className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
-                      aria-label={COPY.inputAriaLabel}
-                    />
-                    <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="shrink-0 min-h-12 min-w-12 border border-emerald-500/60 bg-emerald-950/90 px-5 text-sm font-medium text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 disabled:opacity-50 disabled:shadow-none"
-                    >
-                      {isLoading ? CONSOLE.buttonSubmitting : CONSOLE.buttonSubmit}
+                    className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
+                    aria-label={COPY.inputAriaLabel}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    aria-label={CONSOLE.buttonSubmit}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-zinc-400 shadow-none ring-1 ring-white/[0.06] transition-all hover:bg-white/[0.1] hover:text-zinc-100 hover:shadow-[0_0_20px_-4px_rgba(255,255,255,0.25)] disabled:opacity-50 disabled:shadow-none"
+                  >
+                    <Send className="size-4" aria-hidden />
                   </Button>
                 </form>
               </div>
@@ -624,7 +625,7 @@ export default function AIDuelLayout() {
               </div>
               {/* Quick prompts below agent windows (desktop): user sees bot output first */}
               {showWelcomeCards && (
-                <div className="border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5 hidden md:block">
+                <div className="px-4 py-4 sm:px-5 sm:py-5 hidden md:block shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
                   <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
                     {COPY.quickActionsTitle}
                   </p>
@@ -633,53 +634,60 @@ export default function AIDuelLayout() {
               )}
               {!limitReached && (
                 <>
-                  <div className="flex justify-center border-t border-white/10 py-2">
+                  <div className="flex justify-center py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
                     <span className="text-xs font-medium tabular-nums text-zinc-500">
                       {COPY.workshopProgress.replace("{current}", String(interactionCount)).replace("{max}", String(MAX_INTERACTIONS))}
                     </span>
                   </div>
-                  <div className="border-t border-white/10 px-4 py-4">
-                  <form
-                    onSubmit={handleCustomSubmit}
-                    className="mx-auto flex max-w-[600px] items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 shadow-[0_0_24px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition-all duration-200 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/25 focus-within:shadow-[0_0_28px_rgba(16,185,129,0.1),inset_0_1px_0_rgba(255,255,255,0.1)] focus-within:backdrop-blur-lg md:px-4 md:py-3"
-                  >
-                    <Input
-                      ref={inputRefDesktop}
-                      type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
-                      disabled={isLoading}
-                      className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
-                      aria-label={COPY.inputAriaLabel}
-                    />
-                    <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="shrink-0 min-h-10 border border-emerald-500/60 bg-emerald-950/90 px-5 text-sm font-medium text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all hover:border-emerald-400/70 hover:bg-emerald-900/70 hover:shadow-[0_0_16px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:shadow-none md:px-6 md:text-base"
+                  <div className="px-4 py-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
+                    <form
+                      onSubmit={handleCustomSubmit}
+                      className="mx-auto flex max-w-[600px] items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] backdrop-blur-md transition-all duration-200 focus-within:ring-white/[0.15] focus-within:bg-zinc-900/80 md:px-4 md:py-3"
                     >
-                      {isLoading ? CONSOLE.buttonSubmitting : CONSOLE.buttonSubmit}
-                    </Button>
-                  </form>
-                </div>
+                      <Input
+                        ref={inputRefDesktop}
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
+                        disabled={isLoading}
+                        className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70 md:text-lg"
+                        aria-label={COPY.inputAriaLabel}
+                      />
+                      <Button
+                        type="submit"
+                        disabled={isLoading}
+                        aria-label={CONSOLE.buttonSubmit}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-zinc-400 shadow-none ring-1 ring-white/[0.06] transition-all hover:bg-white/[0.1] hover:text-zinc-100 hover:shadow-[0_0_20px_-4px_rgba(255,255,255,0.25)] disabled:opacity-50 disabled:shadow-none"
+                      >
+                        <Send className="size-4" aria-hidden />
+                      </Button>
+                    </form>
+                  </div>
                 </>
               )}
             </div>
 
             {/* Limit reached: CTA inside console */}
             {limitReached && (
-              <div className="border-t border-white/10 px-4 py-8">
+              <div className="px-4 py-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
                 <p className="text-center text-base font-medium text-zinc-300">
                   {CONSOLE.limitMessage}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                   <Link href={`/${localeSegment}#projekty`}>
-                    <Button variant="outline" className="border-emerald-500/70 bg-emerald-950/80 text-emerald-300 hover:bg-emerald-900/60">
+                    <Button
+                      variant="outline"
+                      className="rounded-xl bg-white/[0.03] text-zinc-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-zinc-100"
+                    >
                       {dict.projects.sectionTitle}
                     </Button>
                   </Link>
                   <Link href={`/${localeSegment}/projekty/fotarobota`}>
-                    <Button variant="outline" className="border-amber-500/50 bg-amber-950/50 text-amber-200/90 hover:bg-amber-900/40">
+                    <Button
+                      variant="outline"
+                      className="rounded-xl bg-white/[0.03] text-zinc-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-zinc-100"
+                    >
                       {dict.header.navCaseStudy}
                     </Button>
                   </Link>
@@ -689,15 +697,16 @@ export default function AIDuelLayout() {
 
             {/* Sticky action bar: Generate Brief (after 3+ messages) */}
             {showGenerateBriefButton && (
-              <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/90 px-4 py-3 backdrop-blur-md">
+              <div className="sticky bottom-0 left-0 right-0 z-20 bg-black/90 px-4 py-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] backdrop-blur-md">
                 <div className="mx-auto flex max-w-[600px] justify-center">
                   <Button
                     type="button"
                     size="lg"
                     onClick={() => setBriefModalOpen(true)}
-                    className="min-h-11 bg-emerald-600 font-semibold text-white shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:bg-emerald-500"
+                    className="min-h-11 rounded-xl bg-zinc-950 font-semibold text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.1] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.5)] hover:ring-white/[0.15]"
                   >
-                    ✅ {COPY.generateBriefButton}
+                    <FileText className="mr-2 size-4 shrink-0" aria-hidden />
+                    {COPY.generateBriefButton}
                   </Button>
                 </div>
               </div>
@@ -714,7 +723,7 @@ export default function AIDuelLayout() {
           aria-modal="true"
           aria-labelledby="brief-modal-title"
         >
-          <div className="w-full max-w-md rounded-xl border border-white/20 bg-zinc-900 p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-xl bg-zinc-900/95 p-6 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] backdrop-blur-md">
             <h2 id="brief-modal-title" className="text-lg font-semibold text-zinc-100">
               {COPY.briefModalTitle}
             </h2>
@@ -731,7 +740,7 @@ export default function AIDuelLayout() {
                 value={briefEmail}
                 onChange={(e) => setBriefEmail(e.target.value)}
                 placeholder={COPY.briefModalEmailPlaceholder}
-                className="h-11 border-zinc-700 bg-zinc-800 text-zinc-100"
+                className="h-11 rounded-lg bg-white/[0.03] text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.08] placeholder:text-zinc-500 focus-visible:ring-white/[0.15]"
                 autoFocus
                 disabled={briefSending}
               />
@@ -740,7 +749,7 @@ export default function AIDuelLayout() {
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 border-zinc-600"
+                className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-zinc-100"
                 onClick={() => setBriefModalOpen(false)}
                 disabled={briefSending}
               >
@@ -748,7 +757,7 @@ export default function AIDuelLayout() {
               </Button>
               <Button
                 type="button"
-                className="flex-1 bg-emerald-600 hover:bg-emerald-500"
+                className="flex-1 rounded-xl bg-white/[0.08] font-medium text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.1] hover:bg-white/[0.12] hover:shadow-[0_0_20px_-4px_rgba(139,92,246,0.35)]"
                 onClick={handleSendBrief}
                 disabled={!briefEmail.trim() || briefSending}
               >
