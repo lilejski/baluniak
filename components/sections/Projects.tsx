@@ -120,6 +120,50 @@ export function Projects() {
           className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-5"
           style={{ gridAutoRows: "minmax(140px, auto)", perspective: 1200 }}
         >
+          {/* Wyróżniona karta: migracja WordPress → Next.js (zajawka bloga SEO) */}
+          <Link
+            href={`/${localeSegment}/blog/dlaczego-warto-porzucic-wordpress-dla-nextjs`}
+            className="block h-full md:col-span-2"
+          >
+            <SpotlightCard accent="emerald" className="h-full transition-opacity hover:opacity-100">
+              <CardHeader className="pb-2">
+                <span className="mb-2 inline-block w-fit rounded-full border border-emerald-500/60 bg-black/80 px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-emerald-200">
+                  {p.wpMigrationBadge}
+                </span>
+                <CardTitle className="text-lg font-semibold text-card-foreground md:text-xl">
+                  {p.wpMigrationTitle}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col justify-between space-y-4">
+                <CardDescription className="text-muted-foreground text-sm leading-relaxed">
+                  {p.wpMigrationDesc}
+                </CardDescription>
+                <p className="text-xs text-muted-foreground/90">{p.wpMigrationExtra}</p>
+                <div className="flex flex-wrap gap-2">
+                  {p.wpMigrationTech.map((key: string) => {
+                    const Icon = techIcons[key as keyof typeof techIcons];
+                    const label = p.techLabels[key as keyof typeof p.techLabels] ?? key;
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-zinc-300"
+                        title={label}
+                      >
+                        {Icon ? <Icon className="size-3.5 shrink-0 opacity-80" /> : null}
+                        <span>{label}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+                <Button variant="default" size="sm" className="w-fit" asChild>
+                  <span>
+                    {p.wpMigrationCta}
+                    <ArrowRight className="ml-1 size-4" />
+                  </span>
+                </Button>
+              </CardContent>
+            </SpotlightCard>
+          </Link>
           {otherProjectsMeta.map((project) => (
             <SpotlightCard
               key={project.title}
