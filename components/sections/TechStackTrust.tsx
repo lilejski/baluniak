@@ -2,12 +2,13 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 
-import { Cloud, Cpu, Database, Layout, Palette } from "lucide-react";
+import { Cloud, Cpu, Database, Layout, Palette, CreditCard } from "lucide-react";
 
 const LOGOS = [
   { name: "Next.js", href: "https://nextjs.org", icon: Layout },
   { name: "Vercel", href: "https://vercel.com", icon: Cloud },
   { name: "Stripe", href: "https://stripe.com", icon: Database },
+  { name: "Autopay", href: "https://autopay.pl", icon: CreditCard },
   { name: "OpenAI", href: "https://openai.com", icon: Cpu },
   { name: "Supabase", href: "https://supabase.com", icon: Database },
   { name: "Tailwind CSS", href: "https://tailwindcss.com", icon: Palette },

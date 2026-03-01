@@ -98,15 +98,15 @@ export default function FotarobotaCaseStudyPage() {
             variants={itemVariants}
             className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
           >
-            Wyzwanie
+            {f.wyzwanieTitle}
           </motion.h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <motion.div
               variants={itemVariants}
               className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
             >
               <p className="text-sm leading-relaxed text-zinc-400">
-                Tradycyjne sesje zdjęciowe są drogie, czasochłonne i logistycznie trudne. Koszty wynajmu studia, ekipy i retuszu sięgają tysięcy złotych, a czas realizacji — tygodni.
+                {f.wyzwanieP1}
               </p>
             </motion.div>
             <motion.div
@@ -114,7 +114,15 @@ export default function FotarobotaCaseStudyPage() {
               className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
             >
               <p className="text-sm leading-relaxed text-zinc-400">
-                Dla małych firm i e-commerce oznacza to barierę wejścia: brak profesjonalnych zdjęć produktowych obniża konwersję i wiarygodność marki.
+                {f.wyzwanieP2}
+              </p>
+            </motion.div>
+            <motion.div
+              variants={itemVariants}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm sm:col-span-2 lg:col-span-1"
+            >
+              <p className="text-sm leading-relaxed text-zinc-400">
+                {f.wyzwanieFood}
               </p>
             </motion.div>
           </div>
@@ -133,17 +141,17 @@ export default function FotarobotaCaseStudyPage() {
             variants={itemVariants}
             className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
           >
-            Architektura AI
+            {f.architekturaTitle}
           </motion.h2>
           <motion.div
             variants={itemVariants}
             className="rounded-xl border border-emerald-500/20 bg-zinc-900/50 p-6 backdrop-blur-sm sm:p-8"
           >
             <p className="mb-4 text-sm leading-relaxed text-zinc-300">
-              Wykorzystanie zaawansowanych modeli dyfuzyjnych (Fal.ai) do generowania profesjonalnych portretów w kilka sekund. Użytkownik wgrywa zdjęcie produktu, wybiera styl tła i oświetlenia — system zwraca gotowy zestaw wizerunków bez studia i ekipy.
+              {f.architekturaP1}
             </p>
             <p className="text-sm font-medium text-emerald-400">
-              Efekt „magii”: od surowego zdjęcia do kampanii reklamowej w czasie jednej kawy.
+              {f.architekturaMagia}
             </p>
           </motion.div>
         </motion.section>
@@ -161,14 +169,14 @@ export default function FotarobotaCaseStudyPage() {
             variants={itemVariants}
             className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
           >
-            Silnik technologiczny
+            {f.silnikTitle}
           </motion.h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { label: "Frontend", value: "Next.js", icon: Zap },
-              { label: "AI Processing", value: "Fal.ai", icon: Camera },
-              { label: "Płatności", value: "Autopay", icon: CreditCard },
-              { label: "Skalowalność", value: "Serverless", icon: TrendingUp },
+              { label: f.techFrontend, value: "Next.js", icon: Zap },
+              { label: f.techAi, value: "Fal.ai", icon: Camera },
+              { label: f.techPayments, value: "Autopay", icon: CreditCard },
+              { label: f.techScale, value: "Serverless", icon: TrendingUp },
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -203,7 +211,7 @@ export default function FotarobotaCaseStudyPage() {
             variants={itemVariants}
             className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
           >
-            Efekty biznesowe
+            {f.efektyTitle}
           </motion.h2>
           <motion.div
             variants={itemVariants}
@@ -212,15 +220,19 @@ export default function FotarobotaCaseStudyPage() {
             <ul className="space-y-3 text-sm leading-relaxed text-zinc-300 sm:text-base">
               <li className="flex items-start gap-3">
                 <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
-                <span><strong className="text-zinc-100">MVP dowiezione w 14 dni.</strong> Pełny cykl od briefu do działającej aplikacji.</span>
+                <span><strong className="text-zinc-100">{f.efekt1Bold}</strong> {f.efekt1}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
-                <span>W pełni funkcjonalny system płatności i automatyzacja procesów.</span>
+                <span>{f.efekt2}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
-                <span>Redukcja kosztów produkcji zdjęć produktowych o <strong className="text-emerald-400">90%</strong> w porównaniu z tradycyjną sesją.</span>
+                <span><strong className="text-emerald-400">{f.efekt3Bold}</strong> {f.efekt3}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-emerald-500" />
+                <span>{f.efekt4}</span>
               </li>
             </ul>
           </motion.div>

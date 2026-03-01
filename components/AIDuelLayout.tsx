@@ -179,9 +179,9 @@ function AgentWindow({
     : "shadow-[0_0_24px_rgba(245,158,11,0.1),0_0_0_1px_rgba(245,158,11,0.2)]";
 
   return (
-    <div className={cn("flex h-[200px] flex-col p-2 md:p-4 md:h-[350px] rounded-xl", borderCls, glowCls)}>
-      <div className="mb-2 md:mb-3 flex shrink-0 flex-col sm:flex-row sm:items-center items-start gap-1 sm:gap-3">
-        <div className={cn("h-8 w-8 sm:h-14 sm:w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
+    <div className={cn("flex h-[28dvh] min-h-[180px] max-h-[250px] md:h-[350px] md:max-h-none flex-col p-2.5 md:p-4 rounded-xl", borderCls, glowCls)}>
+      <div className="mb-2 md:mb-3 flex shrink-0 flex-row items-center gap-2.5 md:gap-3">
+        <div className={cn("h-10 w-10 sm:h-14 sm:w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
         <div className="min-w-0">
           <p
             className={cn(
@@ -480,9 +480,9 @@ export default function AIDuelLayout() {
                 {COPY.workshopBanner}
               </p>
             </div>
-            {/* Mobile: Two agent windows side-by-side first, then quick prompts below */}
+            {/* Mobile: Two agent windows stacked vertically first, then input below */}
             <div className="flex flex-col md:hidden px-3 pt-4">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-3">
                 <AgentWindow
                   title={CONSOLE.perspectiveDev}
                   subtitle={COPY.agentSubtitle}
