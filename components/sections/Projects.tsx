@@ -18,16 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/SpotlightCard";
 
-const otherProjectsMeta: Array<{
-  titleKey: "saasStarter" | "aiAutomations";
-  title: string;
-  href: string;
-  span: string;
-  placeholder: boolean;
-}> = [
-  { titleKey: "saasStarter", title: "SaaS Starter Kit", href: "#projekty", span: "md:col-span-1", placeholder: true },
-  { titleKey: "aiAutomations", title: "AI Automations", href: "#projekty", span: "md:col-span-1", placeholder: true },
-];
+// Removed "SaaS Starter Kit" and "AI Automations"
 
 const techIcons: Record<string, ComponentType<{ className?: string }>> = {
   nextjs: Layout,
@@ -164,34 +155,7 @@ export function Projects() {
               </CardContent>
             </SpotlightCard>
           </Link>
-          {otherProjectsMeta.map((project) => (
-            <SpotlightCard
-              key={project.title}
-              spanClassName={project.span}
-              accent="emerald"
-              className={project.placeholder ? "border-muted bg-muted/30 opacity-90" : undefined}
-            >
-              <CardHeader className="pb-2">
-                <span className="mb-2 inline-block rounded-full border border-amber-400/80 bg-black/80 px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-amber-200">
-                  {p.comingSoon}
-                </span>
-                <CardTitle className="text-lg font-semibold text-card-foreground md:text-xl">
-                  {project.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col justify-between space-y-4">
-                <CardDescription className="text-muted-foreground text-sm">
-                  {descriptions[project.titleKey]}
-                </CardDescription>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/${localeSegment}${project.href}`}>
-                    {p.comingSoon}
-                    <ArrowRight className="ml-1 size-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </SpotlightCard>
-          ))}
+
           <SpotlightCard spanClassName="md:col-span-2 md:row-span-1" accent="amber">
             <CardContent className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
               <LayoutGrid className="size-10 text-muted-foreground" aria-hidden />

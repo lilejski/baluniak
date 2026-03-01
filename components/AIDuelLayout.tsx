@@ -161,9 +161,9 @@ function AgentWindow({
   const contentTextCls = isDev ? "text-emerald-400" : "text-amber-100";
   const avatarCls = isDev ? "border-emerald-500/60 bg-emerald-950/80" : "border-amber-500/50 bg-amber-950/60";
 
-  const titleTypographyCls = "font-sans text-sm md:text-base font-semibold tracking-tight";
-  const subtitleTypographyCls = "font-sans text-[0.7rem] md:text-xs uppercase tracking-[0.2em] text-zinc-500";
-  const contentTypographyCls = "font-sans text-[0.9rem] leading-relaxed";
+  const titleTypographyCls = "font-sans text-[0.65rem] md:text-base font-semibold tracking-tight";
+  const subtitleTypographyCls = "font-sans text-[0.55rem] md:text-xs uppercase tracking-[0.2em] text-zinc-500";
+  const contentTypographyCls = "font-sans text-[0.7rem] md:text-[0.9rem] leading-relaxed";
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -179,9 +179,9 @@ function AgentWindow({
     : "shadow-[0_0_24px_rgba(245,158,11,0.1),0_0_0_1px_rgba(245,158,11,0.2)]";
 
   return (
-    <div className={cn("flex h-[300px] flex-col p-3 md:p-4 md:h-[350px] rounded-xl", borderCls, glowCls)}>
-      <div className="mb-3 flex shrink-0 flex-col sm:flex-row sm:items-center items-start gap-2 sm:gap-3">
-        <div className={cn("h-10 w-10 sm:h-14 sm:w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
+    <div className={cn("flex h-[200px] flex-col p-2 md:p-4 md:h-[350px] rounded-xl", borderCls, glowCls)}>
+      <div className="mb-2 md:mb-3 flex shrink-0 flex-col sm:flex-row sm:items-center items-start gap-1 sm:gap-3">
+        <div className={cn("h-8 w-8 sm:h-14 sm:w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
         <div className="min-w-0">
           <p
             className={cn(
@@ -279,6 +279,7 @@ export default function AIDuelLayout() {
   const [briefSending, setBriefSending] = useState(false);
   const [briefSent, setBriefSent] = useState(false);
   const [briefToastVisible, setBriefToastVisible] = useState(false);
+  const [confirmPrompt, setConfirmPrompt] = useState<string | null>(null);
   const lastSendTimeRef = useRef<number>(0);
 
   const { messages, sendMessage, status, error } = useChat({
@@ -449,6 +450,26 @@ export default function AIDuelLayout() {
         </motion.div>
       )}
 
+      {/* Confirmation Modal for Mobile Prompts */}
+      {confirmPrompt && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-[2rem] bg-zinc-900/95 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
+            <p className="mb-3 text-center text-sm font-semibold text-zinc-100">Czy chcesz wkleić to zapytanie?</p>
+            <p className="mb-6 rounded-xl bg-black/40 p-3 text-center text-xs text-zinc-400 ring-1 ring-white/[0.05]">
+              &quot;{confirmPrompt}&quot;
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.06]" onClick={() => setConfirmPrompt(null)}>
+                Anuluj
+              </Button>
+              <Button className="flex-1 rounded-xl bg-emerald-600 font-medium text-emerald-50 hover:bg-emerald-500" onClick={() => { handleQuickAction(confirmPrompt); setConfirmPrompt(null); }}>
+                Tak, wklej
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Compact console: centered module (agents + input in one device) */}
       <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
         <div className="w-full max-w-5xl">
@@ -485,18 +506,14 @@ export default function AIDuelLayout() {
                   analyzingLabel={COPY.analyzing}
                 />
               </div>
-              {/* Quick prompts below agent window so user sees bot output first, then actions */}
-              {showWelcomeCards && (
-                <div className="px-4 py-4 sm:px-5 sm:py-5 md:hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
-                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500 sm:text-sm">
-                    {COPY.quickActionsTitle}
-                  </p>
-                  <WelcomeCards onSelect={handleQuickAction} disabled={isLoading} />
-                </div>
-              )}
+              {/* Mobile Quick prompts (removed from here, moved to sticky input area) */}
+
               {/* Spacer: miejsce na fixed input (thumb zone), treść nie chowa się pod paskiem */}
               <div
-                className="min-h-[5.5rem] pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
+                className={cn(
+                  "min-h-[5.5rem] pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden",
+                  showWelcomeCards && "min-h-[8.5rem]"
+                )}
                 aria-hidden
               />
             </div>
@@ -511,6 +528,26 @@ export default function AIDuelLayout() {
                     {COPY.workshopProgress.replace("{current}", String(interactionCount)).replace("{max}", String(MAX_INTERACTIONS))}
                   </span>
                 </div>
+
+                {showWelcomeCards && (
+                  <div className="flex w-full gap-2 overflow-x-auto pb-3 scrollbar-hide">
+                    {[
+                      { id: "website", label: dict.welcomeCards.websiteTitle, prompt: dict.welcomeCards.websitePrompt },
+                      { id: "agents", label: dict.welcomeCards.agentsTitle, prompt: dict.welcomeCards.agentsPrompt },
+                      { id: "automation", label: dict.welcomeCards.automationTitle, prompt: dict.welcomeCards.automationPrompt },
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setConfirmPrompt(item.prompt)}
+                        className="flex-shrink-0 whitespace-nowrap rounded-full bg-white/[0.06] px-4 py-2 text-xs font-medium text-zinc-300 ring-1 ring-white/[0.1] active:bg-white/[0.1]"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 <form
                   onSubmit={handleCustomSubmit}
                   className="flex items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] transition-all duration-200 focus-within:ring-white/[0.15] focus-within:bg-zinc-900/80"
@@ -671,57 +708,59 @@ export default function AIDuelLayout() {
       </div>
 
       {/* Brief modal: email + send */}
-      {briefModalOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="brief-modal-title"
-        >
-          <div className="w-full max-w-md rounded-xl bg-zinc-900/95 p-6 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] backdrop-blur-md">
-            <h2 id="brief-modal-title" className="text-lg font-semibold text-zinc-100">
-              {COPY.briefModalTitle}
-            </h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              {COPY.workshopBanner}
-            </p>
-            <div className="mt-4">
-              <label htmlFor="brief-email" className="mb-1.5 block text-xs font-medium text-zinc-400">
-                {COPY.briefModalEmailLabel}
-              </label>
-              <Input
-                id="brief-email"
-                type="email"
-                value={briefEmail}
-                onChange={(e) => setBriefEmail(e.target.value)}
-                placeholder={COPY.briefModalEmailPlaceholder}
-                className="h-11 rounded-lg bg-white/[0.03] text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.08] placeholder:text-zinc-500 focus-visible:ring-white/[0.15]"
-                autoFocus
-                disabled={briefSending}
-              />
-            </div>
-            <div className="mt-6 flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-zinc-100"
-                onClick={() => setBriefModalOpen(false)}
-                disabled={briefSending}
-              >
-                {COPY.briefModalCancel}
-              </Button>
-              <Button
-                type="button"
-                className="flex-1 rounded-xl bg-white/[0.08] font-medium text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.1] hover:bg-white/[0.12] hover:shadow-[0_0_20px_-4px_rgba(139,92,246,0.35)]"
-                onClick={handleSendBrief}
-                disabled={!briefEmail.trim() || briefSending}
-              >
-                {briefSending ? COPY.briefGenerating : COPY.briefModalSubmit}
-              </Button>
+      {
+        briefModalOpen && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="brief-modal-title"
+          >
+            <div className="w-full max-w-md rounded-xl bg-zinc-900/95 p-6 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] backdrop-blur-md">
+              <h2 id="brief-modal-title" className="text-lg font-semibold text-zinc-100">
+                {COPY.briefModalTitle}
+              </h2>
+              <p className="mt-1 text-sm text-zinc-500">
+                {COPY.workshopBanner}
+              </p>
+              <div className="mt-4">
+                <label htmlFor="brief-email" className="mb-1.5 block text-xs font-medium text-zinc-400">
+                  {COPY.briefModalEmailLabel}
+                </label>
+                <Input
+                  id="brief-email"
+                  type="email"
+                  value={briefEmail}
+                  onChange={(e) => setBriefEmail(e.target.value)}
+                  placeholder={COPY.briefModalEmailPlaceholder}
+                  className="h-11 rounded-lg bg-white/[0.03] text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.08] placeholder:text-zinc-500 focus-visible:ring-white/[0.15]"
+                  autoFocus
+                  disabled={briefSending}
+                />
+              </div>
+              <div className="mt-6 flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-zinc-100"
+                  onClick={() => setBriefModalOpen(false)}
+                  disabled={briefSending}
+                >
+                  {COPY.briefModalCancel}
+                </Button>
+                <Button
+                  type="button"
+                  className="flex-1 rounded-xl bg-white/[0.08] font-medium text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.1] hover:bg-white/[0.12] hover:shadow-[0_0_20px_-4px_rgba(139,92,246,0.35)]"
+                  onClick={handleSendBrief}
+                  disabled={!briefEmail.trim() || briefSending}
+                >
+                  {briefSending ? COPY.briefGenerating : COPY.briefModalSubmit}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

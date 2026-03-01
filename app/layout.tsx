@@ -1,18 +1,16 @@
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import { BackgroundGrid } from "@/components/BackgroundGrid";
 import { GrainTexture } from "@/components/GrainTexture";
 import "./globals.css";
 
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-plex-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700"],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
 });
 
 export default function RootLayout({
@@ -23,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="pl" className="dark" suppressHydrationWarning>
       <body
-        className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
+        className={`${inter.variable} ${robotoMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
       >
         <BackgroundGrid color="39, 39, 42" opacity={0.15} variant="lines" />
         <div

@@ -75,7 +75,7 @@ export function Navbar() {
           ))}
           <LanguageSwitcher />
           <Button asChild size="default" className="border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500 hover:shadow-[0_0_22px_rgba(37,99,235,0.5)]">
-            <Link href={`/${localeSegment}/wspolpraca`}>
+            <Link href={`/${localeSegment}#contact`}>
               {dict.header.bookCall}
             </Link>
           </Button>
@@ -157,7 +157,7 @@ export function Navbar() {
                     <motion.div variants={mobileMenuItemVariants}>
                       <Button asChild size="lg" className="w-full border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500">
                         <Link
-                          href={`/${localeSegment}/wspolpraca`}
+                          href={`/${localeSegment}#contact`}
                           onClick={() => setOpen(false)}
                         >
                           {dict.header.bookCall}

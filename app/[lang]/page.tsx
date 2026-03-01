@@ -3,7 +3,6 @@ import { TryLiveIntro } from "@/components/TryLiveIntro";
 import { About } from "@/components/sections/About";
 import { WhyProductEngineer } from "@/components/sections/WhyProductEngineer";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { KreatorCTA } from "@/components/sections/KreatorCTA";
 import { OnboardingSteps } from "@/components/sections/OnboardingSteps";
 import { Projects } from "@/components/sections/Projects";
 import { TechStackTrust } from "@/components/sections/TechStackTrust";
@@ -15,7 +14,6 @@ export default function Home() {
     <>
       <HeroSection />
       <TechStackTrust />
-      <KreatorCTA />
       <OnboardingSteps />
       <section
         id="ai-duel"

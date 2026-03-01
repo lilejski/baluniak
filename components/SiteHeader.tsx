@@ -8,7 +8,7 @@ const navItems = [
   { label: "Projekty", href: "#projekty" },
   { label: "Kreator", href: "/kreator" },
   { label: "Case Study", href: "/projekty/fotarobota" },
-  { label: "Współpraca", href: "/wspolpraca" },
+  { label: "Współpraca", href: "/#contact" },
 ] as const;
 
 export function SiteHeader() {

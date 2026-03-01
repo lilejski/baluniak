@@ -142,6 +142,14 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
         lineItems.push({ id: "pages", label: `${labels.extraSections} (×${sectionsCount})`, price: extra });
         total += extra;
       }
+
+      // ASAP markup (+50% of the standard branch total generated so far)
+      if (state.standard?.deadline === "asap") {
+        const markup = total * 0.5;
+        // @ts-ignore: fastTrack added in translations
+        lineItems.push({ id: "markup", label: labels.fastTrack || "Szybsza realizacja", price: markup });
+        total += markup;
+      }
     }
   } else if (state.branch === "professional") {
     lineItems.push({ id: "base", label: labels.baseProfessional, price: 6500 });

@@ -86,7 +86,7 @@ export const translations = {
       ],
     },
     whyProductEngineer: {
-      title: "Dlaczego współpracować z Product Engineerem?",
+      title: "Dlaczego warto ze mną współpracować?",
       cards: [
         {
           title: "Nowoczesne Strony WWW",
@@ -213,6 +213,7 @@ export const translations = {
         ai: "Integracja AI",
         auth: "Logowanie / użytkownicy",
         payments: "Płatności",
+        fastTrack: "Szybsza realizacja (ASAP)",
         modules: {
           seo: "SEO & Performance Pack",
           cms: "CMS / Panel administracyjny",
