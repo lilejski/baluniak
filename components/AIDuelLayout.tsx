@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -156,7 +155,6 @@ function AgentWindow({
   const borderCls = isDev
     ? "border-emerald-500/30 bg-[#061006]"
     : "border-amber-500/30 bg-[#0c0a08]";
-  const headerBorderCls = isDev ? "border-emerald-500/60" : "border-amber-500/50";
   const titleTextCls = isDev ? "text-emerald-400/90" : "text-amber-300/95";
   const subtitleTextCls = isDev ? "text-emerald-600" : "text-amber-400/85";
   const contentBorderCls = isDev ? "border-emerald-500/20" : "border-amber-500/20";
@@ -181,10 +179,10 @@ function AgentWindow({
     : "shadow-[0_0_24px_rgba(245,158,11,0.1),0_0_0_1px_rgba(245,158,11,0.2)]";
 
   return (
-    <div className={cn("flex h-[300px] flex-col p-4 md:h-[350px]", borderCls, glowCls)}>
-      <div className="mb-3 flex shrink-0 items-center gap-3">
-        <div className={cn("h-14 w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
-        <div>
+    <div className={cn("flex h-[300px] flex-col p-3 md:p-4 md:h-[350px] rounded-xl", borderCls, glowCls)}>
+      <div className="mb-3 flex shrink-0 flex-col sm:flex-row sm:items-center items-start gap-2 sm:gap-3">
+        <div className={cn("h-10 w-10 sm:h-14 sm:w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
+        <div className="min-w-0">
           <p
             className={cn(
               "uppercase",
@@ -392,7 +390,6 @@ export default function AIDuelLayout() {
   }, [briefEmail, messages, lang, COPY.briefModalError]);
 
   const connectionError = !!error;
-  const [mobileTab, setMobileTab] = useState<"dev" | "biz">("dev");
 
   if (!mounted) {
     return (
@@ -462,74 +459,32 @@ export default function AIDuelLayout() {
                 {COPY.workshopBanner}
               </p>
             </div>
-            {/* Mobile: Tabs + agent window first, then quick prompts below (user sees bot output before actions) */}
-            <div className="flex flex-col md:hidden">
-              <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "dev" | "biz")} className="flex flex-col">
-                <TabsList className="relative mx-4 mt-4 grid h-12 w-[calc(100%-2rem)] grid-cols-2 gap-0 rounded-xl bg-white/[0.03] p-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] backdrop-blur-md focus-visible:outline-none">
-                  <TabsTrigger
-                    value="dev"
-                    className={cn(
-                      "relative z-10 min-h-[calc(theme(spacing.12)-8px)] rounded-lg border-0 bg-transparent transition-colors focus-visible:!ring-0 focus-visible:!ring-offset-0 focus-visible:!outline-none",
-                      "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
-                      "data-[state=active]:!text-emerald-200 data-[state=active]:!shadow-none data-[state=active]:!ring-0"
-                    )}
-                  >
-                    {mobileTab === "dev" && (
-                      <motion.div
-                        layoutId="activeTab"
-                        aria-hidden
-                        className="absolute inset-1 z-0 rounded-lg border border-white/25 bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
-                        transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                      />
-                    )}
-                    <span className="relative z-10">{COPY.tabDev}</span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="biz"
-                    className={cn(
-                      "relative z-10 min-h-[calc(theme(spacing.12)-8px)] rounded-lg border-0 bg-transparent transition-colors focus-visible:!ring-0 focus-visible:!ring-offset-0 focus-visible:!outline-none",
-                      "data-[state=inactive]:!text-zinc-500 data-[state=inactive]:hover:!text-zinc-400",
-                      "data-[state=active]:!text-amber-300 data-[state=active]:!shadow-none data-[state=active]:!ring-0"
-                    )}
-                  >
-                    {mobileTab === "biz" && (
-                      <motion.div
-                        layoutId="activeTab"
-                        aria-hidden
-                        className="absolute inset-1 z-0 rounded-lg border border-white/25 bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
-                        transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                      />
-                    )}
-                    <span className="relative z-10">{COPY.tabBiz}</span>
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="dev" className="mt-0 focus-visible:outline-none">
-                  <AgentWindow
-                    title={CONSOLE.perspectiveDev}
-                    subtitle={COPY.agentSubtitle}
-                    description={COPY.devDescription}
-                    content={devResponse}
-                    isLoading={isLoading}
-                    placeholder={COPY.placeholderDev}
-                    theme="dev"
-                    emptyStateTitle={COPY.emptyStateTitle}
-                    analyzingLabel={COPY.analyzing}
-                  />
-                </TabsContent>
-                <TabsContent value="biz" className="mt-0 focus-visible:outline-none">
-                  <AgentWindow
-                    title={CONSOLE.perspectiveBiz}
-                    subtitle={COPY.agentSubtitle}
-                    description={COPY.bizDescription}
-                    content={bizResponse}
-                    isLoading={isLoading}
-                    placeholder={COPY.placeholderBiz}
-                    theme="biz"
-                    emptyStateTitle={COPY.emptyStateTitle}
-                    analyzingLabel={COPY.analyzing}
-                  />
-                </TabsContent>
-              </Tabs>
+            {/* Mobile: Two agent windows side-by-side first, then quick prompts below */}
+            <div className="flex flex-col md:hidden px-3 pt-4">
+              <div className="grid grid-cols-2 gap-2">
+                <AgentWindow
+                  title={CONSOLE.perspectiveDev}
+                  subtitle={COPY.agentSubtitle}
+                  description={COPY.devDescription}
+                  content={devResponse}
+                  isLoading={isLoading}
+                  placeholder={COPY.placeholderDev}
+                  theme="dev"
+                  emptyStateTitle={COPY.emptyStateTitle}
+                  analyzingLabel={COPY.analyzing}
+                />
+                <AgentWindow
+                  title={CONSOLE.perspectiveBiz}
+                  subtitle={COPY.agentSubtitle}
+                  description={COPY.bizDescription}
+                  content={bizResponse}
+                  isLoading={isLoading}
+                  placeholder={COPY.placeholderBiz}
+                  theme="biz"
+                  emptyStateTitle={COPY.emptyStateTitle}
+                  analyzingLabel={COPY.analyzing}
+                />
+              </div>
               {/* Quick prompts below agent window so user sees bot output first, then actions */}
               {showWelcomeCards && (
                 <div className="px-4 py-4 sm:px-5 sm:py-5 md:hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
@@ -567,16 +522,16 @@ export default function AIDuelLayout() {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={isLoading ? CONSOLE.buttonSubmitting : COPY.workshopInputPlaceholder}
                     disabled={isLoading}
-                    className="min-h-10 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
+                    className="min-h-12 min-w-0 flex-1 border-0 bg-transparent text-base text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-70"
                     aria-label={COPY.inputAriaLabel}
                   />
                   <Button
                     type="submit"
                     disabled={isLoading}
                     aria-label={CONSOLE.buttonSubmit}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-zinc-400 shadow-none ring-1 ring-white/[0.06] transition-all hover:bg-white/[0.1] hover:text-zinc-100 hover:shadow-[0_0_20px_-4px_rgba(255,255,255,0.25)] disabled:opacity-50 disabled:shadow-none"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-zinc-400 shadow-none ring-1 ring-white/[0.06] transition-all hover:bg-white/[0.1] hover:text-zinc-100 hover:shadow-[0_0_20px_-4px_rgba(255,255,255,0.25)] disabled:opacity-50 disabled:shadow-none"
                   >
-                    <Send className="size-4" aria-hidden />
+                    <Send className="size-5" aria-hidden />
                   </Button>
                 </form>
               </div>

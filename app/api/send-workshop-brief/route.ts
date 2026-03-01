@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const FROM = "Łukasz Baluniak <lukasz@baluniak.com>";
-const TO = "lukasz@baluniak.com";
 
 type Body = { email: string; summary?: string };
 

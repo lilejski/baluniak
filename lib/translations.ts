@@ -32,14 +32,14 @@ export const translations = {
       quickLinks: [
         { label: "Strona główna", href: "/" },
         { label: "Konfigurator", href: "/kreator" },
-        { label: "Kontakt", href: "/wspolpraca" },
+        { label: "Kontakt", href: "/#contact" },
       ],
       nav: [
         { label: "Projekty", href: "#projekty" },
         { label: "O mnie", href: "/#about" },
         { label: "Sklep", href: "/sklep" },
         { label: "Kreator", href: "/kreator" },
-        { label: "Współpraca", href: "/wspolpraca" },
+        { label: "Współpraca", href: "/#contact" },
       ],
       contactTitle: "Kontakt",
       consultationLabel: "Umów darmową konsultację",
@@ -49,12 +49,12 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Strony WWW, Aplikacje i MVP",
-      headline: "Profesjonalne Strony Internetowe i Aplikacje Webowe.",
+      badge: "Product Engineer / Maker",
+      headline: "Zbuduję Twoje MVP. Szybko. Zyskownie.",
       headlineAccent: "",
       headlineEnd: "",
       subtext:
-        "Od nowoczesnych i błyskawicznych wizytówek dla Twojego biznesu, po zaawansowane prototypy MVP i automatyzacje AI. Dostarczam gotowe rozwiązania szybciej i taniej niż tradycyjne software house'y.",
+        "Oszczędź miesiące pracy i budżety wielkich agencji. Tworzę kompleksowe aplikacje webowe, inteligentne platformy SaaS oraz szybkie Landing Pages. Od bazy danych do pięknego UI - wszystko w jednym miejscu.",
       ctaPrimary: "Darmowa Wycena Projektu",
       ctaSecondary: "Zobacz Moje Realizacje",
       techStackTrust: "POWERED BY MODERN STACK",
@@ -340,10 +340,10 @@ export const translations = {
       resultLabel: "Rezultat",
       metricsLabel: "Metryki (PostHog)",
       fotarobotaSubtitle: "SaaS dla fotografów i e‑commerce.",
-      fotarobotaDesc: "Strona internetowa będąca zautomatyzowanym narzędziem do tworzenia zdjęć produktowych, zasilana sztuczną inteligencją.",
-      fotarobotaProblem: "Branża e‑commerce potrzebowała szybkich, taniych zdjęć produktowych bez wielogodzinnych sesji i obróbki.",
-      fotarobotaSolution: "Aplikacja SaaS z pipeline’em AI (generowanie tła, ujednolicenie oświetlenia, retusz) — od uploadu do gotowego pliku w minutach.",
-      fotarobotaResult: "Klienci otrzymują profesjonalne zdjęcia produktowe w ułamku czasu i kosztów; produkt na rynku w 2 tygodnie od startu.",
+      fotarobotaDesc: "Automatyczne narzędzie SaaS do studyjnych zdjęć produktowych napędzane generatywnym AI.",
+      fotarobotaProblem: "Branża e‑commerce potrzebowała szybkiego sposobu na profesjonalne zdjęcia produktowe bez studiów fotograficznych.",
+      fotarobotaSolution: "SaaS bazujący na modelach AI – w kilka sekund ujednolica oświetlenie i osadza obiekt w realistycznym wygenerowanym otoczeniu.",
+      fotarobotaResult: "Użytkownik otrzymuje 10x tańsze, profesjonalne ujęcia. MVP wystartowało zaledwie w 2 tygodnie zdobywając płacących klientów.",
       fotarobotaMetrics: "Optymalizacja ścieżki użytkownika w oparciu o dane PostHog — ok. 40% szybsze finalizowanie zamówienia.",
       fotarobotaTech: ["nextjs", "falai", "vercel", "posthog"],
       saasStarterDesc: "Kolejne projekty już wkrótce",
@@ -417,17 +417,17 @@ export const translations = {
       sendError: "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.",
     },
     seo: {
-      homeTitle: "Łukasz Baluniak | Profesjonalne Strony Internetowe, Aplikacje Webowe i MVP",
-      homeDescription: "Tworzę nowoczesne, ultraszybkie strony internetowe dla firm, aplikacje webowe, systemy SaaS oraz automatyzacje AI. Zbuduj zyskowną obecność w sieci bez budżetów wielkich agencji.",
-      homeKeywords: "tworzenie stron internetowych, strony www, nowoczesne strony, aplikacje webowe, programista na zlecenie, prototypowanie MVP, systemy SaaS, automatyzacje AI dla firm",
-      kreatorTitle: "Wycena MVP i architektura projektu | Kreator wyceny | BALUNIAK",
-      kreatorDescription: "Otrzymaj realną wycenę MVP w kilka minut. Wybierz ścieżkę (wizytówka lub SaaS), dodaj moduły – wycena i rekomendowany stack od Product Buildera.",
-      wspolpracaTitle: "Umów rozmowę | Fast-Track MVP | Product Builder | BALUNIAK",
-      wspolpracaDescription: "Zacznijmy budować. Wybierz termin w kalendarzu lub zostaw wiadomość. Odpowiedź w 12h. MVP, konsultacje AI, audyt – Polska i zagranica.",
-      fotarobotaTitle: "Fotarobota – Case Study SaaS AI | Product Builder | BALUNIAK",
-      fotarobotaDescription: "Case study: od pomysłu do działającego SaaS w 2 tygodnie. Next.js, Fal.ai, automatyzacja zdjęć produktowych. Realizacja Product Buildera.",
-      sklepTitle: "Sklep – skrypty i szkolenia AI | BALUNIAK",
-      sklepDescription: "Oferta skryptów (m.in. Fotarobota) oraz szkoleń AI. Gotowe rozwiązania i wiedza wdrożeniowa od Product Buildera.",
+      homeTitle: "Łukasz Baluniak | Product Engineer | MVP, SaaS & Web Apps",
+      homeDescription: "Buduję nowoczesne, zarabiające aplikacje webowe i platformy SaaS. Startupy i firmy, które potrzebują MVP lub narzędzi AI bez przepalania budżetów agencji.",
+      homeKeywords: "product engineer, MVP builder, tworzenie aplikacji webowych, next.js developer, aplikacje saas, wdrożenia AI, fullstack developer, szybkie startupy, Łukasz Baluniak",
+      kreatorTitle: "Wycena MVP i architektura projektu | AI Architect | BALUNIAK",
+      kreatorDescription: "Rozpocznij tworzenie swojego MVP. Skonfiguruj projekt, wybierz stos technologiczny (Next.js, platformy AI) i otrzymaj natychmiastową estymację od Product Buildera.",
+      wspolpracaTitle: "Zbuduj MVP | Szybki kontakt | Product Builder | BALUNIAK",
+      wspolpracaDescription: "Nie trać czasu. Umów wycenę MVP, konsultację AI lub audyt produktu. Gwarantowana odpowiedź w 12h.",
+      fotarobotaTitle: "Fotarobota – Case Study generatywnego AI | Product Builder | BALUNIAK",
+      fotarobotaDescription: "Case study: od pojęcia do zyskownego SaaS. Automatyzacja zdjęć e-commerce w 2 tygodnie dzięki Next.js i pipeline'owi Fal.ai.",
+      sklepTitle: "Gotowe rozwiązania i moduły AI | BALUNIAK",
+      sklepDescription: "Licencje na gotowe systemy (SaaS) oraz dostęp do bazy wiedzy o automatyzacji procesów AI w biznesie.",
     },
     sklep: {
       pageTitle: "Sklep",
@@ -460,14 +460,14 @@ export const translations = {
       quickLinks: [
         { label: "Home", href: "/" },
         { label: "Configurator", href: "/kreator" },
-        { label: "Contact", href: "/wspolpraca" },
+        { label: "Contact", href: "/#contact" },
       ],
       nav: [
         { label: "Projects", href: "#projekty" },
         { label: "About", href: "/#about" },
         { label: "Shop", href: "/sklep" },
         { label: "Creator", href: "/kreator" },
-        { label: "Collaboration", href: "/wspolpraca" },
+        { label: "Collaboration", href: "/#contact" },
       ],
       contactTitle: "Contact",
       consultationLabel: "Book a free consultation",
@@ -477,12 +477,12 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Websites, Apps & MVP",
-      headline: "Professional Websites and Web Applications.",
+      badge: "Product Engineer / Maker",
+      headline: "I build your MVP. Fast and Profitable.",
       headlineAccent: "",
       headlineEnd: "",
       subtext:
-        "From modern, lightning-fast business sites to advanced MVP prototypes and AI automation. I deliver ready solutions faster and cheaper than traditional software houses.",
+        "Skip the months of agency back-and-forth. I craft complete web applications, smart SaaS platforms, and high-converting Landing Pages. From database architecture to seamless UI.",
       ctaPrimary: "Free Project Quote",
       ctaSecondary: "See My Work",
       techStackTrust: "POWERED BY MODERN STACK",
@@ -768,10 +768,10 @@ export const translations = {
       resultLabel: "Result",
       metricsLabel: "Metrics (PostHog)",
       fotarobotaSubtitle: "SaaS for photographers and e‑commerce.",
-      fotarobotaDesc: "A website that is an automated tool for creating product photos, powered by artificial intelligence.",
-      fotarobotaProblem: "E‑commerce needed fast, affordable product photography without long shoots and manual retouching.",
-      fotarobotaSolution: "SaaS app with an AI pipeline (background generation, lighting normalization, retouch) — from upload to final asset in minutes.",
-      fotarobotaResult: "Clients get professional product shots in a fraction of the time and cost; product live in 2 weeks from kickoff.",
+      fotarobotaDesc: "AI-powered automated pipeline transforming amateur product shots into studio quality.",
+      fotarobotaProblem: "E-commerce required rapid product photography without costly studios or manual retouching.",
+      fotarobotaSolution: "SaaS application leveraging Gen-AI to harmonize lighting and generate realistic environments, from upload to final asset in seconds.",
+      fotarobotaResult: "Users output professional shots with 10x less cost, MVP launched in just 2 weeks.",
       fotarobotaMetrics: "User flow optimized using PostHog data — ~40% faster checkout completion.",
       fotarobotaTech: ["nextjs", "falai", "vercel", "posthog"],
       saasStarterDesc: "More projects coming soon",
@@ -783,7 +783,7 @@ export const translations = {
       wpMigrationExtra: "WordPress and tech from a few years ago is falling out of fashion. Modern business demands tools with uncompromising performance.",
       wpMigrationCta: "Find out why it's worth it",
       wpMigrationTech: ["nextjs", "seo", "performance", "migration"],
-      allProjects: "All projects",
+      allProjects: "View all projects",
       viewList: "View list",
       comingSoon: "Coming soon",
       visit: "Visit",
@@ -869,10 +869,10 @@ export type TranslationKey = keyof (typeof translations)["PL"];
 /** Flattened key path for t() – e.g. 'header.cta' or 'footer.nav' (returns array). */
 type DotPath<T, P extends string = ""> = T extends object
   ? { [K in keyof T]: K extends string ? (T[K] extends object ? DotPath<T[K], `${P}${K}.`> : `${P}${K}`) : never }[keyof T] extends infer S
-    ? S extends string
-      ? S
-      : never
-    : never
+  ? S extends string
+  ? S
+  : never
+  : never
   : never;
 
 export type TranslationPath = DotPath<(typeof translations)["PL"]>;

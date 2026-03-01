@@ -106,7 +106,7 @@ export function KreatorCTA() {
                 aria-label={k.ctaInputPlaceholder ?? "Opisz swój pomysł"}
               />
               <Link
-                href={`/${localeSegment}/wspolpraca`}
+                href="#contact"
                 className="absolute right-2 top-2 bottom-2 w-10 bg-white/[0.05] hover:bg-white/[0.1] rounded-full flex items-center justify-center text-zinc-500 hover:text-white transition-colors duration-300"
                 aria-label="Wyślij"
               >

@@ -41,7 +41,7 @@ export function WelcomeCards({ onSelect, disabled, className }: WelcomeCardsProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06, duration: 0.25 }}
             className={cn(
-              "group relative overflow-hidden rounded-xl p-4 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] backdrop-blur-sm",
+              "group relative overflow-hidden rounded-xl p-5 sm:p-4 min-h-[5.5rem] text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] backdrop-blur-sm",
               "bg-white/[0.02] transition-all duration-300 ease-out",
               "hover:bg-white/[0.05] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_8px_20px_rgba(0,0,0,0.4)] hover:-translate-y-0.5",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0d]",

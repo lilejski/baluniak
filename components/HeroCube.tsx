@@ -60,9 +60,12 @@ function RubikGroup({
     return out;
   }, []);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const group = groupRef.current;
     if (!group || isInteractingRef.current) return;
+    // Opóźnienie startu animacji o ~2.5s by przyciągnąć wzrok po załadowaniu
+    if (state.clock.elapsedTime < 2.5) return;
+
     group.rotation.x += delta * 0.12;
     group.rotation.y += delta * 0.18;
   });
