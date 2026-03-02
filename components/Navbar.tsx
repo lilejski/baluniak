@@ -85,7 +85,7 @@ export function Navbar() {
               width={500}
               height={125}
               priority
-              className="static h-14 w-auto md:absolute md:left-0 md:top-[85px] md:h-[120px] md:-translate-y-1/2 md:max-w-none"
+              className="static h-14 w-auto md:absolute md:left-0 md:top-[70px] md:h-[120px] md:-translate-y-1/2 md:max-w-none"
             />
             {/* Spacer for absolute positioned logo on desktop */}
             <div className="hidden h-14 w-[240px] md:block" />
