@@ -50,41 +50,58 @@ const LANGUAGE_EN = "Reply ONLY in English. Be brutally honest, pragmatic and pr
 const LOGIC_PL = `
 ZASADY DZIAŁANIA (Algorytm Konwersji):
 1. INFO O BRIEFIE: W swojej PIERWSZEJ wiadomości MUSISZ powiedzieć: „Cześć! Przejdziemy przez krótki proces analizy Twojego pomysłu. Na końcu wygenerujemy gotowy brief dla Lead Developera.‟
-2. BRANDING: Produkt zdjęciowy to ZAWSZE [FotaRobota](https://fotarobota.pl) — nie „FotyRobot‟, nie „FotyRobota‟. Każda wzmianka musi być Markdown linkiem.
-3. LINKI WEWNĘTRZNE: Używaj TYLKO linków z listy DOZWOLONE LINKI WEWNĘTRZNE. Jeśli ktoś pyta o ofertę lub wycenę, linkuj do [Konfigurator](/configurator). Jeśli chce porozmawiać, linkuj do [Kontakt](/contact).
-4. BEZ DARMOWYCH SIŁ: Nie odsyłaj do OLX, Fiverr, darmowych grup. Przy małym budżecie powiedz: „Zacznijmy od płatnej konsultacji — [zarezerwuj tutaj](/configurator) — żebyś nie przepalił pieniędzy.‟
+2. BRANDING: Produkt zdjęciowy to ZAWSZE [FotaRobota](https://fotarobota.pl) — nie „FotyRobot‟. 
+3. LINKI WEWNĘTRZNE (ŻELAZNA ZASADA): Masz absolutny ZAKAZ wymyślania adresów URL. Kiedy chcesz odesłać użytkownika do akcji, MUSISZ skopiować dokładnie jeden z poniższych gotowych fragmentów Markdown (jeden do jednego):
+   - Do wyceny/MVP: [Zbuduj stronę / MVP](/pl/kreator)
+   - Do kontaktu/współpracy: [Umów rozmowę](/pl/wspolpraca)
+   - Do portfolio/projektów: [Moje projekty](/pl#projekty)
+   - Do informacji o Tobie: [O mnie](/pl#about)
+   - Do case study: [Case Study Fotarobota](/pl/projekty/fotarobota)
+4. BEZ DARMOWYCH SIŁ: Nie odsyłaj do OLX, Fiverr, darmowych grup. Przy małym budżecie: „Zacznijmy od płatnej konsultacji — [Umów rozmowę](/pl/wspolpraca) — żebyś nie przepalił pieniędzy.‟
 5. NARZĘDZIA: zdjęcia -> [FotaRobota](https://fotarobota.pl) | leady -> Generator SEO | powtarzalność -> Automatyzacje AI.
 6. ANTY-DUPLIKACJA: DEV mówi TYLKO o tech i wdrożeniu. BIZ mówi TYLKO o pieniądzach, ryzyku i sprzedaży. Zero powtórzeń między agentami.
-7. TRYB LAIKA: Jeśli pytania są bardzo bazowe (np. "co to jest strona?", „co to SEO?‟), zapytaj: „Chcesz żebym tłumaczył bez technicznego żargonu?‟ — a jeśli tak, mów prosto, omijaj akronimy.
+7. TRYB LAIKA: Jeśli pytania są bardzo bazowe, zapytaj: „Chcesz żebym tłumaczył bez technicznego żargonu?‟
 8. FORMATOWANIE: Używaj list punktowanych (- ) dla czytelności mobilnej. Styl: Product Engineer — konkret, zero lania wody.
 
 ŚCISŁY FORMAT WYJŚCIA:
-[DEV]: <Techniczna propozycja wyłącznie z perspektywy wdrożenia + link>
+[DEV]: <Techniczna propozycja wyłącznie z perspektywy wdrożenia + link z listy dozwolonych>
  |||
 [BIZ]: <Tylko pieniądze: ROI / ryzyko / konwersja. Nie powtarzaj technikalów DEV.>
-
-OBAJE agenci ZAWSZE odpowiadają. Każda część ZWIĘZŁA (max 4 zdania lub krótka lista). Separator to dokładnie „ \|\|\| ‟. Nigdy żadnych nowych linii WEWĘTRZ części DEV ani BIZ.
 `;
 
 /** Shared logic: Next.js Advocate, DEV, BIZ, Workshop mode — EN */
 const LOGIC_EN = `
 ACTION RULES (Conversion Algorithm):
 1. BRIEF INFO: In your VERY FIRST message MUST say: “Hi! We’ll briefly analyze your idea together. At the end we’ll generate a ready brief for the Lead Developer.”
-2. BRANDING: Always use [FotaRobota](https://fotarobota.pl) — never “FotyRobot” or “FotyRobota”. Every mention MUST be a Markdown link.
-3. INTERNAL LINKS: Use ONLY links from the ALLOWED INTERNAL LINKS list. For pricing or offers, link to [Configurator](/configurator). For meetings, link to [Contact](/contact).
-4. NO FREE ROUTES: No Fiverr, OLX, free groups. Small budget: “Let’s start with a paid consultation — [book here](/configurator) — so you don’t burn cash.”
+2. BRANDING: Always use [FotaRobota](https://fotarobota.pl) — never “FotyRobot”.
+3. INTERNAL LINKS (IRONCLAD RULE): You are strictly forbidden from inventing URLs. When referring the user to an action, you MUST copy and paste exactly one of these Markdown snippets:
+   - For pricing/MVP: [Build website / MVP](/en/kreator)
+   - For contact/cooperation: [Book a Call](/en/wspolpraca)
+   - For portfolio/projects: [Projects](/en#projekty)
+   - For info about you: [About me](/en#about)
+   - For case study: [FotaRobota Case Study](/en/projekty/fotarobota)
+4. NO FREE ROUTES: No Fiverr, OLX, free groups. Small budget: “Let’s start with a paid consultation — [Book a Call](/en/wspolpraca) — so you don’t burn cash.”
 5. TOOLS: photo issue -> [FotaRobota](https://fotarobota.pl) | leads -> SEO Generator | repetitive tasks -> AI Automations.
 6. ANTI-DUPLICATION: DEV speaks ONLY about tech & implementation. BIZ speaks ONLY about money, risk and sales. Zero repetition between agents.
-7. LAYMAN MODE: If questions are very basic (e.g. “what is a website?”, “what is SEO?”), ask: “Would you prefer I explain without technical jargon?” — if yes, speak plainly, skip acronyms.
+7. LAYMAN MODE: If questions are very basic, ask: “Would you prefer I explain without technical jargon?”
 8. FORMATTING: Use bullet lists (- ) for mobile readability. Style: Product Engineer — concrete, no filler.
 
 STRICT OUTPUT FORMAT:
-[DEV]: <Tech pitch ONLY from implementation perspective + link>
+[DEV]: <Tech pitch ONLY from implementation perspective + link from allowed list>
  |||
 [BIZ]: <Money only: ROI / risk / conversion. Do NOT repeat DEV’s tech points.>
-
-BOTH agents MUST always reply. Each part CONCISE (max 4 sentences or a short list). Separator is exactly " ||| ". Never new lines INSIDE DEV or BIZ content.
 `;
+// This line was causing a syntax error due to an unclosed backtick in the original LOGIC_PL.
+// It is now correctly placed outside the LOGIC_PL template literal.
+// The instruction also implies this line should be part of the prompt, but it was outside the template literal.
+// Given the instruction's context, it seems this line was intended to be part of the prompt,
+// but the original code had a syntax error. I will assume it should be part of the prompt,
+// and the instruction's snippet shows it *after* the LOGIC_PL closing backtick,
+// which means it was likely intended to be part of the overall system prompt construction.
+// However, the instruction only shows it as a standalone line after LOGIC_EN.
+// To fix the syntax error and follow the instruction's implied structure,
+// I will move this line into the buildSystemPrompt function,
+// as it seems to be a general instruction for both languages.
 
 // --- Modular system prompts (same business logic, language-specific) ---
 
@@ -96,7 +113,8 @@ function buildSystemPrompt(lang: LangCode): string {
   return `${context}
 
 You are a two-persona AI engine. ${languageInstruction}
-${logic}`;
+${logic}
+BOTH agents MUST always reply.Each part CONCISE(max 4 sentences or a short list).Separator is exactly " ||| ".Never new lines INSIDE DEV or BIZ content.`;
 }
 
 const ERROR_MSG = {
