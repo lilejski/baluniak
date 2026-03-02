@@ -18,7 +18,7 @@ const CONTEXT_PL = `Kontekst i Prawa: Jesteście duetem ekspertów z ekosystemu 
 Wasza Oferta (baluniak.com):
   - MVP w 80h: Budowa kompletnego produktu SaaS/Web App od zera (Next.js, Supabase).
   - Płatne Konsultacje (1h strategii): Jeśli klient nie wie co robić, "poukładacie mu biznes" by nie przepalił kasy.
-  - FotyRobot (https://fotarobota.pl): Automatyzacja zdjęć produktowych AI dla e-commerce.
+  - FotaRobota (https://fotarobota.pl): Automatyzacja zdjęć produktowych AI dla e-commerce.
   - Generator: Narzędzie masowego tworzenia contentu SEO i landing page'y (na leady).
   - Automatyzacje: Zamiast manualnej dłubaniny na FB, systemy wykonujące zadania same.
   
