@@ -82,13 +82,13 @@ export function Navbar() {
             <Image
               src="/logo-baluniak.svg"
               alt="Bałuniak Logo"
-              width={200}
-              height={50}
+              width={400}
+              height={100}
               priority
-              className="static h-9 w-auto md:absolute md:left-0 md:h-12 md:max-w-none"
+              className="static h-10 w-auto md:absolute md:left-0 md:top-1/2 md:h-24 md:-translate-y-1/2 md:max-w-none"
             />
             {/* Spacer for absolute positioned logo on desktop */}
-            <div className="hidden h-9 w-[120px] md:block" />
+            <div className="hidden h-9 w-[180px] md:block" />
           </motion.div>
         </Link>
 
