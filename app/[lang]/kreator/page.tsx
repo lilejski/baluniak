@@ -24,7 +24,6 @@ import {
   type ProfessionalAnswers,
   type AdvancedModules,
   getStandardSteps,
-  getProfessionalSteps,
   getTotalSteps,
   getDefaultAnswers,
   buildConfigForApi,
@@ -95,13 +94,12 @@ export default function KreatorPage() {
   const { dict, lang } = useLanguage();
   const k = dict.kreator;
   const standardSteps = getStandardSteps(lang);
-  const professionalSteps = getProfessionalSteps(lang);
 
   const [branch, setBranch] = useState<Branch | null>(null);
   const [step, setStep] = useState(0);
   const [stepDirection, setStepDirection] = useState(1);
   const [standard, setStandard] = useState<Partial<StandardAnswers>>({});
-  const [professional, setProfessional] = useState<Partial<ProfessionalAnswers>>({});
+  const [professional, _setProfessional] = useState<Partial<ProfessionalAnswers>>({});
   const [modules, setModules] = useState<Partial<AdvancedModules>>({});
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
   const [architectText, setArchitectText] = useState("");
@@ -126,9 +124,7 @@ export default function KreatorPage() {
   const currentStepLabel =
     branch === "standard" && step >= 1 && step <= standardSteps.length
       ? standardSteps[step - 1].label
-      : branch === "professional" && step >= 1 && step <= professionalSteps.length
-        ? professionalSteps[step - 1].label
-        : "";
+      : "";
 
   const progressPct =
     summaryPhase !== "idle"
@@ -146,8 +142,7 @@ export default function KreatorPage() {
     setStep(1);
     setStepDirection(1);
     const defaults = getDefaultAnswers(b);
-    if (b === "standard") setStandard(defaults as StandardAnswers);
-    else setProfessional(defaults as ProfessionalAnswers);
+    setStandard(defaults as StandardAnswers);
   }, []);
 
   const goBack = useCallback(() => {
@@ -155,7 +150,6 @@ export default function KreatorPage() {
       setBranch(null);
       setStep(0);
       setStandard({});
-      setProfessional({});
     } else {
       setStepDirection(-1);
       setStep((s) => s - 1);
@@ -210,12 +204,7 @@ export default function KreatorPage() {
 
   const sendToBaluniak = useCallback(async () => {
     const config = buildConfigForApi(state);
-    const projectType =
-      branch === "standard"
-        ? k.pathStandard
-        : branch === "professional"
-          ? k.pathProfessional
-          : "Kreator";
+    const projectType = k.pathStandard;
     setInquirySending(true);
     try {
       const res = await fetch("/api/send-order", {
@@ -252,9 +241,7 @@ export default function KreatorPage() {
   const canProceed =
     branch === "standard"
       ? step === 1 || step === 2 || (step === 3 && standard.deadline) || step === 4
-      : branch === "professional"
-        ? step === 1 || step === 2 || step === 3 || step === 4
-        : false;
+      : false;
 
   const [visibleLogIndex, setVisibleLogIndex] = useState(-1);
   const terminalScrollRef = useRef<HTMLDivElement>(null);
@@ -625,41 +612,23 @@ export default function KreatorPage() {
                       key="step0"
                       {...slideIn(stepDirection)}
                       transition={transition}
-                      className="grid gap-4 sm:grid-cols-2"
+                      className="flex justify-center"
                     >
                       <button
                         type="button"
                         onClick={() => chooseBranch("standard")}
                         className={cn(
-                          "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
+                          "flex max-w-sm flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
                           "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
                         )}
                       >
                         <Monitor className="size-14 text-emerald-500/90" />
                         <div className="text-center">
-                          <span className="block font-semibold text-zinc-100">
+                          <span className="block font-semibold text-zinc-100 text-lg">
                             {k.pathStandard}
                           </span>
-                          <span className="mt-1 block text-sm text-zinc-500">
+                          <span className="mt-2 block text-sm text-zinc-500">
                             {k.pathStandardDesc}
-                          </span>
-                        </div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => chooseBranch("professional")}
-                        className={cn(
-                          "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
-                          "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
-                        )}
-                      >
-                        <Cpu className="size-14 text-emerald-500/90" />
-                        <div className="text-center">
-                          <span className="block font-semibold text-zinc-100">
-                            {k.pathProfessional}
-                          </span>
-                          <span className="mt-1 block text-sm text-zinc-500">
-                            {k.pathProfessionalDesc}
                           </span>
                         </div>
                       </button>
@@ -679,20 +648,9 @@ export default function KreatorPage() {
                     />
                   )}
 
-                  {branch === "professional" && step >= 1 && step <= 4 && (
-                    <ProfessionalSteps
-                      key="professional"
-                      step={step}
-                      stepDirection={stepDirection}
-                      professional={professional}
-                      setProfessional={setProfessional}
-                      slideIn={slideIn}
-                      transition={transition}
-                      options={k.options}
-                    />
-                  )}
 
-                  {((branch === "standard" && step === 4) || (branch === "professional" && step === 5)) && (
+
+                  {branch === "standard" && step === 4 && (
                     <ModulesStep
                       key="modules"
                       modules={modules}
@@ -882,13 +840,20 @@ function StandardSteps({
           key="s1"
           {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
           transition={transition}
-          className="grid gap-3 sm:grid-cols-3"
+          className="grid gap-3 sm:grid-cols-2"
         >
           {(
             [
               { id: "wizerunek" as const, labelKey: "brandingWizerunek" as const },
               { id: "portfolio" as const, labelKey: "brandingPortfolio" as const },
               { id: "kontakt" as const, labelKey: "brandingKontakt" as const },
+              { id: "ecom" as const, labelKey: "brandingEcom" as const },
+              { id: "saas" as const, labelKey: "brandingSaaS" as const },
+              { id: "edu" as const, labelKey: "brandingEdu" as const },
+              { id: "b2b" as const, labelKey: "brandingB2B" as const },
+              { id: "health" as const, labelKey: "brandingHealth" as const },
+              { id: "realestate" as const, labelKey: "brandingRealEstate" as const },
+              { id: "restaurant" as const, labelKey: "brandingRestaurant" as const },
             ] as const
           ).map(({ id, labelKey }) => {
             const selected = standard.branding === id;

@@ -6,10 +6,10 @@
 import type { Language } from "./translations";
 import { translations } from "./translations";
 
-export type Branch = "standard" | "professional";
+export type Branch = "standard";
 
 export type StandardAnswers = {
-  branding: "wizerunek" | "portfolio" | "kontakt";
+  branding: "wizerunek" | "portfolio" | "kontakt" | "ecom" | "saas" | "edu" | "b2b" | "health" | "realestate" | "restaurant";
   sections: {
     about: boolean;
     gallery: boolean;
@@ -109,26 +109,18 @@ export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "modules"] as co
 export function getStandardSteps(lang: Language) {
   return translations[lang].kreator.steps.standard;
 }
-export function getProfessionalSteps(lang: Language) {
-  return translations[lang].kreator.steps.professional;
-}
 
 export function getTotalSteps(branch: Branch): number {
-  return branch === "standard" ? STANDARD_STEP_IDS.length : PROFESSIONAL_STEP_IDS.length;
+  return STANDARD_STEP_IDS.length;
 }
 
-export function getDefaultAnswers(branch: Branch): StandardAnswers | ProfessionalAnswers {
-  return branch === "standard" ? { ...DEFAULT_STANDARD } : { ...DEFAULT_PROFESSIONAL };
+export function getDefaultAnswers(branch: Branch): StandardAnswers {
+  return { ...DEFAULT_STANDARD };
 }
 
 /** Build a config object to send to architect API (and for offer summary). */
 export function buildConfigForApi(state: FunnelState): Record<string, unknown> {
-  const base =
-    state.branch === "standard" && state.standard
-      ? { branch: "standard" as const, ...state.standard }
-      : state.branch === "professional" && state.professional
-        ? { branch: "professional" as const, ...state.professional }
-        : { branch: state.branch };
+  const base = state.standard ? { branch: "standard" as const, ...state.standard } : { branch: "standard" as const };
   const selectedModules =
     state.modules && typeof state.modules === "object"
       ? ADVANCED_MODULE_IDS.filter((id) => state.modules![id])
