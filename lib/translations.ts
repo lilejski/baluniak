@@ -26,7 +26,7 @@ export const translations = {
       finalNudge: "Twój pomysł zasługuje na coś więcej niż tylko arkusz w Excelu.",
       ctaLabel: "Zamów darmową wycenę projektu",
       brandTagline: "Strony WWW, aplikacje i MVP — szybciej i taniej niż software house'y.",
-      productEngineerTagline: "Product Engineer",
+      productEngineerTagline: "Bałuniak — Twórca MVP | Wdrożenia AI w Biznesie | Web App Developer",
       statusLabel: "Dostępny na nowe projekty",
       navTitle: "Nawigacja",
       quickLinks: [
@@ -49,7 +49,7 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Product Engineer / Maker",
+      badge: "Bałuniak — Twórca MVP | Wdrożenia AI w Biznesie | Web App Developer",
       headline: "Zbuduję Twoje MVP. Szybko. Zyskownie.",
       headlineAccent: "",
       headlineEnd: "",
@@ -513,7 +513,7 @@ export const translations = {
       finalNudge: "Your idea deserves more than a spreadsheet.",
       ctaLabel: "Get a free project quote",
       brandTagline: "Websites, apps & MVP — faster and cheaper than software houses.",
-      productEngineerTagline: "Product Engineer",
+      productEngineerTagline: "Baluniak — MVP Builder | AI Implementations | Fullstack SaaS",
       statusLabel: "Available for new projects",
       navTitle: "Navigation",
       quickLinks: [
@@ -536,7 +536,7 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Product Engineer / Maker",
+      badge: "Baluniak — MVP Builder | AI Implementations | Fullstack SaaS",
       headline: "I build your MVP. Fast and Profitable.",
       headlineAccent: "",
       headlineEnd: "",
@@ -962,9 +962,9 @@ export const translations = {
       sendError: "Send failed. Try again or email directly.",
     },
     seo: {
-      homeTitle: "Łukasz Baluniak | Professional Websites, Web Apps & MVP",
-      homeDescription: "I build modern, ultra-fast websites for businesses, web applications, SaaS systems and AI automation. Build a strong online presence without big agency budgets.",
-      homeKeywords: "web development, websites, modern websites, web applications, freelance developer, MVP prototyping, SaaS systems, AI automation for business",
+      homeTitle: "Bałuniak — Twórca MVP | Wdrożenia AI w Biznesie | Web App Developer",
+      homeDescription: "Buduję nowoczesne, ultra-szybkie strony dla firm, aplikacje webowe, systemy SaaS i automatyzacje AI. Zbuduj silną obecność w sieci bez budżetów wielkich agencji.",
+      homeKeywords: "web development, strony internetowe, nowoczesne strony, aplikacje webowe, freelance developer, prototypowanie MVP, systemy SaaS, automatyzacja AI dla biznesu",
       kreatorTitle: "MVP quote & project architecture | Quote configurator | BALUNIAK",
       kreatorDescription: "Get a real MVP quote in minutes. Choose a path (showcase or SaaS), add modules – instant quote and recommended stack from a Product Builder.",
       wspolpracaTitle: "Book a call | Fast-Track MVP | Product Builder | BALUNIAK",
