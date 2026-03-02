@@ -13,25 +13,27 @@ import { WelcomeCards } from "@/components/WelcomeCards";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const SPLITTER = " ||| ";
+const SPLITTER_REGEX = /\n?\s*\|\|\|\s*\n?/;
 const MAX_INTERACTIONS = 15;
 const RATE_LIMIT_MS = 2000;
 
 /**
- * Parse split-stream response: "[DEV]: ... ||| [BIZ]: ..."
+ * Parse split-stream response: "[DEV]: ... ||| [BIZ]: ..." (inline OR multiline)
+ * The new prompt format puts ||| on its own line, so we handle both variants.
  * Left column gets content after [DEV]:, right column after [BIZ]:.
- * Until the separator " ||| " appears (streaming), only DEV panel gets content; BIZ stays empty.
- * Fallback: if separator is missing (e.g. error message), show full text only in DEV panel.
+ * During streaming (before ||| appears), only DEV panel shows content.
+ * Fallback: if separator is missing, show full text only in DEV panel.
  */
 function parseSplitStreamContent(raw: string): { dev: string; biz: string } {
   const trimmed = raw.trim();
   if (!trimmed) return { dev: "", biz: "" };
-  const parts = trimmed.split(SPLITTER);
-  const first = (parts[0]?.trim() ?? "").replace(/^\[DEV]:\s*/i, "").trim();
-  const second = (parts[1]?.trim() ?? "").replace(/^\[BIZ]:\s*/i, "").trim();
-  if (parts.length >= 2) {
+  const parts = trimmed.split(SPLITTER_REGEX);
+  const first = (parts[0]?.trim() ?? "").replace(/^\[DEV\]:\s*/i, "").trim();
+  const second = (parts[1]?.trim() ?? "").replace(/^\[BIZ\]:\s*/i, "").trim();
+  if (parts.length >= 2 && second) {
     return { dev: first, biz: second };
   }
+  // Still streaming DEV part — show in DEV panel only
   return { dev: first || trimmed, biz: "" };
 }
 
@@ -181,7 +183,16 @@ function AgentWindow({
   return (
     <div className={cn("flex h-[28dvh] min-h-[180px] max-h-[250px] md:h-[350px] md:max-h-none flex-col p-2.5 md:p-4 rounded-xl", borderCls, glowCls)}>
       <div className="mb-2 md:mb-3 flex shrink-0 flex-row items-center gap-2.5 md:gap-3">
-        <div className={cn("h-10 w-10 sm:h-14 sm:w-14 flex-shrink-0 rounded border-2 md:h-16 md:w-16", avatarCls)} />
+        {/* Avatar with icon */}
+        <div className={cn(
+          "flex shrink-0 items-center justify-center rounded-xl border-2 md:h-16 md:w-16",
+          "h-10 w-10 sm:h-14 sm:w-14",
+          avatarCls
+        )}>
+          {isDev
+            ? <Code2 className="size-4 sm:size-6 md:size-7 text-emerald-400" aria-hidden />
+            : <Briefcase className="size-4 sm:size-6 md:size-7 text-amber-400" aria-hidden />}
+        </div>
         <div className="min-w-0">
           <p
             className={cn(
@@ -280,6 +291,7 @@ export default function AIDuelLayout() {
   const [briefSent, setBriefSent] = useState(false);
   const [briefToastVisible, setBriefToastVisible] = useState(false);
   const [confirmPrompt, setConfirmPrompt] = useState<string | null>(null);
+  const [briefConfirmOpen, setBriefConfirmOpen] = useState(false);
   const lastSendTimeRef = useRef<number>(0);
 
   const { messages, sendMessage, status, error } = useChat({
@@ -352,7 +364,7 @@ export default function AIDuelLayout() {
 
   const limitReached = interactionCount >= MAX_INTERACTIONS;
   const showWelcomeCards = interactionCount === 0 && !isLoading && !limitReached;
-  const showGenerateBriefButton = interactionCount >= 3 && !briefSent;
+  const showGenerateBriefButton = interactionCount >= 1 && !briefSent;
 
   const handleSendBrief = useCallback(async () => {
     const email = briefEmail.trim();
@@ -464,6 +476,27 @@ export default function AIDuelLayout() {
               </Button>
               <Button className="flex-1 rounded-xl bg-emerald-600 font-medium text-emerald-50 hover:bg-emerald-500" onClick={() => { handleQuickAction(confirmPrompt); setConfirmPrompt(null); }}>
                 Tak, wklej
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile confirmation popup before opening brief email modal */}
+      {briefConfirmOpen && (
+        <div className="fixed inset-0 z-[125] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-[2rem] bg-zinc-900/95 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
+            <FileText className="mx-auto mb-3 size-10 text-violet-400" aria-hidden />
+            <p className="mb-2 text-center text-sm font-semibold text-zinc-100">Gotowy brief?</p>
+            <p className="mb-6 text-center text-xs leading-relaxed text-zinc-400">
+              Czy chcesz, żeby agenci automatycznie podsumowali całą rozmowę i przesłali mailem jako gotowy brief dla Lead Developera?
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.06]" onClick={() => setBriefConfirmOpen(false)}>
+                Nie teraz
+              </Button>
+              <Button className="flex-1 rounded-xl bg-violet-600 font-medium text-white hover:bg-violet-500" onClick={() => { setBriefConfirmOpen(false); setBriefModalOpen(true); }}>
+                Tak, wyślij!
               </Button>
             </div>
           </div>
@@ -687,14 +720,21 @@ export default function AIDuelLayout() {
               </div>
             )}
 
-            {/* Sticky action bar: Generate Brief (after 3+ messages) */}
+            {/* Sticky action bar: Generate Brief — always visible after first message */}
             {showGenerateBriefButton && (
               <div className="sticky bottom-0 left-0 right-0 z-20 bg-black/90 px-4 py-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] backdrop-blur-md">
                 <div className="mx-auto flex max-w-[600px] justify-center">
                   <Button
                     type="button"
                     size="lg"
-                    onClick={() => setBriefModalOpen(true)}
+                    onClick={() => {
+                      // On narrow screens show the confirm popup; on desktop open email modal directly
+                      if (typeof window !== "undefined" && window.innerWidth < 768) {
+                        setBriefConfirmOpen(true);
+                      } else {
+                        setBriefModalOpen(true);
+                      }
+                    }}
                     className="min-h-11 rounded-xl bg-zinc-950 font-semibold text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.1] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.5)] hover:ring-white/[0.15]"
                   >
                     <FileText className="mr-2 size-4 shrink-0" aria-hidden />
