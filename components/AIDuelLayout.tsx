@@ -132,6 +132,53 @@ function FrequencyBar({ active }: { active: boolean }) {
   );
 }
 
+/**
+ * Lightweight inline Markdown renderer.
+ * Supports: [text](url) links and newlines. No deps needed.
+ */
+function renderMarkdown(text: string, isDev: boolean): React.ReactNode[] {
+  const LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const result: React.ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = LINK_RE.exec(text)) !== null) {
+    const before = text.slice(last, match.index);
+    if (before) {
+      before.split("\n").forEach((line, i, arr) => {
+        result.push(line);
+        if (i < arr.length - 1) result.push(<br key={`br-${key++}`} />);
+      });
+    }
+    result.push(
+      <a
+        key={`link-${key++}`}
+        href={match[2]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`font-semibold underline underline-offset-2 transition-colors ${isDev
+            ? "text-amber-300 hover:text-amber-200"
+            : "text-amber-400 hover:text-amber-300"
+          }`}
+      >
+        {match[1]}
+      </a>
+    );
+    last = match.index + match[0].length;
+  }
+
+  const tail = text.slice(last);
+  if (tail) {
+    tail.split("\n").forEach((line, i, arr) => {
+      result.push(line);
+      if (i < arr.length - 1) result.push(<br key={`br-${key++}`} />);
+    });
+  }
+
+  return result;
+}
+
 function AgentWindow({
   title,
   subtitle,
@@ -264,7 +311,7 @@ function AgentWindow({
             </div>
           ) : (
             <>
-              {content || placeholder}
+              {renderMarkdown(content || placeholder, theme === "dev")}
               {(isLoading || content) && (
                 <span className="animate-pulse">_</span>
               )}
