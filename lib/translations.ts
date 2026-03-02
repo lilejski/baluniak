@@ -60,10 +60,13 @@ export const translations = {
       techStackTrust: "POWERED BY MODERN STACK",
     },
     about: {
-      bridgeTitle: "The Bridge",
-      roleTitle: "Fullstack Product Builder",
-      headline: "Zbuduję Twój projekt od zera. Od bazy danych po interfejs.",
+      bridgeTitle: "Poznajmy się",
+      roleTitle: "BAŁUNIAK ŁUKASZ",
+      headline: "Zbuduję Twój projekt od zera. Od pomysłu do realizacji.",
       subheadline: "Integracje AI, nowoczesne UX i stack, który wytrzyma ruch.",
+      proofTitle: "Proof of Concept",
+      proofDesc: "Certyfikat Google — Umiejętności Jutra AI",
+      proofCta: "Pokaż certyfikat",
       stages: [
         {
           id: "fullstack",
@@ -79,9 +82,9 @@ export const translations = {
         },
         {
           id: "ux",
-          label: "UX",
-          title: "Nowoczesne UX",
-          body: "Projektuję pod 'Thumb Zone'. Moje aplikacje idealnie leżą w dłoni, bo większość klientów przegląda je na telefonie.",
+          label: "AI Trend",
+          title: "Jestem na bieżąco!",
+          body: "W czasach dynamicznego rozwoju sztucznej inteligencji ciężko być na bieżąco. Od tego masz mnie — monitoruję najnowocześniejsze narzędzia AI i mam pomysł na ich implementację w Twoim biznesie.",
         },
       ],
     },
@@ -508,10 +511,13 @@ export const translations = {
       techStackTrust: "POWERED BY MODERN STACK",
     },
     about: {
-      bridgeTitle: "The Bridge",
-      roleTitle: "Fullstack Product Builder",
-      headline: "I build your project from scratch. From database to interface.",
+      bridgeTitle: "Let's meet",
+      roleTitle: "BAŁUNIAK ŁUKASZ",
+      headline: "I build your project from scratch. From idea to reality.",
       subheadline: "AI integrations, modern UX, and a stack that handles real traffic.",
+      proofTitle: "Proof of Concept",
+      proofDesc: "Google Certificate — AI Skills for the Future",
+      proofCta: "View certificate",
       stages: [
         {
           id: "fullstack",
@@ -527,9 +533,9 @@ export const translations = {
         },
         {
           id: "ux",
-          label: "UX",
-          title: "Modern UX",
-          body: "I design for the Thumb Zone. My apps sit right in the user's hand, because most traffic is on mobile.",
+          label: "AI Trend",
+          title: "I stay up to date!",
+          body: "In the age of rapidly evolving AI it's hard to keep pace. That's where I come in — I monitor the latest AI tools and have concrete ideas on how to implement them in your business.",
         },
       ],
     },
