@@ -165,9 +165,10 @@ export function About() {
                   initial="hidden"
                   animate={isInView ? "visible" : "hidden"}
                   className={cn(
-                    "relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-lg backdrop-blur-sm",
+                    "relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-lg backdrop-blur-sm transition-all duration-300",
                     "md:flex md:flex-col"
                   )}
+                  whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
                 >
                   {heatmap && (
                     <div

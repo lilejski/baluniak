@@ -10,7 +10,18 @@ export type Branch = "standard" | "professional";
 
 export type StandardAnswers = {
   branding: "wizerunek" | "portfolio" | "kontakt";
-  sections: { about: boolean; gallery: boolean; contact: boolean };
+  sections: {
+    about: boolean;
+    gallery: boolean;
+    contact: boolean;
+    pricing: boolean;
+    faq: boolean;
+    blog: boolean;
+    team: boolean;
+    portfolio: boolean;
+    testimonials: boolean;
+    process: boolean;
+  };
   deadline: "asap" | "2weeks" | "1month";
 };
 
@@ -18,7 +29,6 @@ export type ProfessionalAnswers = {
   aiIntegration: "fal" | "openai" | "both";
   payments: boolean;
   userAuth: boolean;
-  scalability: boolean;
 };
 
 /** Advanced modules (checkboxes) – shared by both branches. */
@@ -28,9 +38,21 @@ export type AdvancedModules = {
   i18n: boolean;
   analytics: boolean;
   legal: boolean;
+  // New AI SaaS modules
+  imgGen: boolean;
+  videoGen: boolean;
+  dubbing: boolean;
+  marketing: boolean;
+  branding: boolean;
+  social: boolean;
+  promo: boolean;
+  chatbots: boolean;
 };
 
-export const ADVANCED_MODULE_IDS = ["seo", "cms", "i18n", "analytics", "legal"] as const;
+export const ADVANCED_MODULE_IDS = [
+  "seo", "cms", "i18n", "analytics", "legal",
+  "imgGen", "videoGen", "dubbing", "marketing", "branding", "social", "promo", "chatbots"
+] as const;
 export type AdvancedModuleId = (typeof ADVANCED_MODULE_IDS)[number];
 
 /** Price in PLN for each advanced module. */
@@ -40,6 +62,14 @@ export const ADVANCED_MODULE_PRICES: Record<AdvancedModuleId, number> = {
   i18n: 1200,
   analytics: 300,
   legal: 200,
+  imgGen: 1500,
+  videoGen: 2500,
+  dubbing: 1200,
+  marketing: 1800,
+  branding: 2000,
+  social: 1000,
+  promo: 1500,
+  chatbots: 3000,
 };
 
 export type FunnelState = {
@@ -52,7 +82,18 @@ export type FunnelState = {
 
 const DEFAULT_STANDARD: StandardAnswers = {
   branding: "wizerunek",
-  sections: { about: true, gallery: false, contact: true },
+  sections: {
+    about: true,
+    gallery: false,
+    contact: true,
+    pricing: false,
+    faq: false,
+    blog: false,
+    team: false,
+    portfolio: false,
+    testimonials: false,
+    process: false,
+  },
   deadline: "2weeks",
 };
 
@@ -60,11 +101,10 @@ const DEFAULT_PROFESSIONAL: ProfessionalAnswers = {
   aiIntegration: "fal",
   payments: false,
   userAuth: false,
-  scalability: true,
 };
 
 export const STANDARD_STEP_IDS = ["branding", "sections", "deadline", "modules"] as const;
-export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "scale", "modules"] as const;
+export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "modules"] as const;
 
 export function getStandardSteps(lang: Language) {
   return translations[lang].kreator.steps.standard;
@@ -117,7 +157,6 @@ export function getStackSummary(state: FunnelState, lang: Language = "PL"): stri
     else if (p.aiIntegration === "both") parts.push(k.falOpenai);
     if (p.payments) parts.push(k.autopayStripe);
     if (p.userAuth) parts.push(k.authSupabase);
-    if (p.scalability) parts.push(k.serverless);
     return parts.join(" + ") + ".";
   }
   return "";
@@ -136,7 +175,7 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
     total = 2200;
     const s = state.standard?.sections;
     if (s) {
-      const sectionsCount = [s.about, s.gallery, s.contact].filter(Boolean).length;
+      const sectionsCount = Object.values(s).filter(Boolean).length;
       if (sectionsCount > 0) {
         const extra = sectionsCount * 500;
         lineItems.push({ id: "pages", label: `${labels.extraSections} (×${sectionsCount})`, price: extra });
@@ -173,7 +212,7 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
 
   const mods = state.modules;
   if (mods && typeof mods === "object") {
-    const moduleLabels: Record<AdvancedModuleId, string> = labels.modules ?? {} as Record<AdvancedModuleId, string>;
+    const moduleLabels: Record<string, string> = labels.modules ?? {};
     for (const id of ADVANCED_MODULE_IDS) {
       if (mods[id]) {
         const price = ADVANCED_MODULE_PRICES[id];

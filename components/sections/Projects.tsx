@@ -14,6 +14,7 @@ import {
   LayoutGrid,
   Layout,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -51,7 +52,17 @@ export function Projects() {
         </h2>
 
         {/* Fotarobota: compact split view — desktop 50/50 max-h 500px, mobile stacked image 16:9 */}
-        <div className="mb-10 overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl backdrop-blur-md md:flex md:max-h-[500px]">
+        <motion.div
+          initial={{ y: 0 }}
+          animate={{ y: [0, -8, 0] }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+          className="mb-10 overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl backdrop-blur-md md:flex md:max-h-[500px] transition-shadow hover:shadow-emerald-500/10"
+        >
           <div className="relative w-full shrink-0 aspect-video md:aspect-auto md:h-auto md:min-h-0 md:w-1/2 md:max-h-[500px]">
             <Image
               src="/fotarobota-preview.png"
@@ -104,7 +115,7 @@ export function Projects() {
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Other projects grid */}
         <div

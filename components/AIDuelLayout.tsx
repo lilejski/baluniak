@@ -8,7 +8,7 @@ import { DefaultChatTransport } from "ai";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Code2, Briefcase, Send, FileText } from "lucide-react";
+import { Code2, Briefcase, Send, FileText, ArrowRight, BarChart2, Cloud, Cpu, ExternalLink, LayoutGrid, Layout } from "lucide-react";
 import { WelcomeCards } from "@/components/WelcomeCards";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -158,8 +158,8 @@ function renderMarkdown(text: string, isDev: boolean): React.ReactNode[] {
         target="_blank"
         rel="noopener noreferrer"
         className={`font-semibold underline underline-offset-2 transition-colors ${isDev
-            ? "text-amber-300 hover:text-amber-200"
-            : "text-amber-400 hover:text-amber-300"
+          ? "text-amber-300 hover:text-amber-200"
+          : "text-amber-400 hover:text-amber-300"
           }`}
       >
         {match[1]}
@@ -653,6 +653,50 @@ export default function AIDuelLayout() {
                 </form>
               </div>
             )}
+
+            {/* Middle Bar with floating laser effect input */}
+            <div className="relative mt-2 px-4 pb-4">
+              <div className="relative mx-auto max-w-2xl">
+                {/* Laser border effect: an animated gradient behind the input container */}
+                <div
+                  className="absolute -inset-[1.5px] rounded-full opacity-70 blur-[1px]"
+                  style={{
+                    background: "conic-gradient(from 0deg, transparent 0deg, transparent 150deg, #10b981 180deg, transparent 210deg, transparent 360deg)",
+                    animation: "rotate-laser 4s linear infinite"
+                  }}
+                />
+                <style jsx>{`
+                  @keyframes rotate-laser {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                  }
+                `}</style>
+
+                <div className="relative flex items-center gap-2 rounded-full border border-zinc-800/80 bg-zinc-950/90 p-1.5 pl-5 shadow-2xl backdrop-blur-xl">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !isLoading && input.trim() && (handleCustomSubmit(e as any), setInput(""))}
+                    placeholder={dict.agents.workshopInputPlaceholder}
+                    className="min-w-0 flex-1 border-none bg-transparent py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-0"
+                  />
+                  <Button
+                    size="icon"
+                    disabled={isLoading || !input.trim()}
+                    onClick={(e) => {
+                      if (input.trim()) {
+                        handleCustomSubmit(e as any);
+                        setInput("");
+                      }
+                    }}
+                    className="size-10 shrink-0 rounded-full bg-emerald-600 font-semibold text-white shadow-lg transition-all hover:bg-emerald-500 hover:scale-105 active:scale-95 disabled:bg-zinc-800 disabled:text-zinc-500 disabled:scale-100"
+                  >
+                    <Send className="size-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             {/* Desktop: two agent windows (fixed height) + input underneath */}
             <div className="hidden flex-col md:flex">

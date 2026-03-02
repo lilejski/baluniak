@@ -253,11 +253,7 @@ export default function KreatorPage() {
     branch === "standard"
       ? step === 1 || step === 2 || (step === 3 && standard.deadline) || step === 4
       : branch === "professional"
-        ? step === 1 ||
-          step === 2 ||
-          step === 3 ||
-          (step === 4 && professional.scalability !== undefined) ||
-          step === 5
+        ? step === 1 || step === 2 || step === 3 || step === 4
         : false;
 
   const [visibleLogIndex, setVisibleLogIndex] = useState(-1);
@@ -623,155 +619,155 @@ export default function KreatorPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-              <AnimatePresence mode="wait" initial={false}>
-                {branch === null && (
-                  <motion.div
-                    key="step0"
-                    {...slideIn(stepDirection)}
-                    transition={transition}
-                    className="grid gap-4 sm:grid-cols-2"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => chooseBranch("standard")}
-                      className={cn(
-                        "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
-                        "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
-                      )}
+                <AnimatePresence mode="wait" initial={false}>
+                  {branch === null && (
+                    <motion.div
+                      key="step0"
+                      {...slideIn(stepDirection)}
+                      transition={transition}
+                      className="grid gap-4 sm:grid-cols-2"
                     >
-                      <Monitor className="size-14 text-emerald-500/90" />
-                      <div className="text-center">
-                        <span className="block font-semibold text-zinc-100">
-                          {k.pathStandard}
-                        </span>
-                        <span className="mt-1 block text-sm text-zinc-500">
-                          {k.pathStandardDesc}
-                        </span>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => chooseBranch("professional")}
-                      className={cn(
-                        "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
-                        "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
-                      )}
-                    >
-                      <Cpu className="size-14 text-emerald-500/90" />
-                      <div className="text-center">
-                        <span className="block font-semibold text-zinc-100">
-                          {k.pathProfessional}
-                        </span>
-                        <span className="mt-1 block text-sm text-zinc-500">
-                          {k.pathProfessionalDesc}
-                        </span>
-                      </div>
-                    </button>
-                  </motion.div>
-                )}
+                      <button
+                        type="button"
+                        onClick={() => chooseBranch("standard")}
+                        className={cn(
+                          "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
+                          "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
+                        )}
+                      >
+                        <Monitor className="size-14 text-emerald-500/90" />
+                        <div className="text-center">
+                          <span className="block font-semibold text-zinc-100">
+                            {k.pathStandard}
+                          </span>
+                          <span className="mt-1 block text-sm text-zinc-500">
+                            {k.pathStandardDesc}
+                          </span>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => chooseBranch("professional")}
+                        className={cn(
+                          "flex min-h-[48px] min-w-[48px] flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
+                          "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
+                        )}
+                      >
+                        <Cpu className="size-14 text-emerald-500/90" />
+                        <div className="text-center">
+                          <span className="block font-semibold text-zinc-100">
+                            {k.pathProfessional}
+                          </span>
+                          <span className="mt-1 block text-sm text-zinc-500">
+                            {k.pathProfessionalDesc}
+                          </span>
+                        </div>
+                      </button>
+                    </motion.div>
+                  )}
 
-                {branch === "standard" && step >= 1 && step <= 3 && (
-                  <StandardSteps
-                    key="standard"
-                    step={step}
-                    stepDirection={stepDirection}
-                    standard={standard}
-                    setStandard={setStandard}
-                    slideIn={slideIn}
-                    transition={transition}
-                    options={k.options}
-                  />
-                )}
+                  {branch === "standard" && step >= 1 && step <= 3 && (
+                    <StandardSteps
+                      key="standard"
+                      step={step}
+                      stepDirection={stepDirection}
+                      standard={standard}
+                      setStandard={setStandard}
+                      slideIn={slideIn}
+                      transition={transition}
+                      options={k.options}
+                    />
+                  )}
 
-                {branch === "professional" && step >= 1 && step <= 4 && (
-                  <ProfessionalSteps
-                    key="professional"
-                    step={step}
-                    stepDirection={stepDirection}
-                    professional={professional}
-                    setProfessional={setProfessional}
-                    slideIn={slideIn}
-                    transition={transition}
-                    options={k.options}
-                  />
-                )}
+                  {branch === "professional" && step >= 1 && step <= 4 && (
+                    <ProfessionalSteps
+                      key="professional"
+                      step={step}
+                      stepDirection={stepDirection}
+                      professional={professional}
+                      setProfessional={setProfessional}
+                      slideIn={slideIn}
+                      transition={transition}
+                      options={k.options}
+                    />
+                  )}
 
-                {((branch === "standard" && step === 4) || (branch === "professional" && step === 5)) && (
-                  <ModulesStep
-                    key="modules"
-                    modules={modules}
-                    setModules={setModules}
-                    slideIn={slideIn}
-                    transition={transition}
-                    options={k.options}
-                  />
-                )}
-              </AnimatePresence>
+                  {((branch === "standard" && step === 4) || (branch === "professional" && step === 5)) && (
+                    <ModulesStep
+                      key="modules"
+                      modules={modules}
+                      setModules={setModules}
+                      slideIn={slideIn}
+                      transition={transition}
+                      options={k.options}
+                    />
+                  )}
+                </AnimatePresence>
 
-              <div className="flex justify-between gap-3 pt-4 lg:pt-4">
-                <Button variant="outline" size="lg" onClick={goBack} className="min-h-12 border-white/20">
-                  <ArrowLeft className="mr-2 size-4" />
-                  {k.back}
-                </Button>
-                {branch !== null && (
-                  <Button
-                    size="lg"
-                    onClick={goNext}
-                    disabled={!canProceed && !isLastStep}
-                    className="min-h-12 bg-emerald-600 hover:bg-emerald-500"
-                  >
-                    {isLastStep ? (
-                      k.prepareOffer
-                    ) : (
-                      <>
-                        {k.next}
-                        <ArrowRight className="ml-2 size-4" />
-                      </>
-                    )}
+                <div className="flex justify-between gap-3 pt-4 lg:pt-4">
+                  <Button variant="outline" size="lg" onClick={goBack} className="min-h-12 border-white/20">
+                    <ArrowLeft className="mr-2 size-4" />
+                    {k.back}
                   </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Desktop: sticky price summary sidebar (SaaS e‑commerce style) */}
-          <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
-            <Card className="border-zinc-800 bg-zinc-950/95 shadow-xl ring-1 ring-white/5">
-              <CardContent className="p-6">
-                {priceSummaryContent}
+                  {branch !== null && (
+                    <Button
+                      size="lg"
+                      onClick={goNext}
+                      disabled={!canProceed && !isLastStep}
+                      className="min-h-12 bg-emerald-600 hover:bg-emerald-500"
+                    >
+                      {isLastStep ? (
+                        k.prepareOffer
+                      ) : (
+                        <>
+                          {k.next}
+                          <ArrowRight className="ml-2 size-4" />
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Mobile: fixed bottom bar + drawer (always at hand) */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800/80 bg-zinc-950/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:hidden">
-            <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-              <SheetTrigger asChild>
-                <button
-                  type="button"
-                  className="flex min-h-12 w-full items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-left"
-                  aria-label={k.openConfigAria}
-                >
-                  <span className="flex items-center gap-2 text-sm font-bold text-white">
-                    <ShoppingCart className="size-5 text-emerald-500" />
-                    {k.yourConfig}
-                  </span>
-                  <span className="text-xl font-bold tabular-nums text-emerald-500">
-                    {formatPrice(displayTotal, lang, currencyCode)}
-                  </span>
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="border-zinc-800 bg-zinc-950">
-                <SheetHeader>
-                  <SheetTitle className="text-zinc-100">{k.yourConfig}</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6 pb-8">
+            {/* Desktop: sticky price summary sidebar (SaaS e‑commerce style) */}
+            <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
+              <Card className="border-zinc-800 bg-zinc-950/95 shadow-xl ring-1 ring-white/5">
+                <CardContent className="p-6">
                   {priceSummaryContent}
-                </div>
-              </SheetContent>
-            </Sheet>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Mobile: fixed bottom bar + drawer (always at hand) */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800/80 bg-zinc-950/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:hidden">
+              <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <SheetTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex min-h-12 w-full items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-left"
+                    aria-label={k.openConfigAria}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-bold text-white">
+                      <ShoppingCart className="size-5 text-emerald-500" />
+                      {k.yourConfig}
+                    </span>
+                    <span className="text-xl font-bold tabular-nums text-emerald-500">
+                      {formatPrice(displayTotal, lang, currencyCode)}
+                    </span>
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="border-zinc-800 bg-zinc-950">
+                  <SheetHeader>
+                    <SheetTitle className="text-zinc-100">{k.yourConfig}</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 pb-8">
+                    {priceSummaryContent}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
-        </div>
         )}
       </div>
     </div>
@@ -894,7 +890,7 @@ function StandardSteps({
               { id: "portfolio" as const, labelKey: "brandingPortfolio" as const },
               { id: "kontakt" as const, labelKey: "brandingKontakt" as const },
             ] as const
-            ).map(({ id, labelKey }) => {
+          ).map(({ id, labelKey }) => {
             const selected = standard.branding === id;
             return (
               <motion.button
@@ -921,44 +917,51 @@ function StandardSteps({
           key="s2"
           {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
           transition={transition}
-          className="space-y-3"
+          className="grid gap-3 sm:grid-cols-2"
         >
-          {(["about", "gallery", "contact"] as const).map((key) => {
+          {(
+            [
+              { key: "about", label: o.sectionAbout },
+              { key: "gallery", label: o.sectionGallery },
+              { key: "contact", label: o.sectionContact },
+              { key: "pricing", label: o.sectionPricing },
+              { key: "faq", label: o.sectionFaq },
+              { key: "blog", label: o.sectionBlog },
+              { key: "team", label: o.sectionTeam },
+              { key: "portfolio", label: o.sectionPortfolio },
+              { key: "testimonials", label: o.sectionTestimonials },
+              { key: "process", label: o.sectionProcess },
+            ] as const
+          ).map(({ key, label }) => {
             const checked = standard.sections?.[key] ?? false;
             return (
-            <motion.label
-              key={key}
-              animate={{ scale: checked ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all",
-                checked
-                  ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50"
-              )}
-            >
-              <input
-                type="checkbox"
-                checked={standard.sections?.[key] ?? false}
-                onChange={(e) =>
-                  setStandard((s) => ({
-                    ...s,
-                    sections: {
-                      about: s.sections?.about ?? true,
-                      gallery: s.sections?.gallery ?? false,
-                      contact: s.sections?.contact ?? true,
-                      [key]: e.target.checked,
-                    },
-                  }))
-                }
-                className="size-4 rounded accent-emerald-500"
-              />
-              <span className="text-sm text-zinc-200">
-                {key === "about" && o.sectionAbout}
-                {key === "gallery" && o.sectionGallery}
-                {key === "contact" && o.sectionContact}
-              </span>
-            </motion.label>
+              <motion.label
+                key={key}
+                animate={{ scale: checked ? 1.02 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+                  checked
+                    ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                    : "border-white/10 bg-zinc-800/50 hover:border-white/20"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) =>
+                    setStandard((s) => ({
+                      ...s,
+                      sections: {
+                        ...(s.sections || ({} as any)),
+                        [key]: e.target.checked,
+                      } as any,
+                    }))
+                  }
+                  className="size-4 rounded accent-emerald-500"
+                />
+                <span className="text-sm text-zinc-200">{label}</span>
+              </motion.label>
             );
           })}
         </motion.div>
@@ -1129,37 +1132,7 @@ function ProfessionalSteps({
       )}
       {step === 4 && (
         <motion.div key="p4" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">{o.scaleQuestion}</p>
-          <div className="flex gap-3">
-            <motion.button
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, scalability: true }))}
-              animate={{ scale: professional.scalability === true ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
-                professional.scalability === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400"
-              )}
-            >
-              {o.yes}
-            </motion.button>
-            <motion.button
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, scalability: false }))}
-              animate={{ scale: professional.scalability === false ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
-                professional.scalability === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400"
-              )}
-            >
-              {o.no}
-            </motion.button>
-          </div>
+          <p className="mb-3 text-sm text-zinc-400">Przejdź do wyboru modułów zaawansowanych.</p>
         </motion.div>
       )}
     </>
@@ -1172,6 +1145,14 @@ const MODULE_OPTION_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof Kre
   i18n: "moduleI18n",
   analytics: "moduleAnalytics",
   legal: "moduleLegal",
+  imgGen: "moduleImgGen",
+  videoGen: "moduleVideoGen",
+  dubbing: "moduleDubbing",
+  marketing: "moduleMarketing",
+  branding: "moduleBranding",
+  social: "moduleSocial",
+  promo: "modulePromo",
+  chatbots: "moduleChatbots",
 };
 
 const MODULE_SUBTITLE_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof KreatorOptions> = {
@@ -1180,6 +1161,14 @@ const MODULE_SUBTITLE_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof K
   i18n: "moduleI18nSubtitle",
   analytics: "moduleAnalyticsSubtitle",
   legal: "moduleLegalSubtitle",
+  imgGen: "moduleImgGenSubtitle",
+  videoGen: "moduleVideoGenSubtitle",
+  dubbing: "moduleDubbingSubtitle",
+  marketing: "moduleMarketingSubtitle",
+  branding: "moduleBrandingSubtitle",
+  social: "moduleSocialSubtitle",
+  promo: "modulePromoSubtitle",
+  chatbots: "moduleChatbotsSubtitle",
 };
 
 function ModulesStep({
