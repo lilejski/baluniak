@@ -19,11 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" className="dark" suppressHydrationWarning>
+    <>
       <body
         className={`${inter.variable} ${robotoMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
       >
-        <BackgroundGrid color="39, 39, 42" opacity={0.15} variant="lines" />
+        <BackgroundGrid color="39, 39, 39" opacity={0.15} variant="lines" />
         <div
           aria-hidden
           className="pointer-events-none fixed inset-0 z-0"
@@ -39,6 +39,6 @@ export default function RootLayout({
         <div className="relative z-10">{children}</div>
         <GrainTexture opacity={0.06} className="z-[100]" />
       </body>
-    </html>
+    </>
   );
 }

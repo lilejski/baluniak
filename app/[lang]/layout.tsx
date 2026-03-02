@@ -35,7 +35,12 @@ export async function generateMetadata({
     ...(keywords && { keywords: keywords.split(",").map((k) => k.trim()) }),
     alternates: {
       canonical,
-      languages: { pl: `${SITE_URL}/pl`, en: `${SITE_URL}/en` },
+      languages: {
+        pl: `${SITE_URL}/pl`,
+        en: `${SITE_URL}/en`,
+        "pl-PL": `${SITE_URL}/pl`,
+        "en-US": `${SITE_URL}/en`,
+      },
     },
     openGraph: {
       title: t.homeTitle,
@@ -83,11 +88,13 @@ export default async function LangLayout({
   const initialLang = toLanguage(lang);
 
   return (
-    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
-      <Navbar />
-      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
-      <Footer />
-      <Analytics />
-    </LanguageProvider>
+    <html lang={lang} className="dark" suppressHydrationWarning>
+      <LanguageProvider initialLang={initialLang} localeSegment={lang}>
+        <Navbar />
+        <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+        <Footer />
+        <Analytics />
+      </LanguageProvider>
+    </html>
   );
 }
