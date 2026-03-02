@@ -72,21 +72,23 @@ export function Navbar() {
         <Link
           href={`/${localeSegment}`}
           onClick={handleLogoClick}
-          className="flex items-center transition-opacity hover:opacity-90"
+          className="relative flex items-center transition-opacity hover:opacity-90"
         >
           <motion.div
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.08 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             className="flex items-center"
           >
             <Image
               src="/logo-baluniak.svg"
               alt="Bałuniak Logo"
-              width={160}
-              height={36}
+              width={200}
+              height={50}
               priority
-              className="h-7 w-auto md:h-9"
+              className="static h-9 w-auto md:absolute md:left-0 md:h-12 md:max-w-none"
             />
+            {/* Spacer for absolute positioned logo on desktop */}
+            <div className="hidden h-9 w-[120px] md:block" />
           </motion.div>
         </Link>
 
