@@ -630,7 +630,7 @@ export default function AIDuelLayout() {
 
                 <form
                   onSubmit={handleCustomSubmit}
-                  className="flex items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] transition-all duration-200 focus-within:ring-white/[0.15] focus-within:bg-zinc-900/80"
+                  className="flex items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-emerald-500/30 transition-all duration-200 focus-within:ring-emerald-500/50 focus-within:bg-zinc-900/80 animate-glow-emerald"
                 >
                   <Input
                     ref={inputRefMobile}
@@ -654,49 +654,7 @@ export default function AIDuelLayout() {
               </div>
             )}
 
-            {/* Middle Bar with floating laser effect input */}
-            <div className="relative mt-2 px-4 pb-4">
-              <div className="relative mx-auto max-w-2xl">
-                {/* Laser border effect: an animated gradient behind the input container */}
-                <div
-                  className="absolute -inset-[1.5px] rounded-full opacity-70 blur-[1px]"
-                  style={{
-                    background: "conic-gradient(from 0deg, transparent 0deg, transparent 150deg, #10b981 180deg, transparent 210deg, transparent 360deg)",
-                    animation: "rotate-laser 4s linear infinite"
-                  }}
-                />
-                <style jsx>{`
-                  @keyframes rotate-laser {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                  }
-                `}</style>
 
-                <div className="relative flex items-center gap-2 rounded-full border border-zinc-800/80 bg-zinc-950/90 p-1.5 pl-5 shadow-2xl backdrop-blur-xl">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && !isLoading && input.trim() && (handleCustomSubmit(e as any), setInput(""))}
-                    placeholder={dict.agents.workshopInputPlaceholder}
-                    className="min-w-0 flex-1 border-none bg-transparent py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-0"
-                  />
-                  <Button
-                    size="icon"
-                    disabled={isLoading || !input.trim()}
-                    onClick={(e) => {
-                      if (input.trim()) {
-                        handleCustomSubmit(e as any);
-                        setInput("");
-                      }
-                    }}
-                    className="size-10 shrink-0 rounded-full bg-emerald-600 font-semibold text-white shadow-lg transition-all hover:bg-emerald-500 hover:scale-105 active:scale-95 disabled:bg-zinc-800 disabled:text-zinc-500 disabled:scale-100"
-                  >
-                    <Send className="size-5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             {/* Desktop: two agent windows (fixed height) + input underneath */}
             <div className="hidden flex-col md:flex">
@@ -758,7 +716,7 @@ export default function AIDuelLayout() {
                   <div className="px-4 py-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
                     <form
                       onSubmit={handleCustomSubmit}
-                      className="mx-auto flex max-w-[600px] items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-white/[0.05] backdrop-blur-md transition-all duration-200 focus-within:ring-white/[0.15] focus-within:bg-zinc-900/80 md:px-4 md:py-3"
+                      className="mx-auto flex max-w-[600px] items-center gap-2 rounded-full bg-zinc-900/50 px-3 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] ring-1 ring-emerald-500/30 backdrop-blur-md transition-all duration-200 focus-within:ring-emerald-500/50 focus-within:bg-zinc-900/80 md:px-4 md:py-3 animate-glow-emerald"
                     >
                       <Input
                         ref={inputRefDesktop}
@@ -892,6 +850,16 @@ export default function AIDuelLayout() {
           </div>
         )
       }
-    </div >
+      {/* Global animations for chatbot UI */}
+      <style jsx global>{`
+        @keyframes glow-emerald {
+          0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2), inset 0 1px 0 0 rgba(255,255,255,0.05); border-color: rgba(16, 185, 129, 0.3); }
+          50% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4), inset 0 1px 0 0 rgba(255,255,255,0.05); border-color: rgba(16, 185, 129, 0.6); }
+        }
+        .animate-glow-emerald {
+          animation: glow-emerald 3s ease-in-out infinite;
+        }
+      `}</style>
+    </div>
   );
 }
