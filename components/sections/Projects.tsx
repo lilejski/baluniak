@@ -156,18 +156,8 @@ export function Projects() {
             </SpotlightCard>
           </Link>
 
-          <SpotlightCard spanClassName="md:col-span-2 md:row-span-1" accent="amber">
-            <CardContent className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-              <LayoutGrid className="size-10 text-muted-foreground" aria-hidden />
-              <p className="text-sm font-medium text-muted-foreground">{p.allProjects}</p>
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/${localeSegment}#projekty`}>
-                  {p.viewList}
-                  <ArrowRight className="ml-1 size-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </SpotlightCard>
+
+
         </div>
       </div>
     </section>
