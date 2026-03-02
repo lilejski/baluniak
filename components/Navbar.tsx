@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +42,19 @@ const navItemsConfig = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const { dict, localeSegment } = useLanguage();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isHome = pathname === `/${localeSegment}` || pathname === `/${localeSegment}/`;
+    if (isHome) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push(`/${localeSegment}`);
+    }
+  };
+
   const navItems = navItemsConfig.map((item) => ({
     label: dict.header[item.labelKey],
     href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
@@ -56,9 +71,23 @@ export function Navbar() {
       <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
         <Link
           href={`/${localeSegment}`}
-          className="font-bold tracking-tight text-zinc-100 transition-colors hover:text-white"
+          onClick={handleLogoClick}
+          className="flex items-center transition-opacity hover:opacity-90"
         >
-          BALUNIAK.COM
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            className="flex items-center"
+          >
+            <Image
+              src="/logo-baluniak.svg"
+              alt="Bałuniak Logo"
+              width={160}
+              height={36}
+              priority
+              className="h-7 w-auto md:h-9"
+            />
+          </motion.div>
         </Link>
 
         {/* Desktop: nav + language + Book Call + Build MVP */}
