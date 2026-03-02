@@ -65,11 +65,8 @@ export function About() {
             />
           </div>
           <div className="min-w-0 max-w-[65ch] flex-1 text-center sm:text-left">
-            <p
-              className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl md:text-4xl"
-              style={{ backgroundSize: "200% auto" }}
-            >
-              {dict.about.roleTitle}
+            <p className="text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl md:text-4xl">
+              BAŁUN<span className="text-emerald-500">IA</span>K ŁUKASZ
             </p>
             <p className="mt-3 text-lg leading-relaxed text-zinc-200 text-balance">
               {dict.about.headline}
