@@ -63,7 +63,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 h-16 w-full",
+        "sticky top-0 z-50 h-20 w-full md:h-40",
         "border-b border-zinc-800 bg-black/50 backdrop-blur-md"
       )}
       aria-label={dict.header.navAria}
@@ -72,7 +72,7 @@ export function Navbar() {
         <Link
           href={`/${localeSegment}`}
           onClick={handleLogoClick}
-          className="relative z-10 -mb-12 flex flex-shrink-0 self-start pt-2 transition-opacity hover:opacity-90 md:-mb-24"
+          className="relative z-10 flex flex-shrink-0 items-center transition-opacity hover:opacity-90"
         >
           <motion.div
             whileHover={{ scale: 1.08 }}
