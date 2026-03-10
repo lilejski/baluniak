@@ -685,14 +685,14 @@ export default function KreatorPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
                     >
-                      {/* Fixed Image-based CTA */}
+                      {/* Final Refined Image-based CTA */}
                       <div
                         onClick={handleStart}
-                        className="relative w-full max-w-[500px] aspect-[3/1] cursor-pointer rounded-2xl bg-[url('/hero-bot-button.png')] bg-contain bg-no-repeat bg-center drop-shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all hover:scale-105 active:scale-95 mx-auto"
+                        className="relative flex items-center justify-center w-full max-w-[300px] sm:max-w-[420px] aspect-[3/1] mx-auto cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 drop-shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-[url('/images/hero-bot-button.png')] bg-contain bg-no-repeat bg-center"
                       >
-                        {/* Text Overlay - Absolutely Centered */}
-                        <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                          <span className="text-xl font-black tracking-tighter text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] sm:text-2xl md:text-3xl">
+                        {/* Text Overlay - Centered with Breathe Space */}
+                        <div className="flex items-center justify-center p-2 text-center">
+                          <span className="text-sm px-4 sm:text-lg sm:px-6 font-semibold tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                             URUCHOM INTELIGENTNY KREATOR
                           </span>
                         </div>
