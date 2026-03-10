@@ -8,8 +8,9 @@ import {
   Send,
   CheckCircle,
   Zap,
-  Sparkles,
+  MessageSquare,
   Loader2,
+  Undo2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
   getTimelineSummary,
   getEstimatedDays,
 } from "@/lib/kreator-funnel";
+import { PRICING_DATA, getPriceById } from "@/src/data/pricing";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, translations } from "@/lib/translations";
 import { ShoppingCart } from "lucide-react";
@@ -40,13 +42,15 @@ type SummaryPhase = "idle" | "processing" | "done" | "sent";
 type AiOption = {
   label: string;
   value: string;
+  serviceId?: string | null;
   priceImpact?: number;
 };
 
 type HistoryEntry = {
   question: string;
   answer: string;
-  priceImpact?: number;
+  serviceId?: string | null;
+  priceImpact: number;
 };
 
 type AiSummary = {
@@ -93,7 +97,6 @@ export default function KreatorPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState<AiSummary | null>(null);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedFeatures, setSelectedFeatures] = useState<Array<{ id: string; label: string; price: number }>>([]);
 
   // Summary / email state (kept from original)
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
@@ -131,7 +134,10 @@ export default function KreatorPage() {
       const res = await fetch("/api/configurator", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ history: newHistory, lang }),
+        body: JSON.stringify({
+          history: newHistory.map(e => ({ question: e.question, answer: e.answer, serviceId: e.serviceId })),
+          lang
+        }),
       });
       if (!res.ok) throw new Error("AI request failed");
       const data = await res.json();
@@ -140,10 +146,6 @@ export default function KreatorPage() {
         setAiSummary(data.summary);
         setCurrentQuestion(data.question || "");
         setCurrentOptions([]);
-        // Use AI's total estimate
-        if (data.summary.totalEstimate) {
-          setTotalPrice(data.summary.totalEstimate);
-        }
         setSummaryPhase("processing");
       } else {
         setCurrentQuestion(data.question || "");
@@ -162,25 +164,40 @@ export default function KreatorPage() {
   }, [lang]);
 
   const handleOptionSelect = useCallback((option: AiOption) => {
+    const priceImpact = option.serviceId ? getPriceById(option.serviceId) : 0;
     const newEntry: HistoryEntry = {
       question: currentQuestion,
       answer: option.label,
-      priceImpact: option.priceImpact || 0,
+      serviceId: option.serviceId,
+      priceImpact,
     };
     const newHistory = [...history, newEntry];
     setHistory(newHistory);
 
     // Update price
-    if (option.priceImpact && option.priceImpact > 0) {
-      setTotalPrice((prev) => prev + option.priceImpact!);
-      setSelectedFeatures((prev) => [
-        ...prev,
-        { id: `feat-${Date.now()}`, label: option.label, price: option.priceImpact! },
-      ]);
-    }
+    setTotalPrice((prev) => prev + priceImpact);
 
     fetchAiQuestion(newHistory);
   }, [currentQuestion, history, fetchAiQuestion]);
+
+  const handleUndo = useCallback(() => {
+    if (history.length === 0) return;
+    const lastEntry = history[history.length - 1];
+    const newHistory = history.slice(0, -1);
+    setHistory(newHistory);
+    setTotalPrice((prev) => Math.max(0, prev - lastEntry.priceImpact));
+    fetchAiQuestion(newHistory);
+  }, [history, fetchAiQuestion]);
+
+  const selectedFeatures = useMemo(() => {
+    return history
+      .filter(e => e.priceImpact > 0)
+      .map((e, i) => ({
+        id: `feat-${i}`,
+        label: e.answer,
+        price: e.priceImpact
+      }));
+  }, [history]);
 
   // Processing terminal for summary generation
   const apiDoneRef = useRef(false);
@@ -617,9 +634,22 @@ export default function KreatorPage() {
           <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
             <Card className="border-white/10 bg-zinc-900/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-zinc-200">
-                  <Sparkles className="size-5 text-emerald-500" />
-                  AI Architect
+                <CardTitle className="flex items-center justify-between text-zinc-200">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="size-5 text-emerald-500" />
+                    System zamówień AI
+                  </div>
+                  {history.length > 0 && !isAiLoading && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleUndo}
+                      className="h-8 gap-1.5 text-xs text-zinc-500 hover:text-zinc-300"
+                    >
+                      <Undo2 className="size-3.5" />
+                      Cofnij
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -665,7 +695,7 @@ export default function KreatorPage() {
                   >
                     <Loader2 className="size-5 animate-spin text-emerald-500" />
                     <span className="text-sm text-zinc-400">
-                      {lang === "PL" ? "AI Architect analizuje..." : "AI Architect analyzing..."}
+                      {lang === "PL" ? "System zamówień analizuje..." : "Order system analyzing..."}
                     </span>
                   </motion.div>
                 )}
@@ -718,6 +748,26 @@ export default function KreatorPage() {
                           )}
                         </motion.button>
                       ))}
+                    </div>
+
+                    {/* Price Counter under the question */}
+                    <div className="flex flex-col items-center justify-center rounded-xl bg-emerald-500/5 py-4 ring-1 ring-emerald-500/20">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={totalPrice}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          className="text-center"
+                        >
+                          <span className="text-3xl font-bold tabular-nums text-emerald-400">
+                            {formatPrice(totalPrice, lang, currencyCode)}
+                          </span>
+                          <p className="text-[10px] uppercase tracking-widest text-zinc-500">
+                            Szacunkowy koszt na stacku Next.js + Vercel
+                          </p>
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
                   </motion.div>
                 )}
