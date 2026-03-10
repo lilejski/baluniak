@@ -115,9 +115,12 @@ export default function KreatorPage() {
 
   const currencyCode = k.currencyCode as string;
 
-  // Scroll to bottom when new messages appear
+  // Scroll to bottom when new messages appear (but only if not already in view)
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
   }, [history.length, currentQuestion, isAiLoading]);
 
   // Fetch first question on mount
