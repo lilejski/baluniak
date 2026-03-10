@@ -685,22 +685,23 @@ export default function KreatorPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
                     >
-                      {/* Layered Image-based CTA */}
+                      {/* Robust Image-based Start Button */}
                       <button
                         onClick={handleStart}
-                        className="relative flex items-center justify-center w-full max-w-[320px] mx-auto cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 group border-none outline-none bg-transparent"
+                        className="relative w-full max-w-[320px] aspect-[4.2/1] mx-auto cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 group border-none outline-none bg-transparent overflow-visible"
                       >
-                        {/* Warstwa 1: Obrazek z Canvy */}
-                        <img
-                          src="/images/hero-bot-button.png"
-                          alt="Start AI"
-                          className="w-full h-auto object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                        {/* Background Layer - Image */}
+                        <div
+                          className="absolute inset-0 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                          style={{ backgroundImage: "url('/images/hero-bot-button.png')" }}
                         />
 
-                        {/* Warstwa 2: Wycentrowany tekst */}
-                        <span className="absolute inset-0 flex items-center justify-center text-white font-medium text-xs sm:text-sm tracking-widest uppercase text-center px-4">
-                          Uruchom Inteligentny Kreator
-                        </span>
+                        {/* Text Layer - Perfectly Centered */}
+                        <div className="absolute inset-0 flex items-center justify-center px-4">
+                          <span className="text-white font-medium text-xs sm:text-sm tracking-widest uppercase text-center leading-tight">
+                            Uruchom Inteligentny Kreator
+                          </span>
+                        </div>
                       </button>
 
                       <div className="mt-8 space-y-2">
