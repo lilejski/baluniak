@@ -8,7 +8,7 @@ type LangCode = "PL" | "EN";
 type HistoryEntry = { question: string; answer: string; serviceId?: string | null };
 
 const pricingList = Object.values(PRICING_DATA)
-  .map(s => `- ${s.label} (${s.id}): ${s.price} PLN`)
+  .map(s => `- ${s.label} (${s.id}): ${s.price} PLN - ${s.description}`)
   .join("\n");
 
 const SYSTEM_PROMPT_PL = `Jesteś doradcą sprzedażowym i Product Engineerem w firmie baluniak.com. Prowadzisz rozmowę z potencjalnym klientem pod szyldem "System zamówień AI".

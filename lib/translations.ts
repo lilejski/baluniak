@@ -110,7 +110,7 @@ export const translations = {
       subtext: "Dobieram sprawdzone elementy, skupiając się na unikalnej logice Twojego biznesu.",
       blocks: [
         { title: "Ekspresowy Start", subtitle: "Baza", tech: "Next.js & React", description: "Interfejsy, które nie każą użytkownikowi czekać. Czysty React, perfekcyjne SEO." },
-        { title: "Potęga AI", subtitle: "Logika", tech: "Fal.ai & OpenAI", description: "Integracja modeli LLM i generowania obrazów prosto w Twoim produkcie." },
+        { title: "Potęga AI", subtitle: "Logika", tech: "Zaawansowane narzędzia AI", description: "Integracja modeli LLM i generowania obrazów prosto w Twoim produkcie." },
         { title: "Płatności", subtitle: "Zarobki", tech: "Autopay & Stripe", description: "Automatyzacja faktur i płatności. Od pomysłu do przelewu." },
         { title: "Vercel", subtitle: "Infrastruktura", tech: "Vercel & Serverless", description: "Brak potrzeby utrzymywania własnego serwera." },
       ],
@@ -558,7 +558,7 @@ export const translations = {
       subtext: "I pick proven building blocks and focus on your business's unique logic.",
       blocks: [
         { title: "Express Start", subtitle: "Base", tech: "Next.js & React", description: "Interfaces that don't keep users waiting. Clean React, flawless SEO." },
-        { title: "AI Power", subtitle: "Logic", tech: "Fal.ai & OpenAI", description: "LLM model and image generation integration built into your product." },
+        { title: "AI Power", subtitle: "Logic", tech: "Advanced AI Tools", description: "LLM model and image generation integration built into your product." },
         { title: "Payments", subtitle: "Revenue", tech: "Autopay & Stripe", description: "Invoice and payment automation. From idea to transaction." },
         { title: "Vercel", subtitle: "Infrastructure", tech: "Vercel & Serverless", description: "No need to maintain your own server." },
       ],
