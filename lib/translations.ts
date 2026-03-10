@@ -26,7 +26,7 @@ export const translations = {
       finalNudge: "Twój pomysł zasługuje na coś więcej niż tylko arkusz w Excelu.",
       ctaLabel: "Zamów darmową wycenę projektu",
       brandTagline: "Strony WWW, aplikacje i MVP — szybciej i taniej niż software house'y.",
-      productEngineerTagline: "Bałuniak — Twórca MVP | Wdrożenia AI w Biznesie | Web App Developer",
+      productEngineerTagline: "Bałuniak Łukasz — Projekty MVP | Wdrożenia AI w Biznesie | Nowoczesne Strony Internetowe",
       statusLabel: "Dostępny na nowe projekty",
       navTitle: "Nawigacja",
       quickLinks: [
@@ -49,7 +49,7 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Bałuniak — Twórca MVP | Wdrożenia AI w Biznesie | Web App Developer",
+      badge: "Bałuniak Łukasz — Projekty MVP | Wdrożenia AI w Biznesie | Nowoczesne Strony Internetowe",
       headline: "Zbuduję Twoje MVP. Szybko. Zyskownie.",
       headlineAccent: "",
       headlineEnd: "",
@@ -109,10 +109,10 @@ export const translations = {
       heading: "Modularna Architektura: Projekt zgodny z Twoją wizją.",
       subtext: "Dobieram sprawdzone elementy, skupiając się na unikalnej logice Twojego biznesu.",
       blocks: [
-        { title: "Szybki Frontend", subtitle: "The Engine", tech: "Next.js & React", description: "Performance & SEO" },
-        { title: "Inteligencja AI", subtitle: "The Brain", tech: "Fal.ai & OpenAI", description: "Advanced AI integrations" },
-        { title: "Zautomatyzowane Płatności", subtitle: "The Revenue", tech: "Autopay & Stripe", description: "Secure, instant payments" },
-        { title: "Błyskawiczny Deployment", subtitle: "The Infrastructure", tech: "Vercel & Serverless", description: "Global scale, zero downtime" },
+        { title: "Ekspresowy Start", subtitle: "Baza", tech: "Next.js & React", description: "Interfejsy, które nie każą użytkownikowi czekać. Czysty React, perfekcyjne SEO." },
+        { title: "Potęga AI", subtitle: "Logika", tech: "Fal.ai & OpenAI", description: "Integracja modeli LLM i generowania obrazów prosto w Twoim produkcie." },
+        { title: "Płatności", subtitle: "Zarobki", tech: "Autopay & Stripe", description: "Automatyzacja faktur i płatności. Od pomysłu do przelewu." },
+        { title: "Vercel", subtitle: "Infrastruktura", tech: "Vercel & Serverless", description: "Brak potrzeby utrzymywania własnego serwera." },
       ],
     },
     kreator: {
@@ -437,7 +437,7 @@ export const translations = {
       sendError: "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.",
     },
     seo: {
-      homeTitle: "Łukasz Baluniak | Product Engineer | MVP, SaaS & Web Apps",
+      homeTitle: "Bałuniak Łukasz — Projekty MVP | Wdrożenia AI w Biznesie | Nowoczesne Strony Internetowe",
       homeDescription: "Buduję nowoczesne, zarabiające aplikacje webowe i platformy SaaS. Startupy i firmy, które potrzebują MVP lub narzędzi AI bez przepalania budżetów agencji.",
       homeKeywords: "product engineer, MVP builder, tworzenie aplikacji webowych, next.js developer, aplikacje saas, wdrożenia AI, fullstack developer, szybkie startupy, Łukasz Baluniak",
       kreatorTitle: "Wycena MVP i architektura projektu | AI Architect | BALUNIAK",
@@ -474,7 +474,7 @@ export const translations = {
       finalNudge: "Your idea deserves more than a spreadsheet.",
       ctaLabel: "Get a free project quote",
       brandTagline: "Websites, apps & MVP — faster and cheaper than software houses.",
-      productEngineerTagline: "Baluniak — MVP Builder | AI Implementations | Fullstack SaaS",
+      productEngineerTagline: "Baluniak Łukasz — MVP Projects | AI Implementations | Modern Websites",
       statusLabel: "Available for new projects",
       navTitle: "Navigation",
       quickLinks: [
@@ -497,7 +497,7 @@ export const translations = {
       email: "kontakt@baluniak.com",
     },
     hero: {
-      badge: "Baluniak — MVP Builder | AI Implementations | Fullstack SaaS",
+      badge: "Baluniak Łukasz — MVP Projects | AI Implementations | Modern Websites",
       headline: "I build your MVP. Fast and Profitable.",
       headlineAccent: "",
       headlineEnd: "",
@@ -557,10 +557,10 @@ export const translations = {
       heading: "Modular architecture: A project that matches your vision.",
       subtext: "I pick proven building blocks and focus on your business's unique logic.",
       blocks: [
-        { title: "Fast frontend", subtitle: "The Engine", tech: "Next.js & React", description: "Performance & SEO" },
-        { title: "AI intelligence", subtitle: "The Brain", tech: "Fal.ai & OpenAI", description: "Advanced AI integrations" },
-        { title: "Automated payments", subtitle: "The Revenue", tech: "Autopay & Stripe", description: "Secure, instant payments" },
-        { title: "Instant deployment", subtitle: "The Infrastructure", tech: "Vercel & Serverless", description: "Global scale, zero downtime" },
+        { title: "Express Start", subtitle: "Base", tech: "Next.js & React", description: "Interfaces that don't keep users waiting. Clean React, flawless SEO." },
+        { title: "AI Power", subtitle: "Logic", tech: "Fal.ai & OpenAI", description: "LLM model and image generation integration built into your product." },
+        { title: "Payments", subtitle: "Revenue", tech: "Autopay & Stripe", description: "Invoice and payment automation. From idea to transaction." },
+        { title: "Vercel", subtitle: "Infrastructure", tech: "Vercel & Serverless", description: "No need to maintain your own server." },
       ],
     },
     kreator: {
@@ -884,7 +884,7 @@ export const translations = {
       sendError: "Send failed. Try again or email directly.",
     },
     seo: {
-      homeTitle: "Bałuniak — Twórca MVP | Wdrożenia AI w Biznesie | Web App Developer",
+      homeTitle: "Baluniak Łukasz — MVP Projects | AI Implementations | Modern Websites",
       homeDescription: "Buduję nowoczesne, ultra-szybkie strony dla firm, aplikacje webowe, systemy SaaS i automatyzacje AI. Zbuduj silną obecność w sieci bez budżetów wielkich agencji.",
       homeKeywords: "web development, strony internetowe, nowoczesne strony, aplikacje webowe, freelance developer, prototypowanie MVP, systemy SaaS, automatyzacja AI dla biznesu",
       kreatorTitle: "MVP quote & project architecture | Quote configurator | BALUNIAK",
