@@ -685,24 +685,18 @@ export default function KreatorPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
                     >
-                      {/* Image-based CTA */}
-                      <button
+                      {/* Fixed Image-based CTA */}
+                      <div
                         onClick={handleStart}
-                        className="relative flex h-[200px] w-full max-w-[450px] items-center justify-center overflow-visible transition-all hover:scale-105 active:scale-95 sm:h-[240px]"
+                        className="relative w-full max-w-[500px] aspect-[3/1] cursor-pointer rounded-2xl bg-[url('/hero-bot-button.png')] bg-contain bg-no-repeat bg-center drop-shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all hover:scale-105 active:scale-95 mx-auto"
                       >
-                        {/* Background Image Layer with Neon Shadow */}
-                        <div
-                          className="absolute inset-0 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]"
-                          style={{ backgroundImage: "url('/images/hero-bot-button.png')" }}
-                        />
-
-                        {/* Text Layer - Centered over the image */}
-                        <div className="relative z-10 flex items-center justify-center p-6 text-center">
-                          <span className="text-xl font-black tracking-tighter text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] sm:text-3xl">
+                        {/* Text Overlay - Absolutely Centered */}
+                        <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                          <span className="text-xl font-black tracking-tighter text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] sm:text-2xl md:text-3xl">
                             URUCHOM INTELIGENTNY KREATOR
                           </span>
                         </div>
-                      </button>
+                      </div>
 
                       <div className="mt-8 space-y-2">
                         <p className="mx-auto max-w-xs text-xs uppercase tracking-widest text-emerald-500/80">
