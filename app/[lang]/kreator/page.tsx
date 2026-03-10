@@ -91,6 +91,7 @@ export default function KreatorPage() {
   const k = dict.kreator;
 
   // AI conversation state
+  const [isStarted, setIsStarted] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [currentOptions, setCurrentOptions] = useState<AiOption[]>([]);
@@ -123,10 +124,9 @@ export default function KreatorPage() {
     });
   }, [history.length, currentQuestion, isAiLoading]);
 
-  // Fetch first question on mount
+  // Initial fetch removed from useEffect - now calls handleStart
   useEffect(() => {
-    fetchAiQuestion([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // We wait for user interaction to start the conversation
   }, []);
 
   const fetchAiQuestion = useCallback(async (newHistory: HistoryEntry[]) => {
@@ -182,6 +182,11 @@ export default function KreatorPage() {
 
     fetchAiQuestion(newHistory);
   }, [currentQuestion, history, fetchAiQuestion]);
+
+  const handleStart = useCallback(() => {
+    setIsStarted(true);
+    fetchAiQuestion([]);
+  }, [fetchAiQuestion]);
 
   const handleUndo = useCallback(() => {
     if (history.length === 0) return;
@@ -642,7 +647,7 @@ export default function KreatorPage() {
                     <MessageSquare className="size-5 text-emerald-500" />
                     System zamówień AI
                   </div>
-                  {history.length > 0 && !isAiLoading && (
+                  {isStarted && history.length > 0 && !isAiLoading && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -656,126 +661,163 @@ export default function KreatorPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Conversation history */}
-                <div className="space-y-4">
-                  {history.map((entry, i) => (
+                {!isStarted ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
                     <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-2"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="space-y-6"
                     >
-                      {/* AI question */}
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
-                          <Cpu className="size-4 text-emerald-400" />
-                        </div>
-                        <p className="rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-3 text-sm text-zinc-200">
-                          {entry.question}
+                      <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                        <Cpu className="size-8 text-emerald-400" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-zinc-100">
+                          {lang === "PL" ? "Zbuduj swój projekt z AI" : "Build your project with AI"}
+                        </h3>
+                        <p className="mx-auto max-w-xs text-sm text-zinc-400">
+                          {lang === "PL"
+                            ? "AI przeanalizuje Twoje potrzeby i przygotuje wstępną wycenę w 60 sekund"
+                            : "AI will analyze your needs and prepare a preliminary quote in 60 seconds"}
                         </p>
                       </div>
-                      {/* User answer */}
-                      <div className="flex justify-end">
-                        <div className="rounded-xl rounded-tr-sm bg-emerald-600/20 px-4 py-2 text-sm font-medium text-emerald-300">
-                          {entry.answer}
-                          {entry.priceImpact && entry.priceImpact > 0 && (
-                            <span className="ml-2 text-xs text-emerald-500">
-                              +{entry.priceImpact} PLN
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                      <Button
+                        onClick={handleStart}
+                        size="lg"
+                        className="ai-btn-glow relative h-14 overflow-hidden rounded-xl border-t border-emerald-400/30 bg-emerald-600 px-8 font-bold text-white shadow-xl transition-all hover:bg-emerald-500 hover:shadow-emerald-500/20 active:scale-95"
+                      >
+                        <div className="ai-btn-shimmer pointer-events-none absolute inset-0" />
+                        <span className="relative z-10 flex items-center gap-2">
+                          {lang === "PL" ? "Zautomatyzowany kreator zamówień" : "Automated order configurator"}
+                          <Zap className="size-4 animate-pulse fill-white" />
+                        </span>
+                      </Button>
                     </motion.div>
-                  ))}
-                </div>
-
-                {/* Loading state */}
-                {isAiLoading && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex items-center gap-3 rounded-xl bg-zinc-800/50 px-4 py-6"
-                  >
-                    <Loader2 className="size-5 animate-spin text-emerald-500" />
-                    <span className="text-sm text-zinc-400">
-                      {lang === "PL" ? "System zamówień analizuje..." : "Order system analyzing..."}
-                    </span>
-                  </motion.div>
-                )}
-
-                {/* Current question + options */}
-                {!isAiLoading && currentQuestion && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={transition}
-                    className="space-y-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
-                        <Cpu className="size-4 text-emerald-400" />
-                      </div>
-                      <p className="rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-3 text-sm text-zinc-200">
-                        {currentQuestion}
-                      </p>
-                    </div>
-
-                    {/* Option buttons */}
-                    <div className="grid gap-3 pl-10 sm:grid-cols-2">
-                      {currentOptions.map((option, i) => (
-                        <motion.button
-                          key={option.value}
-                          type="button"
-                          onClick={() => handleOptionSelect(option)}
+                  </div>
+                ) : (
+                  <>
+                    {/* Conversation history */}
+                    <div className="space-y-4">
+                      {history.map((entry, i) => (
+                        <motion.div
+                          key={i}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1, ...transition }}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          className={cn(
-                            "ai-btn-glow relative overflow-hidden rounded-xl border-2 border-emerald-500/30 bg-zinc-800/60 px-4 py-4 text-left transition-colors",
-                            "hover:border-emerald-500/70 hover:bg-zinc-800/90",
-                            "focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          )}
+                          className="space-y-2"
                         >
-                          {/* Shimmer overlay */}
-                          <div className="ai-btn-shimmer pointer-events-none absolute inset-0 rounded-xl" />
-
-                          <span className="relative block text-sm font-semibold text-zinc-100">
-                            {option.label}
-                          </span>
-                          {option.priceImpact !== undefined && option.priceImpact > 0 && (
-                            <span className="relative mt-1 block text-xs font-medium text-emerald-400">
-                              +{option.priceImpact} PLN
-                            </span>
-                          )}
-                        </motion.button>
+                          {/* AI question */}
+                          <div className="flex items-start gap-3">
+                            <div className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
+                              <Cpu className="size-4 text-emerald-400" />
+                            </div>
+                            <p className="rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-3 text-sm text-zinc-200">
+                              {entry.question}
+                            </p>
+                          </div>
+                          {/* User answer */}
+                          <div className="flex justify-end">
+                            <div className="rounded-xl rounded-tr-sm bg-emerald-600/20 px-4 py-2 text-sm font-medium text-emerald-300">
+                              {entry.answer}
+                              {entry.priceImpact && entry.priceImpact > 0 && (
+                                <span className="ml-2 text-xs text-emerald-500">
+                                  +{entry.priceImpact} PLN
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
                       ))}
                     </div>
 
-                    {/* Price Counter under the question */}
-                    <div className="flex flex-col items-center justify-center rounded-xl bg-emerald-500/5 py-4 ring-1 ring-emerald-500/20">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={totalPrice}
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="text-center"
-                        >
-                          <span className="text-3xl font-bold tabular-nums text-emerald-400">
-                            {formatPrice(totalPrice, lang, currencyCode)}
-                          </span>
-                          <p className="text-[10px] uppercase tracking-widest text-zinc-500">
-                            Szacunkowy koszt na stacku Next.js + Vercel
-                          </p>
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
-                  </motion.div>
-                )}
+                    {/* Loading state */}
+                    {isAiLoading && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center gap-3 rounded-xl bg-zinc-800/50 px-4 py-6"
+                      >
+                        <Loader2 className="size-5 animate-spin text-emerald-500" />
+                        <span className="text-sm text-zinc-400">
+                          {lang === "PL" ? "System zamówień analizuje..." : "Order system analyzing..."}
+                        </span>
+                      </motion.div>
+                    )}
 
-                <div ref={chatEndRef} />
+                    {/* Current question + options */}
+                    {!isAiLoading && currentQuestion && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={transition}
+                        className="space-y-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
+                            <Cpu className="size-4 text-emerald-400" />
+                          </div>
+                          <p className="rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-3 text-sm text-zinc-200">
+                            {currentQuestion}
+                          </p>
+                        </div>
+
+                        {/* Option buttons */}
+                        <div className="grid gap-3 pl-10 sm:grid-cols-2">
+                          {currentOptions.map((option, i) => (
+                            <motion.button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handleOptionSelect(option)}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.1, ...transition }}
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
+                              className={cn(
+                                "ai-btn-glow relative overflow-hidden rounded-xl border-2 border-emerald-500/30 bg-zinc-800/60 px-4 py-4 text-left transition-colors",
+                                "hover:border-emerald-500/70 hover:bg-zinc-800/90",
+                                "focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                              )}
+                            >
+                              {/* Shimmer overlay */}
+                              <div className="ai-btn-shimmer pointer-events-none absolute inset-0 rounded-xl" />
+
+                              <span className="relative block text-sm font-semibold text-zinc-100">
+                                {option.label}
+                              </span>
+                              {option.priceImpact !== undefined && option.priceImpact > 0 && (
+                                <span className="relative mt-1 block text-xs font-medium text-emerald-400">
+                                  +{option.priceImpact} PLN
+                                </span>
+                              )}
+                            </motion.button>
+                          ))}
+                        </div>
+
+                        {/* Price Counter under the question */}
+                        <div className="flex flex-col items-center justify-center rounded-xl bg-emerald-500/5 py-4 ring-1 ring-emerald-500/20">
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={totalPrice}
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              className="text-center"
+                            >
+                              <span className="text-3xl font-bold tabular-nums text-emerald-400">
+                                {formatPrice(totalPrice, lang, currencyCode)}
+                              </span>
+                              <p className="text-[10px] uppercase tracking-widest text-zinc-500">
+                                Szacunkowy koszt na stacku Next.js + Vercel
+                              </p>
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <div ref={chatEndRef} />
+                  </>
+                )}
               </CardContent>
             </Card>
 
