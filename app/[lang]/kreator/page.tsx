@@ -3,14 +3,13 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, type Transition } from "framer-motion";
 import {
-  Monitor,
   Cpu,
   FileDown,
   Send,
   CheckCircle,
   Zap,
-  ArrowRight,
-  ArrowLeft,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,20 +18,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from "@/lib/utils";
 import {
   type FunnelState,
-  type FunnelAnswers,
-  getSteps,
-  getTotalSteps,
-  getDefaultAnswers,
   buildConfigForApi,
   getStackSummary,
   getTimelineSummary,
-  getPriceBreakdown,
   getEstimatedDays,
-  ADVANCED_MODULE_IDS,
 } from "@/lib/kreator-funnel";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, translations } from "@/lib/translations";
 import { ShoppingCart } from "lucide-react";
+
 const PLN_TO_USD = 0.25;
 
 function formatPrice(pln: number, lang: Language, currencyCode: string): string {
@@ -41,31 +35,33 @@ function formatPrice(pln: number, lang: Language, currencyCode: string): string 
   return `${value.toLocaleString(locale)} ${currencyCode}`;
 }
 
-type KreatorOptions = (typeof translations)[Language]["kreator"]["options"];
-
 type SummaryPhase = "idle" | "processing" | "done" | "sent";
 
-/** Framer Motion transition for step animations. */
+type AiOption = {
+  label: string;
+  value: string;
+  priceImpact?: number;
+};
+
+type HistoryEntry = {
+  question: string;
+  answer: string;
+  priceImpact?: number;
+};
+
+type AiSummary = {
+  projectType: string;
+  features: string[];
+  totalEstimate: number;
+  stack: string;
+};
+
 const transition: Transition = {
   type: "spring",
   stiffness: 350,
   damping: 30,
 };
 
-/** Step slide animation props (initial, animate, exit). Typed for motion.div compatibility. */
-function slideIn(dir: number): {
-  initial: { opacity: number; x: number };
-  animate: { opacity: number; x: number };
-  exit: { opacity: number; x: number };
-} {
-  return {
-    initial: { opacity: 0, x: 40 * -dir },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 40 * dir },
-  };
-}
-
-/** Animate number toward target (count-up effect). */
 function useCountUp(target: number, durationMs = 600): number {
   const [display, setDisplay] = useState(target);
   const prevRef = useRef(target);
@@ -89,61 +85,104 @@ function useCountUp(target: number, durationMs = 600): number {
 export default function KreatorPage() {
   const { dict, lang } = useLanguage();
   const k = dict.kreator;
-  const allSteps = getSteps(lang);
 
-  const [step, setStep] = useState(1);
-  const [stepDirection, setStepDirection] = useState(1);
-  const [answers, setAnswers] = useState<FunnelAnswers>(getDefaultAnswers());
+  // AI conversation state
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState("");
+  const [currentOptions, setCurrentOptions] = useState<AiOption[]>([]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiSummary, setAiSummary] = useState<AiSummary | null>(null);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [selectedFeatures, setSelectedFeatures] = useState<Array<{ id: string; label: string; price: number }>>([]);
+
+  // Summary / email state (kept from original)
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
   const [architectText, setArchitectText] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const offerPrintRef = useRef<HTMLDivElement>(null);
-
-  const state: FunnelState = { step, answers };
-  const { lineItems: selectedFeatures, total: totalPrice } = useMemo(
-    () => getPriceBreakdown(state, lang),
-    [step, answers, lang]
-  );
   const [isPortfolioDiscount, setIsPortfolioDiscount] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const offerPrintRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
   const discountAmount = isPortfolioDiscount ? Math.round(0.1 * totalPrice) : 0;
   const finalTotal = totalPrice - discountAmount;
   const displayTotal = useCountUp(finalTotal);
-  const estimatedDays = useMemo(() => getEstimatedDays(state), [state]);
-  const displayEstimatedDays = useCountUp(estimatedDays, 500);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const totalSteps = getTotalSteps();
-  const currentStepLabel =
-    step >= 1 && step <= allSteps.length
-      ? allSteps[step - 1].label
-      : "";
 
-  const progressPct =
-    summaryPhase !== "idle"
-      ? summaryPhase === "processing"
-        ? 85
-        : 100
-      : totalSteps > 0
-        ? ((step - 1) / totalSteps) * 100
-        : 0;
+  const currencyCode = k.currencyCode as string;
 
-  const goBack = useCallback(() => {
-    if (step > 1) {
-      setStepDirection(-1);
-      setStep((s) => s - 1);
+  // Scroll to bottom when new messages appear
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history.length, currentQuestion, isAiLoading]);
+
+  // Fetch first question on mount
+  useEffect(() => {
+    fetchAiQuestion([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchAiQuestion = useCallback(async (newHistory: HistoryEntry[]) => {
+    setIsAiLoading(true);
+    setCurrentQuestion("");
+    setCurrentOptions([]);
+    try {
+      const res = await fetch("/api/configurator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ history: newHistory, lang }),
+      });
+      if (!res.ok) throw new Error("AI request failed");
+      const data = await res.json();
+
+      if (data.done && data.summary) {
+        setAiSummary(data.summary);
+        setCurrentQuestion(data.question || "");
+        setCurrentOptions([]);
+        // Use AI's total estimate
+        if (data.summary.totalEstimate) {
+          setTotalPrice(data.summary.totalEstimate);
+        }
+        setSummaryPhase("processing");
+      } else {
+        setCurrentQuestion(data.question || "");
+        setCurrentOptions(data.options || []);
+      }
+    } catch {
+      setCurrentQuestion(
+        lang === "PL"
+          ? "Przepraszam, wystąpił błąd. Spróbuj odświeżyć stronę."
+          : "Sorry, an error occurred. Try refreshing the page."
+      );
+      setCurrentOptions([]);
+    } finally {
+      setIsAiLoading(false);
     }
-  }, [step]);
+  }, [lang]);
 
-  const goNext = useCallback(() => {
-    if (step >= totalSteps) {
-      setSummaryPhase("processing");
-      return;
+  const handleOptionSelect = useCallback((option: AiOption) => {
+    const newEntry: HistoryEntry = {
+      question: currentQuestion,
+      answer: option.label,
+      priceImpact: option.priceImpact || 0,
+    };
+    const newHistory = [...history, newEntry];
+    setHistory(newHistory);
+
+    // Update price
+    if (option.priceImpact && option.priceImpact > 0) {
+      setTotalPrice((prev) => prev + option.priceImpact!);
+      setSelectedFeatures((prev) => [
+        ...prev,
+        { id: `feat-${Date.now()}`, label: option.label, price: option.priceImpact! },
+      ]);
     }
-    setStepDirection(1);
-    setStep((s) => s + 1);
-  }, [step, totalSteps]);
 
+    fetchAiQuestion(newHistory);
+  }, [currentQuestion, history, fetchAiQuestion]);
+
+  // Processing terminal for summary generation
   const apiDoneRef = useRef(false);
   const logSequenceCompleteRef = useRef(false);
 
@@ -155,12 +194,17 @@ export default function KreatorPage() {
 
   const runArchitect = useCallback(async () => {
     apiDoneRef.current = false;
-    const config = buildConfigForApi(state);
+    const config = {
+      conversationHistory: history,
+      aiSummary,
+      totalPrice,
+      features: selectedFeatures,
+    };
     try {
       const res = await fetch("/api/architect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config, priceRange: { min: 0, max: 0 }, lang }),
+        body: JSON.stringify({ config, priceRange: { min: 0, max: totalPrice }, lang }),
       });
       if (!res.ok || !res.body) throw new Error("Architect request failed");
       const reader = res.body.getReader();
@@ -179,49 +223,12 @@ export default function KreatorPage() {
       apiDoneRef.current = true;
       tryTransitionToDone();
     }
-  }, [step, answers, tryTransitionToDone]);
+  }, [history, aiSummary, totalPrice, selectedFeatures, tryTransitionToDone, k.analysisFailed, lang]);
 
-  const sendToBaluniak = useCallback(async () => {
-    const config = buildConfigForApi(state);
-    const projectType = answers.branding;
-    setInquirySending(true);
-    try {
-      const res = await fetch("/api/send-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientName: clientName.trim(),
-          clientEmail: clientEmail.trim(),
-          projectType,
-          budgetRange: { min: 0, max: finalTotal },
-          config,
-          architectSummary: architectText,
-        }),
-      });
-      const data = (await res.json()) as { success?: boolean; error?: string };
-      if (res.ok && data.success) {
-        setSummaryPhase("sent");
-      } else {
-        alert(k.sendError);
-      }
-    } catch {
-      alert(k.sendError);
-    } finally {
-      setInquirySending(false);
-    }
-  }, [step, answers, architectText, totalPrice, finalTotal, clientName, clientEmail, k, state]);
-
-  const downloadOfferPdf = useCallback(() => {
-    if (typeof window === "undefined") return;
-    window.print();
-  }, []);
-
-  const isLastStep = step >= totalSteps;
-  const canProceed = step >= 1 && step <= totalSteps;
-
+  // Processing phase effects
+  const processingStarted = useRef(false);
   const [visibleLogIndex, setVisibleLogIndex] = useState(-1);
   const terminalScrollRef = useRef<HTMLDivElement>(null);
-  const processingStarted = useRef(false);
 
   useEffect(() => {
     if (summaryPhase !== "processing") {
@@ -266,19 +273,66 @@ export default function KreatorPage() {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [summaryPhase, visibleLogIndex]);
 
-  const currencyCode = k.currencyCode as string;
+  // Email sending (preserved from original)
+  const sendToBaluniak = useCallback(async () => {
+    setInquirySending(true);
+    try {
+      const res = await fetch("/api/send-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: clientName.trim(),
+          clientEmail: clientEmail.trim(),
+          projectType: aiSummary?.projectType || "AI Configurator",
+          budgetRange: { min: 0, max: finalTotal },
+          config: {
+            conversationHistory: history,
+            aiSummary,
+            selectedFeatures,
+          },
+          architectSummary: architectText,
+        }),
+      });
+      const data = (await res.json()) as { success?: boolean; error?: string };
+      if (res.ok && data.success) {
+        setSummaryPhase("sent");
+      } else {
+        alert(k.sendError);
+      }
+    } catch {
+      alert(k.sendError);
+    } finally {
+      setInquirySending(false);
+    }
+  }, [history, aiSummary, selectedFeatures, architectText, finalTotal, clientName, clientEmail, k]);
+
+  const downloadOfferPdf = useCallback(() => {
+    if (typeof window === "undefined") return;
+    window.print();
+  }, []);
+
+  const progressPct =
+    summaryPhase !== "idle"
+      ? summaryPhase === "processing"
+        ? 85
+        : 100
+      : history.length > 0
+        ? Math.min((history.length / 5) * 100, 80)
+        : 5;
+
+  // Price summary sidebar content
   const priceSummaryContent = (
     <motion.div layout className="space-y-4">
       <h3 className="text-base font-bold text-white">
         {k.yourConfig}
       </h3>
-      {selectedFeatures.length === 0 ? (
+      {selectedFeatures.length === 0 && totalPrice === 0 ? (
         <p className="text-sm text-zinc-500">{k.selectPathToSeePrice}</p>
       ) : (
         <>
           <ul className="space-y-2">
             <AnimatePresence mode="popLayout">
-              {selectedFeatures.map((item, i) => (
+              {selectedFeatures.map((item) => (
                 <motion.li
                   key={item.id}
                   initial={{ opacity: 0, x: -8 }}
@@ -287,10 +341,9 @@ export default function KreatorPage() {
                   transition={{ duration: 0.25 }}
                   className="flex items-center justify-between gap-2 text-sm text-zinc-400"
                 >
-                  <span>{item.label}</span>
+                  <span className="truncate">{item.label}</span>
                   <span className="shrink-0 tabular-nums">
-                    {i === 0 ? "" : "+"}
-                    {formatPrice(item.price, lang, currencyCode)}
+                    +{formatPrice(item.price, lang, currencyCode)}
                   </span>
                 </motion.li>
               ))}
@@ -336,17 +389,7 @@ export default function KreatorPage() {
               </motion.p>
             )}
           </div>
-          {estimatedDays > 0 && (
-            <p className="text-sm text-zinc-400">
-              {k.estimatedTime}: <span className="tabular-nums font-medium text-zinc-200">{displayEstimatedDays}</span> {lang === "PL" ? "dni" : "days"}
-            </p>
-          )}
-          <p className="text-xs text-zinc-500">
-            {k.billingNote}
-          </p>
-          <p className="text-xs text-zinc-500">
-            {k.priceDisclaimer}
-          </p>
+          <p className="text-xs text-zinc-500">{k.priceDisclaimer}</p>
         </>
       )}
     </motion.div>
@@ -360,12 +403,25 @@ export default function KreatorPage() {
           #offer-print, #offer-print * { visibility: visible; }
           #offer-print { position: absolute; left: 0; top: 0; width: 100%; background: white; color: #111; padding: 2rem; }
         }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.1), inset 0 0 15px rgba(16, 185, 129, 0.05); }
+          50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25), inset 0 0 25px rgba(16, 185, 129, 0.1); }
+        }
+        .ai-btn-shimmer {
+          background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.08) 25%, rgba(16, 185, 129, 0.15) 50%, rgba(16, 185, 129, 0.08) 75%, transparent 100%);
+          background-size: 200% 100%;
+          animation: shimmer 3s ease-in-out infinite;
+        }
+        .ai-btn-glow {
+          animation: glow-pulse 2.5s ease-in-out infinite;
+        }
       `}</style>
       <div className={cn("mx-auto", summaryPhase === "idle" ? "max-w-6xl" : "max-w-3xl")}>
-        <motion.h1
-          layout
-          className="mb-2 text-2xl font-bold text-zinc-100"
-        >
+        <motion.h1 layout className="mb-2 text-2xl font-bold text-zinc-100">
           {k.title}
         </motion.h1>
         <p className="mb-6 text-sm text-zinc-500">
@@ -379,11 +435,9 @@ export default function KreatorPage() {
             animate={{ width: `${progressPct}%` }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
-          {summaryPhase === "processing" && (
-            <p className="mt-2 text-xs text-zinc-500">{k.progressAnalysing}</p>
-          )}
         </div>
 
+        {/* Processing Terminal */}
         {summaryPhase === "processing" && (
           <ProcessingTerminal
             title={k.terminalTitle}
@@ -395,7 +449,7 @@ export default function KreatorPage() {
           />
         )}
 
-        {/* Preliminary Strategy (done) */}
+        {/* Summary Done */}
         {summaryPhase === "done" && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -411,22 +465,15 @@ export default function KreatorPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Chosen features + final price */}
                   <div>
                     <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500">
                       {k.chosenFeatures}
                     </h3>
                     <ul className="space-y-2">
-                      {selectedFeatures.map((item, i) => (
-                        <li
-                          key={item.id}
-                          className="flex items-center justify-between gap-2 text-sm text-zinc-300"
-                        >
+                      {selectedFeatures.map((item) => (
+                        <li key={item.id} className="flex items-center justify-between gap-2 text-sm text-zinc-300">
                           <span>{item.label}</span>
-                          <span className="tabular-nums">
-                            {i === 0 ? "" : "+"}
-                            {formatPrice(item.price, lang, currencyCode)}
-                          </span>
+                          <span className="tabular-nums">+{formatPrice(item.price, lang, currencyCode)}</span>
                         </li>
                       ))}
                     </ul>
@@ -469,23 +516,17 @@ export default function KreatorPage() {
                           {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
                         </motion.p>
                       )}
-                      <p className="mt-2 text-xs text-zinc-500">
-                        {k.billingNote}
-                      </p>
+                      <p className="mt-2 text-xs text-zinc-500">{k.billingNote}</p>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-                      {k.recommendedStack}
-                    </h3>
-                    <p className="text-zinc-200">{getStackSummary(state, lang)}</p>
-                  </div>
-                  <div>
-                    <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-                      {k.estimatedTime}
-                    </h3>
-                    <p className="text-zinc-200">{getTimelineSummary(state, lang)}</p>
-                  </div>
+                  {aiSummary && (
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
+                        {k.recommendedStack}
+                      </h3>
+                      <p className="text-zinc-200">{aiSummary.stack}</p>
+                    </div>
+                  )}
                   {architectText && (
                     <div>
                       <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
@@ -499,6 +540,7 @@ export default function KreatorPage() {
                 </CardContent>
               </Card>
             </div>
+            {/* Contact form */}
             <div className="rounded-xl border border-white/10 bg-zinc-900/30 px-4 py-4 print:hidden">
               <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">
                 {k.contactSectionTitle}
@@ -512,7 +554,7 @@ export default function KreatorPage() {
                     id="kreator-client-name"
                     type="text"
                     value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setClientName(e.target.value)}
                     placeholder={k.contactNamePlaceholder}
                     className="h-11 border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500"
                     autoComplete="name"
@@ -526,16 +568,14 @@ export default function KreatorPage() {
                     id="kreator-client-email"
                     type="email"
                     value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setClientEmail(e.target.value)}
                     placeholder={k.contactEmailPlaceholder}
                     className="h-11 border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500"
                     autoComplete="email"
                   />
                 </div>
               </div>
-              <p className="mt-3 text-xs text-zinc-500">
-                {k.contactDisclaimer}
-              </p>
+              <p className="mt-3 text-xs text-zinc-500">{k.contactDisclaimer}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center print:hidden">
               <Button
@@ -572,60 +612,121 @@ export default function KreatorPage() {
           </Card>
         )}
 
-        {/* Wizard + Price Summary (idle only) */}
+        {/* AI Conversation (idle only) */}
         {summaryPhase === "idle" && (
           <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
             <Card className="border-white/10 bg-zinc-900/50">
               <CardHeader>
-                <CardTitle className="text-zinc-200">
-                  {currentStepLabel || k.yourConfig}
+                <CardTitle className="flex items-center gap-2 text-zinc-200">
+                  <Sparkles className="size-5 text-emerald-500" />
+                  AI Architect
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <AnimatePresence mode="wait" initial={false}>
-                  <FunnelSteps
-                    key={`step-${step}`}
-                    step={step}
-                    stepDirection={stepDirection}
-                    answers={answers}
-                    setAnswers={setAnswers}
-                    slideIn={slideIn}
-                    transition={transition}
-                    options={k.options as any}
-                  />
-                </AnimatePresence>
-
-                <div className="flex justify-between gap-3 pt-4 lg:pt-4">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={goBack}
-                    className="min-h-12 border-white/20"
-                    disabled={step <= 1}
-                  >
-                    <ArrowLeft className="mr-2 size-4" />
-                    {k.back}
-                  </Button>
-                  <Button
-                    size="lg"
-                    onClick={goNext}
-                    disabled={!canProceed}
-                    className="min-h-12 bg-emerald-600 hover:bg-emerald-500"
-                  >
-                    {isLastStep ? (
-                      k.prepareOffer
-                    ) : (
-                      <>
-                        {k.next}
-                        <ArrowRight className="ml-2 size-4" />
-                      </>
-                    )}
-                  </Button>
+              <CardContent className="space-y-4">
+                {/* Conversation history */}
+                <div className="space-y-4">
+                  {history.map((entry, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-2"
+                    >
+                      {/* AI question */}
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
+                          <Cpu className="size-4 text-emerald-400" />
+                        </div>
+                        <p className="rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-3 text-sm text-zinc-200">
+                          {entry.question}
+                        </p>
+                      </div>
+                      {/* User answer */}
+                      <div className="flex justify-end">
+                        <div className="rounded-xl rounded-tr-sm bg-emerald-600/20 px-4 py-2 text-sm font-medium text-emerald-300">
+                          {entry.answer}
+                          {entry.priceImpact && entry.priceImpact > 0 && (
+                            <span className="ml-2 text-xs text-emerald-500">
+                              +{entry.priceImpact} PLN
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
+
+                {/* Loading state */}
+                {isAiLoading && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-3 rounded-xl bg-zinc-800/50 px-4 py-6"
+                  >
+                    <Loader2 className="size-5 animate-spin text-emerald-500" />
+                    <span className="text-sm text-zinc-400">
+                      {lang === "PL" ? "AI Architect analizuje..." : "AI Architect analyzing..."}
+                    </span>
+                  </motion.div>
+                )}
+
+                {/* Current question + options */}
+                {!isAiLoading && currentQuestion && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={transition}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
+                        <Cpu className="size-4 text-emerald-400" />
+                      </div>
+                      <p className="rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-3 text-sm text-zinc-200">
+                        {currentQuestion}
+                      </p>
+                    </div>
+
+                    {/* Option buttons */}
+                    <div className="grid gap-3 pl-10 sm:grid-cols-2">
+                      {currentOptions.map((option, i) => (
+                        <motion.button
+                          key={option.value}
+                          type="button"
+                          onClick={() => handleOptionSelect(option)}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1, ...transition }}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          className={cn(
+                            "ai-btn-glow relative overflow-hidden rounded-xl border-2 border-emerald-500/30 bg-zinc-800/60 px-4 py-4 text-left transition-colors",
+                            "hover:border-emerald-500/70 hover:bg-zinc-800/90",
+                            "focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                          )}
+                        >
+                          {/* Shimmer overlay */}
+                          <div className="ai-btn-shimmer pointer-events-none absolute inset-0 rounded-xl" />
+
+                          <span className="relative block text-sm font-semibold text-zinc-100">
+                            {option.label}
+                          </span>
+                          {option.priceImpact !== undefined && option.priceImpact > 0 && (
+                            <span className="relative mt-1 block text-xs font-medium text-emerald-400">
+                              +{option.priceImpact} PLN
+                            </span>
+                          )}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                <div ref={chatEndRef} />
               </CardContent>
             </Card>
 
-            {/* Desktop: sticky price summary sidebar (SaaS e‑commerce style) */}
+            {/* Desktop: sticky price summary sidebar */}
             <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
               <Card className="border-zinc-800 bg-zinc-950/95 shadow-xl ring-1 ring-white/5">
                 <CardContent className="p-6">
@@ -634,7 +735,7 @@ export default function KreatorPage() {
               </Card>
             </div>
 
-            {/* Mobile: fixed bottom bar + drawer (always at hand) */}
+            {/* Mobile: fixed bottom bar + drawer */}
             <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800/80 bg-zinc-950/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:hidden">
               <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
                 <SheetTrigger asChild>
@@ -749,241 +850,5 @@ function ProcessingTerminal({
         )}
       </div>
     </motion.div>
-  );
-}
-
-
-function FunnelSteps({
-  step,
-  stepDirection,
-  answers,
-  setAnswers,
-  slideIn,
-  transition,
-  options,
-}: {
-  step: number;
-  stepDirection: number;
-  answers: FunnelAnswers;
-  setAnswers: React.Dispatch<React.SetStateAction<FunnelAnswers>>;
-  slideIn: (d: number) => any;
-  transition: Transition;
-  options: any;
-}) {
-  const o = options;
-  return (
-    <>
-      {step === 1 && (
-        <motion.div
-          {...slideIn(stepDirection)}
-          transition={transition}
-          className="grid gap-4 sm:grid-cols-1 md:grid-cols-3"
-        >
-          {(
-            [
-              { id: "landing" as const, label: o.brandingLanding },
-              { id: "wizytowka" as const, label: o.brandingWizytowka },
-              { id: "rozbudowana" as const, label: o.brandingRozbudowana },
-            ] as const
-          ).map(({ id, label }) => {
-            const selected = answers.branding === id;
-            return (
-              <motion.button
-                key={id}
-                type="button"
-                onClick={() => setAnswers((s) => ({ ...s, branding: id }))}
-                animate={{ scale: selected ? 1.05 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={cn(
-                  "rounded-xl border-2 px-4 py-8 text-center text-sm font-semibold transition-all",
-                  selected
-                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-                )}
-              >
-                {label}
-              </motion.button>
-            );
-          })}
-        </motion.div>
-      )}
-
-      {step === 2 && (
-        <motion.div
-          {...slideIn(stepDirection)}
-          transition={transition}
-          className="space-y-6"
-        >
-          <div className="flex items-center justify-between rounded-lg bg-zinc-800/50 p-4">
-            <span className="text-sm font-medium text-zinc-300">Postęp budowy struktury:</span>
-            <div className="text-right">
-              <span className="text-xl font-bold tabular-nums text-emerald-400">
-                {Object.values(answers.sections || {}).filter(Boolean).length} / 10
-              </span>
-              <p className="mt-1 text-xs text-zinc-500">+200 PLN za każdą dodatkową powyżej 5</p>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(
-              [
-                { key: "about" as const, label: o.sectionAbout, desc: o.sectionAboutDesc },
-                { key: "gallery" as const, label: o.sectionGallery, desc: o.sectionGalleryDesc },
-                { key: "contact" as const, label: o.sectionContact, desc: o.sectionContactDesc },
-                { key: "pricing" as const, label: o.sectionPricing, desc: o.sectionPricingDesc },
-                { key: "faq" as const, label: o.sectionFaq, desc: o.sectionFaqDesc },
-                { key: "blog" as const, label: o.sectionBlog, desc: o.sectionBlogDesc },
-                { key: "team" as const, label: o.sectionTeam, desc: o.sectionTeamDesc },
-                { key: "portfolio" as const, label: o.sectionPortfolio, desc: o.sectionPortfolioDesc },
-                { key: "testimonials" as const, label: o.sectionTestimonials, desc: o.sectionTestimonialsDesc },
-                { key: "process" as const, label: o.sectionProcess, desc: o.sectionProcessDesc },
-              ]
-            ).map(({ key, label, desc }) => {
-              const checked = answers.sections?.[key] ?? false;
-              return (
-                <motion.label
-                  key={key}
-                  animate={{ scale: checked ? 1.02 : 1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className={cn(
-                    "flex cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3 transition-all",
-                    checked
-                      ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
-                      : "border-white/10 bg-zinc-800/50 hover:border-white/20"
-                  )}
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) =>
-                      setAnswers((s) => ({
-                        ...s,
-                        sections: {
-                          ...(s.sections || {} as any),
-                          [key]: e.target.checked,
-                        },
-                      }))
-                    }
-                    className="mt-1 size-4 shrink-0 rounded border-zinc-600 accent-emerald-500"
-                  />
-                  <div>
-                    <span className="block text-sm font-medium text-zinc-200">{label}</span>
-                    <span className="block text-xs text-zinc-500">{desc}</span>
-                  </div>
-                </motion.label>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
-
-      {step === 3 && (
-        <motion.div
-          {...slideIn(stepDirection)}
-          transition={transition}
-          className="space-y-4"
-        >
-          {(
-            [
-              { key: "seo" as const, label: o.engineSeo, desc: o.engineSeoDesc },
-              { key: "cms" as const, label: o.engineCms, desc: o.engineCmsDesc },
-              { key: "i18n" as const, label: o.engineI18n, desc: o.engineI18nDesc },
-            ]
-          ).map(({ key, label, desc }) => {
-            const checked = answers.engine?.[key] ?? false;
-            return (
-              <motion.label
-                key={key}
-                animate={{ scale: checked ? 1.02 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={cn(
-                  "flex cursor-pointer items-start gap-4 rounded-xl border-2 px-4 py-4 transition-all relative overflow-hidden",
-                  checked
-                    ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
-                    : "border-white/10 bg-zinc-800/50 hover:border-white/20"
-                )}
-              >
-                {checked && (
-                  <div className="absolute inset-y-0 left-0 w-1 bg-emerald-500" />
-                )}
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={(e) =>
-                    setAnswers((s) => ({
-                      ...s,
-                      engine: {
-                        ...(s.engine || {} as any),
-                        [key]: e.target.checked,
-                      },
-                    }))
-                  }
-                  className="mt-1 size-5 shrink-0 rounded border-zinc-600 accent-emerald-500"
-                />
-                <div className="flex-1">
-                  <span className="block text-sm font-bold text-zinc-100">{label}</span>
-                  <span className="mt-1 block text-sm text-zinc-400">{desc}</span>
-                </div>
-              </motion.label>
-            );
-          })}
-        </motion.div>
-      )}
-
-      {step === 4 && (
-        <motion.div
-          {...slideIn(stepDirection)}
-          transition={transition}
-          className="space-y-4"
-        >
-          {(
-            [
-              { key: "content" as const, label: o.moduleContent, desc: o.moduleContentDesc, badge: o.moduleContentLabel },
-              { key: "chatbot" as const, label: o.moduleChatbot, desc: o.moduleChatbotDesc, badge: o.moduleChatbotLabel },
-            ]
-          ).map(({ key, label, desc, badge }) => {
-            const checked = answers.modules?.[key] ?? false;
-            return (
-              <motion.label
-                key={key}
-                animate={{ scale: checked ? 1.02 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={cn(
-                  "flex cursor-pointer flex-col gap-3 rounded-xl border-2 px-5 py-5 transition-all relative overflow-hidden",
-                  checked
-                    ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_30px_rgba(16,185,129,0.15)]"
-                    : "border-white/10 bg-zinc-800/50 hover:border-white/20"
-                )}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) =>
-                        setAnswers((s) => ({
-                          ...s,
-                          modules: {
-                            ...(s.modules || {} as any),
-                            [key]: e.target.checked,
-                          },
-                        }))
-                      }
-                      className="size-5 rounded border-zinc-600 accent-emerald-500"
-                    />
-                    <span className="text-base font-bold text-zinc-100">{label}</span>
-                  </div>
-                  {badge && (
-                    <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
-                      {badge}
-                    </span>
-                  )}
-                </div>
-                <p className="pl-8 text-sm text-zinc-400">{desc}</p>
-              </motion.label>
-            );
-          })}
-        </motion.div>
-      )}
-    </>
   );
 }
