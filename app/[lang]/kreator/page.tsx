@@ -240,7 +240,7 @@ export default function KreatorPage() {
   const isLastStep = branch !== null && step >= totalSteps;
   const canProceed =
     branch === "standard"
-      ? step === 1 || step === 2 || (step === 3 && standard.deadline) || step === 4
+      ? step === 1 || step === 2 || step === 3
       : false;
 
   const [visibleLogIndex, setVisibleLogIndex] = useState(-1);
@@ -844,16 +844,9 @@ function StandardSteps({
         >
           {(
             [
-              { id: "wizerunek" as const, labelKey: "brandingWizerunek" as const },
-              { id: "portfolio" as const, labelKey: "brandingPortfolio" as const },
-              { id: "kontakt" as const, labelKey: "brandingKontakt" as const },
-              { id: "ecom" as const, labelKey: "brandingEcom" as const },
-              { id: "saas" as const, labelKey: "brandingSaaS" as const },
-              { id: "edu" as const, labelKey: "brandingEdu" as const },
-              { id: "b2b" as const, labelKey: "brandingB2B" as const },
-              { id: "health" as const, labelKey: "brandingHealth" as const },
-              { id: "realestate" as const, labelKey: "brandingRealEstate" as const },
-              { id: "restaurant" as const, labelKey: "brandingRestaurant" as const },
+              { id: "landing" as const, labelKey: "brandingLanding" as const },
+              { id: "wizytowka" as const, labelKey: "brandingWizytowka" as const },
+              { id: "rozbudowana" as const, labelKey: "brandingRozbudowana" as const },
             ] as const
           ).map(({ id, labelKey }) => {
             const selected = standard.branding === id;
@@ -927,41 +920,6 @@ function StandardSteps({
                 />
                 <span className="text-sm text-zinc-200">{label}</span>
               </motion.label>
-            );
-          })}
-        </motion.div>
-      )}
-      {step === 3 && (
-        <motion.div
-          key="s3"
-          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
-          transition={transition}
-          className="grid gap-3 sm:grid-cols-3"
-        >
-          {(
-            [
-              { id: "asap" as const, labelKey: "deadlineAsap" as const },
-              { id: "2weeks" as const, labelKey: "deadline2weeks" as const },
-              { id: "1month" as const, labelKey: "deadline1month" as const },
-            ] as const
-          ).map(({ id, labelKey }) => {
-            const selected = standard.deadline === id;
-            return (
-              <motion.button
-                key={id}
-                type="button"
-                onClick={() => setStandard((s) => ({ ...s, deadline: id }))}
-                animate={{ scale: selected ? 1.05 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={cn(
-                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                  selected
-                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-                )}
-              >
-                {o[labelKey]}
-              </motion.button>
             );
           })}
         </motion.div>
@@ -1112,11 +1070,7 @@ const MODULE_OPTION_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof Kre
   legal: "moduleLegal",
   imgGen: "moduleImgGen",
   videoGen: "moduleVideoGen",
-  dubbing: "moduleDubbing",
   marketing: "moduleMarketing",
-  branding: "moduleBranding",
-  social: "moduleSocial",
-  promo: "modulePromo",
   chatbots: "moduleChatbots",
 };
 
@@ -1128,11 +1082,7 @@ const MODULE_SUBTITLE_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof K
   legal: "moduleLegalSubtitle",
   imgGen: "moduleImgGenSubtitle",
   videoGen: "moduleVideoGenSubtitle",
-  dubbing: "moduleDubbingSubtitle",
   marketing: "moduleMarketingSubtitle",
-  branding: "moduleBrandingSubtitle",
-  social: "moduleSocialSubtitle",
-  promo: "modulePromoSubtitle",
   chatbots: "moduleChatbotsSubtitle",
 };
 

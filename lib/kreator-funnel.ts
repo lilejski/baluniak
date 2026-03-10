@@ -9,7 +9,7 @@ import { translations } from "./translations";
 export type Branch = "standard";
 
 export type StandardAnswers = {
-  branding: "wizerunek" | "portfolio" | "kontakt" | "ecom" | "saas" | "edu" | "b2b" | "health" | "realestate" | "restaurant";
+  branding: "landing" | "wizytowka" | "rozbudowana";
   sections: {
     about: boolean;
     gallery: boolean;
@@ -22,7 +22,6 @@ export type StandardAnswers = {
     testimonials: boolean;
     process: boolean;
   };
-  deadline: "asap" | "2weeks" | "1month";
 };
 
 export type ProfessionalAnswers = {
@@ -41,35 +40,27 @@ export type AdvancedModules = {
   // New AI SaaS modules
   imgGen: boolean;
   videoGen: boolean;
-  dubbing: boolean;
   marketing: boolean;
-  branding: boolean;
-  social: boolean;
-  promo: boolean;
   chatbots: boolean;
 };
 
 export const ADVANCED_MODULE_IDS = [
   "seo", "cms", "i18n", "analytics", "legal",
-  "imgGen", "videoGen", "dubbing", "marketing", "branding", "social", "promo", "chatbots"
+  "imgGen", "videoGen", "marketing", "chatbots"
 ] as const;
 export type AdvancedModuleId = (typeof ADVANCED_MODULE_IDS)[number];
 
 /** Price in PLN for each advanced module. */
 export const ADVANCED_MODULE_PRICES: Record<AdvancedModuleId, number> = {
-  seo: 500,
-  cms: 900,
-  i18n: 1200,
-  analytics: 300,
-  legal: 200,
-  imgGen: 1500,
-  videoGen: 2500,
-  dubbing: 1200,
-  marketing: 1800,
-  branding: 2000,
-  social: 1000,
-  promo: 1500,
-  chatbots: 3000,
+  seo: 249,
+  cms: 499,
+  i18n: 399,
+  analytics: 149,
+  legal: 99,
+  imgGen: 299,
+  videoGen: 499,
+  marketing: 299,
+  chatbots: 999,
 };
 
 export type FunnelState = {
@@ -81,7 +72,7 @@ export type FunnelState = {
 };
 
 const DEFAULT_STANDARD: StandardAnswers = {
-  branding: "wizerunek",
+  branding: "landing",
   sections: {
     about: true,
     gallery: false,
@@ -94,7 +85,6 @@ const DEFAULT_STANDARD: StandardAnswers = {
     testimonials: false,
     process: false,
   },
-  deadline: "2weeks",
 };
 
 const DEFAULT_PROFESSIONAL: ProfessionalAnswers = {
@@ -103,7 +93,7 @@ const DEFAULT_PROFESSIONAL: ProfessionalAnswers = {
   userAuth: false,
 };
 
-export const STANDARD_STEP_IDS = ["branding", "sections", "deadline", "modules"] as const;
+export const STANDARD_STEP_IDS = ["branding", "sections", "modules"] as const;
 export const PROFESSIONAL_STEP_IDS = ["ai", "payments", "auth", "modules"] as const;
 
 export function getStandardSteps(lang: Language) {
@@ -163,23 +153,25 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
   let total = 0;
 
   if (state.branch === "standard") {
-    lineItems.push({ id: "base", label: labels.baseStandard, price: 2200 });
-    total = 2200;
+    let basePrice = 499;
+    let baseLabel: string = labels.baseStandard;
+
+    if (state.standard?.branding === "wizytowka") {
+      basePrice = 999;
+    } else if (state.standard?.branding === "rozbudowana") {
+      basePrice = 1499;
+      baseLabel = labels.baseProfessional;
+    }
+
+    lineItems.push({ id: "base", label: baseLabel, price: basePrice });
+    total = basePrice;
     const s = state.standard?.sections;
     if (s) {
       const sectionsCount = Object.values(s).filter(Boolean).length;
       if (sectionsCount > 0) {
-        const extra = sectionsCount * 500;
+        const extra = sectionsCount * 99;
         lineItems.push({ id: "pages", label: `${labels.extraSections} (×${sectionsCount})`, price: extra });
         total += extra;
-      }
-
-      // ASAP markup (+50% of the standard branch total generated so far)
-      if (state.standard?.deadline === "asap") {
-        const markup = total * 0.5;
-        // @ts-ignore: fastTrack added in translations
-        lineItems.push({ id: "markup", label: labels.fastTrack || "Szybsza realizacja", price: markup });
-        total += markup;
       }
     }
   } else if (state.branch === "professional") {
@@ -222,10 +214,6 @@ export function getPriceBreakdown(state: FunnelState, lang: Language = "PL"): { 
 export function getTimelineSummary(state: FunnelState, lang: Language = "PL"): string {
   const t = translations[lang].kreator.timeline;
   if (state.branch === "standard") {
-    const d = state.standard?.deadline;
-    if (d === "asap") return t.standardAsap;
-    if (d === "2weeks") return t.standard2weeks;
-    if (d === "1month") return t.standard1month;
     return t.standardDefault;
   }
   if (state.branch === "professional") {
@@ -237,10 +225,6 @@ export function getTimelineSummary(state: FunnelState, lang: Language = "PL"): s
 /** Estimated days (number) for animated counter in Summary. */
 export function getEstimatedDays(state: FunnelState): number {
   if (state.branch === "standard") {
-    const d = state.standard?.deadline;
-    if (d === "asap") return 7;
-    if (d === "2weeks") return 14;
-    if (d === "1month") return 30;
     return 14;
   }
   if (state.branch === "professional") return 45;
