@@ -688,24 +688,20 @@ export default function KreatorPage() {
                       {/* Image-based CTA */}
                       <button
                         onClick={handleStart}
-                        className="relative block h-[180px] w-full max-w-[400px] overflow-hidden rounded-2xl drop-shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:scale-105 active:scale-95 sm:h-[220px]"
+                        className="relative flex h-[200px] w-full max-w-[450px] items-center justify-center overflow-visible transition-all hover:scale-105 active:scale-95 sm:h-[240px]"
                       >
+                        {/* Background Image Layer with Neon Shadow */}
                         <div
-                          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                          className="absolute inset-0 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]"
                           style={{ backgroundImage: "url('/images/hero-bot-button.png')" }}
                         />
-                        {/* Overlay darker for text legibility */}
-                        <div className="absolute inset-0 bg-black/40 transition-colors group-hover:bg-black/20" />
 
-                        {/* Text Layer */}
-                        <div className="absolute inset-0 flex items-center justify-center p-6">
-                          <span className="text-center text-xl font-black tracking-tighter text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] sm:text-2xl">
+                        {/* Text Layer - Centered over the image */}
+                        <div className="relative z-10 flex items-center justify-center p-6 text-center">
+                          <span className="text-xl font-black tracking-tighter text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] sm:text-3xl">
                             URUCHOM INTELIGENTNY KREATOR
                           </span>
                         </div>
-
-                        {/* Interactive glow effect */}
-                        <div className="absolute -inset-1 z-[-1] rounded-2xl bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-emerald-500/0 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                       </button>
 
                       <div className="mt-8 space-y-2">
