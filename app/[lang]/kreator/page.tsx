@@ -685,20 +685,20 @@ export default function KreatorPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
                     >
-                      {/* Layered Image-based Start Button */}
+                      {/* Fixed Layered Image-based CTA */}
                       <button
                         onClick={handleStart}
-                        className="relative w-full max-w-[340px] aspect-[4.2/1] mx-auto cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 group border-none outline-none bg-transparent overflow-visible flex items-center justify-center"
+                        className="relative flex items-center justify-center w-full max-w-[340px] mx-auto cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 group border-none outline-none bg-transparent overflow-visible"
                       >
-                        {/* Warstwa tła - obrazek */}
+                        {/* Warstwa 1: Obrazek z Canvy */}
                         <img
                           src="/images/hero-bot-button.png"
-                          alt="Start"
-                          className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                          alt="Start AI"
+                          className="w-full h-auto object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
                         />
 
-                        {/* Warstwa tekstu - precyzyjnie wycentrowana */}
-                        <span className="relative z-10 text-white font-medium text-xs sm:text-sm tracking-[0.2em] uppercase text-center px-4">
+                        {/* Warstwa 2: Wycentrowany tekst - precyzyjnie wycentrowany */}
+                        <span className="absolute inset-0 flex items-center justify-center text-white font-medium text-xs sm:text-sm tracking-[0.2em] uppercase text-center px-4">
                           Uruchom Inteligentny Kreator
                         </span>
                       </button>
