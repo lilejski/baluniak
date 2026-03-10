@@ -18,12 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
-  type Branch,
   type FunnelState,
-  type StandardAnswers,
-  type ProfessionalAnswers,
-  type AdvancedModules,
-  getStandardSteps,
+  type FunnelAnswers,
+  getSteps,
   getTotalSteps,
   getDefaultAnswers,
   buildConfigForApi,
@@ -36,7 +33,6 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, translations } from "@/lib/translations";
 import { ShoppingCart } from "lucide-react";
-
 const PLN_TO_USD = 0.25;
 
 function formatPrice(pln: number, lang: Language, currencyCode: string): string {
@@ -93,14 +89,11 @@ function useCountUp(target: number, durationMs = 600): number {
 export default function KreatorPage() {
   const { dict, lang } = useLanguage();
   const k = dict.kreator;
-  const standardSteps = getStandardSteps(lang);
+  const allSteps = getSteps(lang);
 
-  const [branch, setBranch] = useState<Branch | null>(null);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [stepDirection, setStepDirection] = useState(1);
-  const [standard, setStandard] = useState<Partial<StandardAnswers>>({});
-  const [professional, _setProfessional] = useState<Partial<ProfessionalAnswers>>({});
-  const [modules, setModules] = useState<Partial<AdvancedModules>>({});
+  const [answers, setAnswers] = useState<FunnelAnswers>(getDefaultAnswers());
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
   const [architectText, setArchitectText] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
@@ -108,10 +101,10 @@ export default function KreatorPage() {
   const [clientEmail, setClientEmail] = useState("");
   const offerPrintRef = useRef<HTMLDivElement>(null);
 
-  const state: FunnelState = { branch, step, standard, professional, modules };
+  const state: FunnelState = { step, answers };
   const { lineItems: selectedFeatures, total: totalPrice } = useMemo(
     () => getPriceBreakdown(state, lang),
-    [branch, standard, professional, modules, lang]
+    [step, answers, lang]
   );
   const [isPortfolioDiscount, setIsPortfolioDiscount] = useState(true);
   const discountAmount = isPortfolioDiscount ? Math.round(0.1 * totalPrice) : 0;
@@ -120,10 +113,10 @@ export default function KreatorPage() {
   const estimatedDays = useMemo(() => getEstimatedDays(state), [state]);
   const displayEstimatedDays = useCountUp(estimatedDays, 500);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const totalSteps = branch ? getTotalSteps(branch) : 0;
+  const totalSteps = getTotalSteps();
   const currentStepLabel =
-    branch === "standard" && step >= 1 && step <= standardSteps.length
-      ? standardSteps[step - 1].label
+    step >= 1 && step <= allSteps.length
+      ? allSteps[step - 1].label
       : "";
 
   const progressPct =
@@ -131,39 +124,25 @@ export default function KreatorPage() {
       ? summaryPhase === "processing"
         ? 85
         : 100
-      : branch === null
-        ? 0
-        : totalSteps > 0
-          ? (step / (totalSteps + 1)) * 100
-          : 33;
-
-  const chooseBranch = useCallback((b: Branch) => {
-    setBranch(b);
-    setStep(1);
-    setStepDirection(1);
-    const defaults = getDefaultAnswers(b);
-    setStandard(defaults as StandardAnswers);
-  }, []);
+      : totalSteps > 0
+        ? ((step - 1) / totalSteps) * 100
+        : 0;
 
   const goBack = useCallback(() => {
-    if (step <= 1) {
-      setBranch(null);
-      setStep(0);
-      setStandard({});
-    } else {
+    if (step > 1) {
       setStepDirection(-1);
       setStep((s) => s - 1);
     }
   }, [step]);
 
   const goNext = useCallback(() => {
-    if (branch && step >= totalSteps) {
+    if (step >= totalSteps) {
       setSummaryPhase("processing");
       return;
     }
     setStepDirection(1);
     setStep((s) => s + 1);
-  }, [branch, step, totalSteps]);
+  }, [step, totalSteps]);
 
   const apiDoneRef = useRef(false);
   const logSequenceCompleteRef = useRef(false);
@@ -200,11 +179,11 @@ export default function KreatorPage() {
       apiDoneRef.current = true;
       tryTransitionToDone();
     }
-  }, [branch, step, standard, professional, tryTransitionToDone]);
+  }, [step, answers, tryTransitionToDone]);
 
   const sendToBaluniak = useCallback(async () => {
     const config = buildConfigForApi(state);
-    const projectType = k.pathStandard;
+    const projectType = answers.branding;
     setInquirySending(true);
     try {
       const res = await fetch("/api/send-order", {
@@ -230,18 +209,15 @@ export default function KreatorPage() {
     } finally {
       setInquirySending(false);
     }
-  }, [branch, step, standard, professional, modules, architectText, totalPrice, finalTotal, clientName, clientEmail, k]);
+  }, [step, answers, architectText, totalPrice, finalTotal, clientName, clientEmail, k, state]);
 
   const downloadOfferPdf = useCallback(() => {
     if (typeof window === "undefined") return;
     window.print();
   }, []);
 
-  const isLastStep = branch !== null && step >= totalSteps;
-  const canProceed =
-    branch === "standard"
-      ? step === 1 || step === 2 || step === 3
-      : false;
+  const isLastStep = step >= totalSteps;
+  const canProceed = step >= 1 && step <= totalSteps;
 
   const [visibleLogIndex, setVisibleLogIndex] = useState(-1);
   const terminalScrollRef = useRef<HTMLDivElement>(null);
@@ -602,88 +578,49 @@ export default function KreatorPage() {
             <Card className="border-white/10 bg-zinc-900/50">
               <CardHeader>
                 <CardTitle className="text-zinc-200">
-                  {branch === null ? k.choosePath : currentStepLabel}
+                  {currentStepLabel || k.yourConfig}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <AnimatePresence mode="wait" initial={false}>
-                  {branch === null && (
-                    <motion.div
-                      key="step0"
-                      {...slideIn(stepDirection)}
-                      transition={transition}
-                      className="flex justify-center"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => chooseBranch("standard")}
-                        className={cn(
-                          "flex max-w-sm flex-col items-center gap-4 rounded-xl border-2 p-8 text-left transition-all",
-                          "border-white/10 bg-zinc-800/50 hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-zinc-800/80"
-                        )}
-                      >
-                        <Monitor className="size-14 text-emerald-500/90" />
-                        <div className="text-center">
-                          <span className="block font-semibold text-zinc-100 text-lg">
-                            {k.pathStandard}
-                          </span>
-                          <span className="mt-2 block text-sm text-zinc-500">
-                            {k.pathStandardDesc}
-                          </span>
-                        </div>
-                      </button>
-                    </motion.div>
-                  )}
-
-                  {branch === "standard" && step >= 1 && step <= 3 && (
-                    <StandardSteps
-                      key="standard"
-                      step={step}
-                      stepDirection={stepDirection}
-                      standard={standard}
-                      setStandard={setStandard}
-                      slideIn={slideIn}
-                      transition={transition}
-                      options={k.options}
-                    />
-                  )}
-
-
-
-                  {branch === "standard" && step === 4 && (
-                    <ModulesStep
-                      key="modules"
-                      modules={modules}
-                      setModules={setModules}
-                      slideIn={slideIn}
-                      transition={transition}
-                      options={k.options}
-                    />
-                  )}
+                  <FunnelSteps
+                    key={`step-${step}`}
+                    step={step}
+                    stepDirection={stepDirection}
+                    answers={answers}
+                    setAnswers={setAnswers}
+                    slideIn={slideIn}
+                    transition={transition}
+                    options={k.options as any}
+                  />
                 </AnimatePresence>
 
                 <div className="flex justify-between gap-3 pt-4 lg:pt-4">
-                  <Button variant="outline" size="lg" onClick={goBack} className="min-h-12 border-white/20">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={goBack}
+                    className="min-h-12 border-white/20"
+                    disabled={step <= 1}
+                  >
                     <ArrowLeft className="mr-2 size-4" />
                     {k.back}
                   </Button>
-                  {branch !== null && (
-                    <Button
-                      size="lg"
-                      onClick={goNext}
-                      disabled={!canProceed && !isLastStep}
-                      className="min-h-12 bg-emerald-600 hover:bg-emerald-500"
-                    >
-                      {isLastStep ? (
-                        k.prepareOffer
-                      ) : (
-                        <>
-                          {k.next}
-                          <ArrowRight className="ml-2 size-4" />
-                        </>
-                      )}
-                    </Button>
-                  )}
+                  <Button
+                    size="lg"
+                    onClick={goNext}
+                    disabled={!canProceed}
+                    className="min-h-12 bg-emerald-600 hover:bg-emerald-500"
+                  >
+                    {isLastStep ? (
+                      k.prepareOffer
+                    ) : (
+                      <>
+                        {k.next}
+                        <ArrowRight className="ml-2 size-4" />
+                      </>
+                    )}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -815,333 +752,238 @@ function ProcessingTerminal({
   );
 }
 
-function StandardSteps({
+
+function FunnelSteps({
   step,
   stepDirection,
-  standard,
-  setStandard,
+  answers,
+  setAnswers,
   slideIn,
   transition,
   options,
 }: {
   step: number;
   stepDirection: number;
-  standard: Partial<StandardAnswers>;
-  setStandard: React.Dispatch<React.SetStateAction<Partial<StandardAnswers>>>;
-  slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
+  answers: FunnelAnswers;
+  setAnswers: React.Dispatch<React.SetStateAction<FunnelAnswers>>;
+  slideIn: (d: number) => any;
   transition: Transition;
-  options: KreatorOptions;
+  options: any;
 }) {
   const o = options;
   return (
     <>
       {step === 1 && (
         <motion.div
-          key="s1"
-          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
+          {...slideIn(stepDirection)}
           transition={transition}
-          className="grid gap-3 sm:grid-cols-2"
+          className="grid gap-4 sm:grid-cols-1 md:grid-cols-3"
         >
           {(
             [
-              { id: "landing" as const, labelKey: "brandingLanding" as const },
-              { id: "wizytowka" as const, labelKey: "brandingWizytowka" as const },
-              { id: "rozbudowana" as const, labelKey: "brandingRozbudowana" as const },
+              { id: "landing" as const, label: o.brandingLanding },
+              { id: "wizytowka" as const, label: o.brandingWizytowka },
+              { id: "rozbudowana" as const, label: o.brandingRozbudowana },
             ] as const
-          ).map(({ id, labelKey }) => {
-            const selected = standard.branding === id;
+          ).map(({ id, label }) => {
+            const selected = answers.branding === id;
             return (
               <motion.button
                 key={id}
                 type="button"
-                onClick={() => setStandard((s) => ({ ...s, branding: id }))}
+                onClick={() => setAnswers((s) => ({ ...s, branding: id }))}
                 animate={{ scale: selected ? 1.05 : 1 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className={cn(
-                  "rounded-xl border-2 px-4 py-3 text-left text-sm font-medium transition-all",
+                  "rounded-xl border-2 px-4 py-8 text-center text-sm font-semibold transition-all",
                   selected
                     ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                     : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
                 )}
               >
-                {options[labelKey]}
+                {label}
               </motion.button>
             );
           })}
         </motion.div>
       )}
+
       {step === 2 && (
         <motion.div
-          key="s2"
-          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
+          {...slideIn(stepDirection)}
           transition={transition}
-          className="grid gap-3 sm:grid-cols-2"
+          className="space-y-6"
+        >
+          <div className="flex items-center justify-between rounded-lg bg-zinc-800/50 p-4">
+            <span className="text-sm font-medium text-zinc-300">Postęp budowy struktury:</span>
+            <div className="text-right">
+              <span className="text-xl font-bold tabular-nums text-emerald-400">
+                {Object.values(answers.sections || {}).filter(Boolean).length} / 10
+              </span>
+              <p className="mt-1 text-xs text-zinc-500">+200 PLN za każdą dodatkową powyżej 5</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                { key: "about" as const, label: o.sectionAbout, desc: o.sectionAboutDesc },
+                { key: "gallery" as const, label: o.sectionGallery, desc: o.sectionGalleryDesc },
+                { key: "contact" as const, label: o.sectionContact, desc: o.sectionContactDesc },
+                { key: "pricing" as const, label: o.sectionPricing, desc: o.sectionPricingDesc },
+                { key: "faq" as const, label: o.sectionFaq, desc: o.sectionFaqDesc },
+                { key: "blog" as const, label: o.sectionBlog, desc: o.sectionBlogDesc },
+                { key: "team" as const, label: o.sectionTeam, desc: o.sectionTeamDesc },
+                { key: "portfolio" as const, label: o.sectionPortfolio, desc: o.sectionPortfolioDesc },
+                { key: "testimonials" as const, label: o.sectionTestimonials, desc: o.sectionTestimonialsDesc },
+                { key: "process" as const, label: o.sectionProcess, desc: o.sectionProcessDesc },
+              ]
+            ).map(({ key, label, desc }) => {
+              const checked = answers.sections?.[key] ?? false;
+              return (
+                <motion.label
+                  key={key}
+                  animate={{ scale: checked ? 1.02 : 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className={cn(
+                    "flex cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+                    checked
+                      ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                      : "border-white/10 bg-zinc-800/50 hover:border-white/20"
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) =>
+                      setAnswers((s) => ({
+                        ...s,
+                        sections: {
+                          ...(s.sections || {} as any),
+                          [key]: e.target.checked,
+                        },
+                      }))
+                    }
+                    className="mt-1 size-4 shrink-0 rounded border-zinc-600 accent-emerald-500"
+                  />
+                  <div>
+                    <span className="block text-sm font-medium text-zinc-200">{label}</span>
+                    <span className="block text-xs text-zinc-500">{desc}</span>
+                  </div>
+                </motion.label>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+      {step === 3 && (
+        <motion.div
+          {...slideIn(stepDirection)}
+          transition={transition}
+          className="space-y-4"
         >
           {(
             [
-              { key: "about", label: o.sectionAbout },
-              { key: "gallery", label: o.sectionGallery },
-              { key: "contact", label: o.sectionContact },
-              { key: "pricing", label: o.sectionPricing },
-              { key: "faq", label: o.sectionFaq },
-              { key: "blog", label: o.sectionBlog },
-              { key: "team", label: o.sectionTeam },
-              { key: "portfolio", label: o.sectionPortfolio },
-              { key: "testimonials", label: o.sectionTestimonials },
-              { key: "process", label: o.sectionProcess },
-            ] as const
-          ).map(({ key, label }) => {
-            const checked = standard.sections?.[key] ?? false;
+              { key: "seo" as const, label: o.engineSeo, desc: o.engineSeoDesc },
+              { key: "cms" as const, label: o.engineCms, desc: o.engineCmsDesc },
+              { key: "i18n" as const, label: o.engineI18n, desc: o.engineI18nDesc },
+            ]
+          ).map(({ key, label, desc }) => {
+            const checked = answers.engine?.[key] ?? false;
             return (
               <motion.label
                 key={key}
                 animate={{ scale: checked ? 1.02 : 1 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className={cn(
-                  "flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all",
+                  "flex cursor-pointer items-start gap-4 rounded-xl border-2 px-4 py-4 transition-all relative overflow-hidden",
                   checked
                     ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
                     : "border-white/10 bg-zinc-800/50 hover:border-white/20"
                 )}
               >
+                {checked && (
+                  <div className="absolute inset-y-0 left-0 w-1 bg-emerald-500" />
+                )}
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={(e) =>
-                    setStandard((s) => ({
+                    setAnswers((s) => ({
                       ...s,
-                      sections: {
-                        ...(s.sections || ({} as any)),
+                      engine: {
+                        ...(s.engine || {} as any),
                         [key]: e.target.checked,
-                      } as any,
+                      },
                     }))
                   }
-                  className="size-4 rounded accent-emerald-500"
+                  className="mt-1 size-5 shrink-0 rounded border-zinc-600 accent-emerald-500"
                 />
-                <span className="text-sm text-zinc-200">{label}</span>
+                <div className="flex-1">
+                  <span className="block text-sm font-bold text-zinc-100">{label}</span>
+                  <span className="mt-1 block text-sm text-zinc-400">{desc}</span>
+                </div>
+              </motion.label>
+            );
+          })}
+        </motion.div>
+      )}
+
+      {step === 4 && (
+        <motion.div
+          {...slideIn(stepDirection)}
+          transition={transition}
+          className="space-y-4"
+        >
+          {(
+            [
+              { key: "content" as const, label: o.moduleContent, desc: o.moduleContentDesc, badge: o.moduleContentLabel },
+              { key: "chatbot" as const, label: o.moduleChatbot, desc: o.moduleChatbotDesc, badge: o.moduleChatbotLabel },
+            ]
+          ).map(({ key, label, desc, badge }) => {
+            const checked = answers.modules?.[key] ?? false;
+            return (
+              <motion.label
+                key={key}
+                animate={{ scale: checked ? 1.02 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={cn(
+                  "flex cursor-pointer flex-col gap-3 rounded-xl border-2 px-5 py-5 transition-all relative overflow-hidden",
+                  checked
+                    ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_30px_rgba(16,185,129,0.15)]"
+                    : "border-white/10 bg-zinc-800/50 hover:border-white/20"
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) =>
+                        setAnswers((s) => ({
+                          ...s,
+                          modules: {
+                            ...(s.modules || {} as any),
+                            [key]: e.target.checked,
+                          },
+                        }))
+                      }
+                      className="size-5 rounded border-zinc-600 accent-emerald-500"
+                    />
+                    <span className="text-base font-bold text-zinc-100">{label}</span>
+                  </div>
+                  {badge && (
+                    <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
+                      {badge}
+                    </span>
+                  )}
+                </div>
+                <p className="pl-8 text-sm text-zinc-400">{desc}</p>
               </motion.label>
             );
           })}
         </motion.div>
       )}
     </>
-  );
-}
-
-function ProfessionalSteps({
-  step,
-  stepDirection,
-  professional,
-  setProfessional,
-  slideIn,
-  transition,
-  options,
-}: {
-  step: number;
-  stepDirection: number;
-  professional: Partial<ProfessionalAnswers>;
-  setProfessional: React.Dispatch<React.SetStateAction<Partial<ProfessionalAnswers>>>;
-  slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
-  transition: Transition;
-  options: KreatorOptions;
-}) {
-  const o = options;
-  return (
-    <>
-      {step === 1 && (
-        <motion.div
-          key="p1"
-          {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)}
-          transition={transition}
-          className="grid gap-3 sm:grid-cols-3"
-        >
-          {(
-            [
-              { id: "fal" as const, labelKey: "aiFal" as const },
-              { id: "openai" as const, labelKey: "aiOpenai" as const },
-              { id: "both" as const, labelKey: "aiBoth" as const },
-            ] as const
-          ).map(({ id, labelKey }) => {
-            const selected = professional.aiIntegration === id;
-            return (
-              <motion.button
-                key={id}
-                type="button"
-                onClick={() => setProfessional((s) => ({ ...s, aiIntegration: id }))}
-                animate={{ scale: selected ? 1.05 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={cn(
-                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                  selected
-                    ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                    : "border-white/10 bg-zinc-800/50 text-zinc-400 hover:border-white/20"
-                )}
-              >
-                {o[labelKey]}
-              </motion.button>
-            );
-          })}
-        </motion.div>
-      )}
-      {step === 2 && (
-        <motion.div key="p2" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">{o.paymentsQuestion}</p>
-          <div className="flex gap-3">
-            <motion.button
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, payments: true }))}
-              animate={{ scale: professional.payments === true ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
-                professional.payments === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400"
-              )}
-            >
-              {o.yes}
-            </motion.button>
-            <motion.button
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, payments: false }))}
-              animate={{ scale: professional.payments === false ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
-                professional.payments === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400"
-              )}
-            >
-              {o.no}
-            </motion.button>
-          </div>
-        </motion.div>
-      )}
-      {step === 3 && (
-        <motion.div key="p3" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">{o.authQuestion}</p>
-          <div className="flex gap-3">
-            <motion.button
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, userAuth: true }))}
-              animate={{ scale: professional.userAuth === true ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
-                professional.userAuth === true
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400"
-              )}
-            >
-              {o.yes}
-            </motion.button>
-            <motion.button
-              type="button"
-              onClick={() => setProfessional((s) => ({ ...s, userAuth: false }))}
-              animate={{ scale: professional.userAuth === false ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all",
-                professional.userAuth === false
-                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                  : "border-white/10 bg-zinc-800/50 text-zinc-400"
-              )}
-            >
-              {o.no}
-            </motion.button>
-          </div>
-        </motion.div>
-      )}
-      {step === 4 && (
-        <motion.div key="p4" {...(slideIn(stepDirection) as React.ComponentProps<typeof motion.div>)} transition={transition}>
-          <p className="mb-3 text-sm text-zinc-400">Przejdź do wyboru modułów zaawansowanych.</p>
-        </motion.div>
-      )}
-    </>
-  );
-}
-
-const MODULE_OPTION_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof KreatorOptions> = {
-  seo: "moduleSeo",
-  cms: "moduleCms",
-  i18n: "moduleI18n",
-  analytics: "moduleAnalytics",
-  legal: "moduleLegal",
-  imgGen: "moduleImgGen",
-  videoGen: "moduleVideoGen",
-  marketing: "moduleMarketing",
-  chatbots: "moduleChatbots",
-};
-
-const MODULE_SUBTITLE_KEYS: Record<(typeof ADVANCED_MODULE_IDS)[number], keyof KreatorOptions> = {
-  seo: "moduleSeoSubtitle",
-  cms: "moduleCmsSubtitle",
-  i18n: "moduleI18nSubtitle",
-  analytics: "moduleAnalyticsSubtitle",
-  legal: "moduleLegalSubtitle",
-  imgGen: "moduleImgGenSubtitle",
-  videoGen: "moduleVideoGenSubtitle",
-  marketing: "moduleMarketingSubtitle",
-  chatbots: "moduleChatbotsSubtitle",
-};
-
-function ModulesStep({
-  modules,
-  setModules,
-  slideIn,
-  transition,
-  options,
-}: {
-  modules: Partial<AdvancedModules>;
-  setModules: React.Dispatch<React.SetStateAction<Partial<AdvancedModules>>>;
-  slideIn: (d: number) => { initial: { opacity: number; x: number }; animate: { opacity: number; x: number }; exit: { opacity: number; x: number } };
-  transition: Transition;
-  options: KreatorOptions;
-}) {
-  return (
-    <motion.div
-      key="modules"
-      {...(slideIn(1) as React.ComponentProps<typeof motion.div>)}
-      transition={transition}
-      className="space-y-3"
-    >
-      {ADVANCED_MODULE_IDS.map((id) => {
-        const subtitle = options[MODULE_SUBTITLE_KEYS[id]];
-        const checked = modules[id] ?? false;
-        return (
-          <motion.label
-            key={id}
-            animate={{ scale: checked ? 1.05 : 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={cn(
-              "flex cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3 transition-all",
-              checked
-                ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                : "border-white/10 bg-zinc-800/50 hover:border-white/20"
-            )}
-          >
-            <input
-              type="checkbox"
-              checked={checked}
-              onChange={(e) =>
-                setModules((m) => ({ ...m, [id]: e.target.checked }))
-              }
-              className="mt-0.5 size-4 shrink-0 rounded accent-emerald-500"
-            />
-            <div className="min-w-0 flex-1">
-              <span className="text-sm font-medium text-zinc-200">
-                {options[MODULE_OPTION_KEYS[id]] ?? id}
-              </span>
-              {subtitle && (
-                <p className="mt-0.5 text-xs text-zinc-500" title={subtitle}>
-                  {subtitle}
-                </p>
-              )}
-            </div>
-          </motion.label>
-        );
-      })}
-    </motion.div>
   );
 }
