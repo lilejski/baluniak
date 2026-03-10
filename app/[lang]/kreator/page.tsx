@@ -685,22 +685,19 @@ export default function KreatorPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
                     >
-                      {/* Final Refined Image-based CTA */}
+                      {/* Fixed Styled Image-based CTA */}
                       <div
                         onClick={handleStart}
-                        className="relative flex items-center justify-center w-full max-w-[300px] sm:max-w-[420px] aspect-[3/1] mx-auto cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 drop-shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-[url('/images/hero-bot-button.png')] bg-contain bg-no-repeat bg-center"
+                        className="relative flex items-center justify-center w-full max-w-[320px] aspect-[4/1] mx-auto bg-[url('/images/hero-bot-button.png')] bg-contain bg-center bg-no-repeat cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] border-none outline-none"
                       >
-                        {/* Text Overlay - Centered with Breathe Space */}
-                        <div className="flex items-center justify-center p-2 text-center">
-                          <span className="text-sm px-4 sm:text-lg sm:px-6 font-semibold tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                            URUCHOM INTELIGENTNY KREATOR
-                          </span>
-                        </div>
+                        <span className="text-white font-medium text-xs sm:text-sm tracking-widest uppercase text-center px-4">
+                          Uruchom Inteligentny Kreator
+                        </span>
                       </div>
 
-                      <div className="mt-8 space-y-2">
+                      <div className="mt-14 space-y-2">
                         <p className="mx-auto max-w-xs text-xs uppercase tracking-widest text-emerald-500/80">
-                          {lang === "PL" ? "Gwarantowana wycena w 60s" : "Guaranteed quote in 60s"}
+                          {lang === "PL" ? "GWARANTOWANA WYCENA W 60S" : "GUARANTEED QUOTE IN 60S"}
                         </p>
                         <p className="mx-auto max-w-xs text-sm text-zinc-400">
                           {lang === "PL"
