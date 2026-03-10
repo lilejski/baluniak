@@ -685,19 +685,29 @@ export default function KreatorPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
                     >
-                      {/* Fixed Styled Image-based CTA */}
-                      <div
+                      {/* Layered Image-based CTA */}
+                      <button
                         onClick={handleStart}
-                        className="relative flex items-center justify-center w-full max-w-[320px] aspect-[4/1] mx-auto bg-[url('/images/hero-bot-button.png')] bg-contain bg-center bg-no-repeat cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] border-none outline-none"
+                        className="relative flex items-center justify-center w-full max-w-[320px] mx-auto cursor-pointer hover:scale-105 active:scale-[0.98] transition-all duration-300 group border-none outline-none bg-transparent"
                       >
-                        <span className="text-white font-medium text-xs sm:text-sm tracking-widest uppercase text-center px-4">
+                        {/* Warstwa 1: Obrazek z Canvy */}
+                        <img
+                          src="/images/hero-bot-button.png"
+                          alt="Start AI"
+                          className="w-full h-auto object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                        />
+
+                        {/* Warstwa 2: Wycentrowany tekst */}
+                        <span className="absolute inset-0 flex items-center justify-center text-white font-medium text-xs sm:text-sm tracking-widest uppercase text-center px-4">
                           Uruchom Inteligentny Kreator
                         </span>
-                      </div>
+                      </button>
 
-                      <div className="mt-14 space-y-2">
+                      <div className="mt-8 space-y-2">
                         <p className="mx-auto max-w-xs text-xs uppercase tracking-widest text-emerald-500/80">
-                          {lang === "PL" ? "GWARANTOWANA WYCENA W 60S" : "GUARANTEED QUOTE IN 60S"}
+                          {lang === "PL"
+                            ? "BŁYSKAWICZNA WYCENA, KLIKNIJ KILKA PRZYCISKÓW I PRZEŚLIJ SWOJE ZLECENIE"
+                            : "INSTANT QUOTE, CLICK A FEW BUTTONS AND SEND YOUR ORDER"}
                         </p>
                         <p className="mx-auto max-w-xs text-sm text-zinc-400">
                           {lang === "PL"
