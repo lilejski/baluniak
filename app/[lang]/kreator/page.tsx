@@ -185,11 +185,28 @@ export default function KreatorPage() {
 
   const handleStart = useCallback(() => {
     setIsStarted(true);
-    fetchAiQuestion([]);
-  }, [fetchAiQuestion]);
+    // Hardcode the first message and options as per requirements
+    const firstQuestion = lang === "PL"
+      ? "Cześć! Jestem Twoim AI Architektem. Zaprojektuję Twój projekt i dobiorę moduły w Next.js. Co budujemy: Stronę firmową, Portfolio czy Aplikację MVP?"
+      : "Hi! I'm your AI Architect. I'll design your project and choose modules in Next.js. What are we building: A company site, Portfolio, or an MVP App?";
+
+    const firstOptions: AiOption[] = [
+      { label: lang === "PL" ? "Strona firmowa" : "Company Site", value: "biz_card", serviceId: "biz_card" },
+      { label: lang === "PL" ? "Portfolio / Sekcje" : "Portfolio / Sections", value: "landing", serviceId: "landing" },
+      { label: lang === "PL" ? "Aplikacja MVP" : "MVP App", value: "mvp", serviceId: "mvp" },
+    ];
+
+    setCurrentQuestion(firstQuestion);
+    setCurrentOptions(firstOptions);
+  }, [lang]);
 
   const handleUndo = useCallback(() => {
-    if (history.length === 0) return;
+    if (history.length === 0) {
+      // Revert to start screen if at the very beginning
+      setIsStarted(false);
+      setTotalPrice(0);
+      return;
+    }
     const lastEntry = history[history.length - 1];
     const newHistory = history.slice(0, -1);
     setHistory(newHistory);
@@ -662,36 +679,45 @@ export default function KreatorPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {!isStarted ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="space-y-6"
+                      className="group relative"
                     >
-                      <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                        <Cpu className="size-8 text-emerald-400" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-zinc-100">
-                          {lang === "PL" ? "Zbuduj swój projekt z AI" : "Build your project with AI"}
-                        </h3>
+                      {/* Image-based CTA */}
+                      <button
+                        onClick={handleStart}
+                        className="relative block h-[180px] w-full max-w-[400px] overflow-hidden rounded-2xl drop-shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:scale-105 active:scale-95 sm:h-[220px]"
+                      >
+                        <div
+                          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                          style={{ backgroundImage: "url('/images/hero-bot-button.png')" }}
+                        />
+                        {/* Overlay darker for text legibility */}
+                        <div className="absolute inset-0 bg-black/40 transition-colors group-hover:bg-black/20" />
+
+                        {/* Text Layer */}
+                        <div className="absolute inset-0 flex items-center justify-center p-6">
+                          <span className="text-center text-xl font-black tracking-tighter text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] sm:text-2xl">
+                            URUCHOM INTELIGENTNY KREATOR
+                          </span>
+                        </div>
+
+                        {/* Interactive glow effect */}
+                        <div className="absolute -inset-1 z-[-1] rounded-2xl bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-emerald-500/0 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                      </button>
+
+                      <div className="mt-8 space-y-2">
+                        <p className="mx-auto max-w-xs text-xs uppercase tracking-widest text-emerald-500/80">
+                          {lang === "PL" ? "Gwarantowana wycena w 60s" : "Guaranteed quote in 60s"}
+                        </p>
                         <p className="mx-auto max-w-xs text-sm text-zinc-400">
                           {lang === "PL"
-                            ? "AI przeanalizuje Twoje potrzeby i przygotuje wstępną wycenę w 60 sekund"
-                            : "AI will analyze your needs and prepare a preliminary quote in 60 seconds"}
+                            ? "AI przeanalizuje Twoje potrzeby i dobierze moduły w Next.js"
+                            : "AI will analyze your needs and pick Next.js modules"}
                         </p>
                       </div>
-                      <Button
-                        onClick={handleStart}
-                        size="lg"
-                        className="ai-btn-glow relative h-14 overflow-hidden rounded-xl border-t border-emerald-400/30 bg-emerald-600 px-8 font-bold text-white shadow-xl transition-all hover:bg-emerald-500 hover:shadow-emerald-500/20 active:scale-95"
-                      >
-                        <div className="ai-btn-shimmer pointer-events-none absolute inset-0" />
-                        <span className="relative z-10 flex items-center gap-2">
-                          {lang === "PL" ? "Zautomatyzowany kreator zamówień" : "Automated order configurator"}
-                          <Zap className="size-4 animate-pulse fill-white" />
-                        </span>
-                      </Button>
                     </motion.div>
                   </div>
                 ) : (
