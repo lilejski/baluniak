@@ -2,6 +2,7 @@ import { revalidatePath } from 'next/cache';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { BatchSendButton } from './BatchSendButton';
 import { AddLeadForm } from './AddLeadForm';
+import { FollowUpButton } from './FollowUpButton';
 import { approveLeadAction, deleteLeadAction, resetLeadAction } from './actions';
 import { Trash2, RotateCcw, CheckCircle2 } from 'lucide-react';
 
@@ -96,6 +97,10 @@ export default async function OutreachDashboard() {
                               <CheckCircle2 className="w-4 h-4" />
                             </button>
                           </form>
+                        )}
+
+                        {lead.status === 'sent' && (
+                          <FollowUpButton leadId={lead.id} />
                         )}
                         
                         {lead.status !== 'draft' && (
