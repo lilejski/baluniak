@@ -177,7 +177,7 @@ export async function sendFollowUpAction(leadId: string): Promise<{ success?: bo
     const { error: updateError } = await supabaseAdmin
       .from('leads')
       .update({
-        last_contact_at: new Date().toISOString(),
+        last_contact: new Date().toISOString(),
         step: 2,
         status: 'sent'
       })
