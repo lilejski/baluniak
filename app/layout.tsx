@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import { BackgroundGrid } from "@/components/BackgroundGrid";
 import { GrainTexture } from "@/components/GrainTexture";
 import "./globals.css";
+
+export const metadata: Metadata = {
+  title: 'Baluniak.com - Portfolio',
+  description: 'Moje portfolio i projekty',
+};
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <html lang="pl">
       <body
         className={`${inter.variable} ${robotoMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
       >
@@ -39,6 +45,6 @@ export default function RootLayout({
         <div className="relative z-10">{children}</div>
         <GrainTexture opacity={0.06} className="z-[100]" />
       </body>
-    </>
+    </html>
   );
 }
