@@ -174,17 +174,32 @@ export async function sendFollowUpAction(leadId: string): Promise<{ success?: bo
     }
 
     // 4. Update database on success
-    const { error: updateError } = await supabaseAdmin
-      .from('leads')
-      .update({
-        last_contact: new Date().toISOString(),
-        step: 2,
-        status: 'sent'
-      })
-      .eq('id', lead.id);
+    
+    // 1. Dynamic Column Check
+    const { data: columnInfo } = await supabaseAdmin.from('leads').select('*').limit(1).single();
+    console.log("Available columns in 'leads':", Object.keys(columnInfo || {}));
+
+    // 3. Schema Refresh Reminder
+    // REMINDER: If the error persists, Reload Schema Cache in Supabase Dashboard 
+    // (Settings -> API -> PostgREST -> Reload Schema Cache)
+    
+    let updateError;
+    try {
+      // 2. Robust Update Logic
+      const { error } = await supabaseAdmin
+        .from('leads')
+        .update({ step: 2, status: 'sent' })
+        .eq('id', lead.id);
+      
+      updateError = error;
+    } catch (e) {
+      // 4. Error Handling
+      console.error('FULL update error object (catch):', e);
+      updateError = e;
+    }
 
     if (updateError) {
-      console.error('Error updating lead after follow-up:', updateError);
+      console.error('Error updating lead after follow-up (result):', updateError);
       return { error: 'Email sent, but failed to update database.' };
     }
 
