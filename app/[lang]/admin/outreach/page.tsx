@@ -17,11 +17,10 @@ export default async function OutreachDashboard() {
     console.error('Error fetching leads:', JSON.stringify(error, null, 2));
   }
 
-
-
-  // Handle send batch trigger (client side action but via form for simplicity, or we can use a small client component button)
-  // Since the user asked to trigger /api/outreach/send-batch OR Server Action, I'll use a Client Component button or an inline form pointing to a Server Action. A Server Action makes it clean. Wait, the prompt says: "This should trigger an API route or Server Action."
-  // Wait, let's just make it a Server Action as well for simplicity. Or maybe leave it as API if they wanted an API. "trigger an API route or Server Action". I'll create a simple client form if I want, or just a Server Action.
+  const totalLeads = leads?.length || 0;
+  const draftStep1 = leads?.filter(lead => lead.status === 'draft' && lead.step === 1).length || 0;
+  const sentWaitingFollowUp = leads?.filter(lead => lead.status === 'sent').length || 0;
+  const step2Done = leads?.filter(lead => lead.step === 2).length || 0;
 
   return (
     <div className="container mx-auto p-8 max-w-6xl">
@@ -31,8 +30,27 @@ export default async function OutreachDashboard() {
           <p className="text-zinc-400">Manage cold email leads and campaigns.</p>
         </div>
         
-        {/* Send Batch Button. Let's make it a client component button that calls the API route, or a simple form that does a server action. The prompt asked for API route in task 3 (`app/api/outreach/send-batch/route.ts`). So I'll do a client component button. */}
+        {/* Send Batch Button */}
         <BatchSendButton />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-sm flex flex-col justify-center">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider mb-1">Wszystkie rekordy</p>
+          <p className="text-3xl font-bold text-white">{totalLeads}</p>
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-sm flex flex-col justify-center">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider mb-1" title="Draft (Step 1)">Czekają na 1. maila</p>
+          <p className="text-3xl font-bold text-white">{draftStep1}</p>
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-sm flex flex-col justify-center">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider mb-1" title="Sent (Czekają na follow-up)">Czekają na follow-up</p>
+          <p className="text-3xl font-bold text-white">{sentWaitingFollowUp}</p>
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-sm flex flex-col justify-center">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider mb-1" title="Step 2 (Wysłano follow-up)">Wysłano follow-up</p>
+          <p className="text-3xl font-bold text-white">{step2Done}</p>
+        </div>
       </div>
 
       <AddLeadForm />

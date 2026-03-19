@@ -6,7 +6,7 @@
 export const PRICING_CONFIG = {
   /** Base price (PLN) by project type */
   base: {
-    landing: 1000,
+    landing: 499,
     saas: 5000,
     ecommerce: 3500,
   },
@@ -14,12 +14,12 @@ export const PRICING_CONFIG = {
   perPage: 200,
   /** Feature add-ons (PLN) */
   features: {
-    aiChatbot: 1000,
-    authDatabase: 1500,
+    aiChatbot: 600,
+    authDatabase: 700,
     payments: 1000,
-    cms: 600,
-    booking: 800,
-    darkMode: 200,
+    cms: 499,
+    booking: 399,
+    darkMode: 199,
   },
 } as const;
 
