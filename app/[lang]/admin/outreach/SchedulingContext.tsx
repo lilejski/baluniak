@@ -1,28 +1,46 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { calculateScheduledTime } from '@/lib/utils';
+
+export type ScheduleType = 'immediate' | 'morning' | 'noon' | 'evening' | 'custom';
 
 interface SchedulingContextType {
-  scheduleForMorning: boolean;
-  setScheduleForMorning: (value: boolean) => void;
+  scheduleType: ScheduleType;
+  setScheduleType: (value: ScheduleType) => void;
+  customDateTime: string;
+  setCustomDateTime: (value: string) => void;
+  getScheduledAtISO: () => string | null;
 }
 
 const SchedulingContext = createContext<SchedulingContextType | undefined>(undefined);
 
 export function SchedulingProvider({ children }: { children: React.ReactNode }) {
-  const [scheduleForMorning, setScheduleForMorning] = useState(false);
+  const [scheduleType, setScheduleType] = useState<ScheduleType>('immediate');
+  const [customDateTime, setCustomDateTime] = useState('');
 
+  // Default to morning if it's currently late (as per previous requirement, or just let user choose)
   useEffect(() => {
-    // Default to true if current time is between 18:00 and 06:00
     const now = new Date();
     const hour = now.getHours();
     if (hour >= 18 || hour < 6) {
-      setScheduleForMorning(true);
+      setScheduleType('morning');
     }
   }, []);
 
+  const getScheduledAtISO = () => {
+    const date = calculateScheduledTime(scheduleType, customDateTime);
+    return date ? date.toISOString() : null;
+  };
+
   return (
-    <SchedulingContext.Provider value={{ scheduleForMorning, setScheduleForMorning }}>
+    <SchedulingContext.Provider value={{ 
+      scheduleType, 
+      setScheduleType, 
+      customDateTime, 
+      setCustomDateTime,
+      getScheduledAtISO 
+    }}>
       {children}
     </SchedulingContext.Provider>
   );

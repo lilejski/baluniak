@@ -11,11 +11,12 @@ interface FollowUpButtonProps {
 
 export function FollowUpButton({ leadId }: FollowUpButtonProps) {
   const [isPending, startTransition] = useTransition();
-  const { scheduleForMorning } = useScheduling();
+  const { getScheduledAtISO } = useScheduling();
 
   const handleFollowUp = () => {
     startTransition(async () => {
-      const result = await sendFollowUpAction(leadId, scheduleForMorning);
+      const scheduledAt = getScheduledAtISO();
+      const result = await sendFollowUpAction(leadId, scheduledAt);
       if (result?.error) {
         alert(result.error);
       }

@@ -5,7 +5,7 @@ import { AddLeadForm } from './AddLeadForm';
 import { FollowUpButton } from './FollowUpButton';
 import { SchedulingProvider } from './SchedulingContext';
 import { approveLeadAction, deleteLeadAction, resetLeadAction } from './actions';
-import { Trash2, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Trash2, RotateCcw, CheckCircle2, Clock } from 'lucide-react';
 
 export default async function OutreachDashboard() {
   // Fetch leads and join company_id
@@ -89,9 +89,13 @@ export default async function OutreachDashboard() {
                           ${lead.status === 'draft' ? 'bg-zinc-800 text-zinc-300 border border-zinc-700' : ''}
                           ${lead.status === 'approved' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : ''}
                           ${lead.status === 'sent' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : ''}
-                          ${!['draft', 'approved', 'sent'].includes(lead.status) ? 'bg-zinc-800 text-zinc-400' : ''}
+                          ${lead.status === 'scheduled' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : ''}
+                          ${!['draft', 'approved', 'sent', 'scheduled'].includes(lead.status) ? 'bg-zinc-800 text-zinc-400' : ''}
                         `}>
-                          {lead.status}
+                          <span className="flex items-center gap-1">
+                            {lead.status === 'scheduled' && <Clock className="w-3 h-3" />}
+                            {lead.status}
+                          </span>
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">

@@ -2,13 +2,20 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useScheduling } from './SchedulingContext';
+import { useScheduling, ScheduleType } from './SchedulingContext';
+import { sendBatchAction } from './actions';
 
 export function BatchSendButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ message?: string; error?: string } | null>(null);
   const [templateType, setTemplateType] = useState('general_photo');
-  const { scheduleForMorning, setScheduleForMorning } = useScheduling();
+  const { 
+    scheduleType, 
+    setScheduleType, 
+    customDateTime, 
+    setCustomDateTime, 
+    getScheduledAtISO 
+  } = useScheduling();
   const router = useRouter();
 
   async function handleSendBatch() {
@@ -16,25 +23,14 @@ export function BatchSendButton() {
     setResult(null);
 
     try {
-      const res = await fetch('/api/outreach/send-batch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          templateType,
-          scheduleForMorning
-        }),
-      });
+      const scheduledAt = getScheduledAtISO();
+      const data = await sendBatchAction(templateType, scheduledAt);
       
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to send batch');
+      if (data.error) {
+        throw new Error(data.error);
       }
       
       setResult({ message: `Success! Sent ${data.sentCount} emails.` });
-      // Refresh the page data
       router.refresh();
     } catch (err: any) {
       console.error(err);
@@ -57,23 +53,40 @@ export function BatchSendButton() {
           <option value="personalized_photo">2. Snajper (Dedykowane zdjęcie)</option>
           <option value="follow_up">3. Follow-up (Przypomnienie)</option>
         </select>
-        <div className="flex items-center gap-2 mr-2">
-          <input
-            id="schedule-morning"
-            type="checkbox"
-            checked={scheduleForMorning}
-            onChange={(e) => setScheduleForMorning(e.target.checked)}
-            className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500 focus:ring-offset-zinc-900"
-          />
-          <label htmlFor="schedule-morning" className="text-sm font-medium text-zinc-300 cursor-pointer">
-            Kolejkuj na rano
-          </label>
-        </div>
-        <button
-          onClick={handleSendBatch}
-          disabled={isLoading}
-          className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 disabled:cursor-not-allowed rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-        >
+
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label htmlFor="schedule-type" className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Planuj:</label>
+            <select
+              id="schedule-type"
+              value={scheduleType}
+              onChange={(e) => setScheduleType(e.target.value as ScheduleType)}
+              disabled={isLoading}
+              className="bg-zinc-950 border border-zinc-700 text-zinc-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2 transition-colors disabled:opacity-50"
+            >
+              <option value="immediate">Natychmiast</option>
+              <option value="morning">Rano (08:30)</option>
+              <option value="noon">Południe (12:00)</option>
+              <option value="evening">Wieczór (19:00)</option>
+              <option value="custom">Niestandardowe</option>
+            </select>
+          </div>
+
+          {scheduleType === 'custom' && (
+            <input
+              type="datetime-local"
+              value={customDateTime}
+              onChange={(e) => setCustomDateTime(e.target.value)}
+              disabled={isLoading}
+              className="bg-zinc-950 border border-zinc-700 text-zinc-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2 transition-colors disabled:opacity-50"
+            />
+          )}
+
+          <button
+            onClick={handleSendBatch}
+            disabled={isLoading}
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 disabled:cursor-not-allowed rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          >
           {isLoading ? (
             <>
               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -87,6 +100,7 @@ export function BatchSendButton() {
           )}
         </button>
       </div>
+    </div>
       {result && (
         <p className={`text-sm ${result.error ? 'text-red-400' : 'text-emerald-400'}`}>
           {result.error || result.message}

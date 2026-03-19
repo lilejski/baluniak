@@ -5,18 +5,33 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getScheduledAt() {
+export function calculateScheduledTime(type: string, customValue?: string) {
   const now = new Date();
-  const hour = now.getHours();
   
-  // 18:00 - 06:00 window (Off-hours)
-  if (hour >= 18 || hour < 6) {
-    const scheduledAt = new Date(now);
-    if (hour >= 18) {
-      scheduledAt.setDate(now.getDate() + 1);
-    }
-    scheduledAt.setHours(8, 0, 0, 0);
-    return scheduledAt;
+  if (type === 'immediate') return null;
+  if (type === 'custom' && customValue) return new Date(customValue);
+  
+  let targetHour = 8;
+  let targetMinute = 30;
+  
+  if (type === 'morning') {
+    targetHour = 8;
+    targetMinute = 30;
+  } else if (type === 'noon') {
+    targetHour = 12;
+    targetMinute = 0;
+  } else if (type === 'evening') {
+    targetHour = 19;
+    targetMinute = 0;
   }
-  return null;
+  
+  const scheduledAt = new Date(now);
+  scheduledAt.setHours(targetHour, targetMinute, 0, 0);
+  
+  // If the target time for today has already passed, schedule for tomorrow
+  if (scheduledAt <= now) {
+    scheduledAt.setDate(now.getDate() + 1);
+  }
+  
+  return scheduledAt;
 }
