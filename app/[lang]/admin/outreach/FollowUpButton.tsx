@@ -3,6 +3,7 @@
 import { useTransition } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { sendFollowUpAction } from './actions';
+import { useScheduling } from './SchedulingContext';
 
 interface FollowUpButtonProps {
   leadId: string;
@@ -10,10 +11,11 @@ interface FollowUpButtonProps {
 
 export function FollowUpButton({ leadId }: FollowUpButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const { scheduleForMorning } = useScheduling();
 
   const handleFollowUp = () => {
     startTransition(async () => {
-      const result = await sendFollowUpAction(leadId);
+      const result = await sendFollowUpAction(leadId, scheduleForMorning);
       if (result?.error) {
         alert(result.error);
       }

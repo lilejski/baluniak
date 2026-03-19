@@ -3,6 +3,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
 import { Resend } from 'resend';
+import { getScheduledAt } from '@/lib/utils';
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -115,7 +116,7 @@ export async function resetLeadAction(formData: FormData): Promise<void> {
   }
 }
 
-export async function sendFollowUpAction(leadId: string): Promise<{ success?: boolean; error?: string }> {
+export async function sendFollowUpAction(leadId: string, scheduleForMorning: boolean = false): Promise<{ success?: boolean; error?: string }> {
   if (!leadId) return { error: 'Lead ID is required' };
 
   try {
@@ -161,11 +162,14 @@ export async function sendFollowUpAction(leadId: string): Promise<{ success?: bo
     `;
 
     // 3. Send email via Resend
+    const scheduledDate = scheduleForMorning ? getScheduledAt() : null;
+    
     const { error: emailError } = await resend.emails.send({
       from: 'Łukasz Bałuniak | FotaRobota <lukasz@baluniak.com>',
       to: [lead.email],
       subject,
       html,
+      scheduledAt: scheduledDate ? scheduledDate.toISOString() : undefined,
     });
 
     if (emailError) {

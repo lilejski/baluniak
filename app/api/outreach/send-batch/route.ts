@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { Resend } from 'resend';
+import { getScheduledAt } from '@/lib/utils';
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -8,6 +9,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const templateType = body.templateType || 'general_photo';
+    const scheduleForMorning = body.scheduleForMorning || false;
 
     // 1. Query up to 5 leads where status === 'approved' and step === 1
     const { data: leads, error: fetchError } = await supabaseAdmin
@@ -99,11 +101,14 @@ export async function POST(request: Request) {
       }
 
       // a. Send email via Resend
+      const scheduledDate = scheduleForMorning ? getScheduledAt() : null;
+
       const { data: emailData, error: emailError } = await resend.emails.send({
         from: 'Łukasz Bałuniak | FotaRobota <lukasz@baluniak.com>',
         to: [lead.email],
         subject,
         html,
+        scheduledAt: scheduledDate ? scheduledDate.toISOString() : undefined,
       });
 
       if (emailError) {

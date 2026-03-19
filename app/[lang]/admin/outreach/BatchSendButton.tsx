@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useScheduling } from './SchedulingContext';
 
 export function BatchSendButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ message?: string; error?: string } | null>(null);
   const [templateType, setTemplateType] = useState('general_photo');
+  const { scheduleForMorning, setScheduleForMorning } = useScheduling();
   const router = useRouter();
 
   async function handleSendBatch() {
@@ -19,7 +21,10 @@ export function BatchSendButton() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ templateType }),
+        body: JSON.stringify({ 
+          templateType,
+          scheduleForMorning
+        }),
       });
       
       const data = await res.json();
@@ -52,6 +57,18 @@ export function BatchSendButton() {
           <option value="personalized_photo">2. Snajper (Dedykowane zdjęcie)</option>
           <option value="follow_up">3. Follow-up (Przypomnienie)</option>
         </select>
+        <div className="flex items-center gap-2 mr-2">
+          <input
+            id="schedule-morning"
+            type="checkbox"
+            checked={scheduleForMorning}
+            onChange={(e) => setScheduleForMorning(e.target.checked)}
+            className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500 focus:ring-offset-zinc-900"
+          />
+          <label htmlFor="schedule-morning" className="text-sm font-medium text-zinc-300 cursor-pointer">
+            Kolejkuj na rano
+          </label>
+        </div>
         <button
           onClick={handleSendBatch}
           disabled={isLoading}
