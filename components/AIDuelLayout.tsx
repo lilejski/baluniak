@@ -762,7 +762,7 @@ export default function AIDuelLayout() {
                       variant="outline"
                       className="rounded-xl bg-white/[0.03] text-zinc-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-zinc-100"
                     >
-                      {dict.header.navCaseStudy}
+                      {dict.header.navFotarobota}
                     </Button>
                   </Link>
                 </div>
