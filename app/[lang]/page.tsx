@@ -8,7 +8,6 @@ import { Projects } from "@/components/sections/Projects";
 import { TechStackTrust } from "@/components/sections/TechStackTrust";
 import { ModularStack } from "@/components/sections/ModularStack";
 import { ContactSection } from "@/components/sections/ContactSection";
-import { KreatorCTA } from "@/components/sections/KreatorCTA";
 
 export default function Home() {
   return (
@@ -24,7 +23,6 @@ export default function Home() {
         <TryLiveIntro />
         <AIDuelLayout />
       </section>
-      <KreatorCTA />
       <ModularStack />
       <Projects />
       <WhyProductEngineer />
