@@ -551,6 +551,7 @@ export default function KreatorPage() {
                 {!isStarted ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <motion.div
+                      key={lang}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className="group relative"
