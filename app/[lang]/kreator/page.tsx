@@ -29,34 +29,23 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, translations } from "@/lib/translations";
 import { ShoppingCart } from "lucide-react";
 
-const PLN_TO_USD = 0.25;
-
-function formatPrice(pln: number, lang: Language, currencyCode: string): string {
-  const value = lang === "PL" ? pln : Math.round(pln * PLN_TO_USD);
-  const locale = lang === "PL" ? "pl-PL" : "en-US";
-  return `${value.toLocaleString(locale)} ${currencyCode}`;
-}
-
 type SummaryPhase = "idle" | "processing" | "done" | "sent";
 
 type AiOption = {
   label: string;
   value: string;
   serviceId?: string | null;
-  priceImpact?: number;
 };
 
 type HistoryEntry = {
   question: string;
   answer: string;
   serviceId?: string | null;
-  priceImpact: number;
 };
 
 type AiSummary = {
   projectType: string;
   features: string[];
-  totalEstimate: number;
   stack: string;
 };
 
@@ -66,25 +55,7 @@ const transition: Transition = {
   damping: 30,
 };
 
-function useCountUp(target: number, durationMs = 600): number {
-  const [display, setDisplay] = useState(target);
-  const prevRef = useRef(target);
-  useEffect(() => {
-    if (prevRef.current === target) return;
-    const start = prevRef.current;
-    prevRef.current = target;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min((now - startTime) / durationMs, 1);
-      const eased = 1 - (1 - t) ** 2;
-      setDisplay(Math.round(start + (target - start) * eased));
-      if (t < 1) requestAnimationFrame(tick);
-    };
-    const id = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(id);
-  }, [target, durationMs]);
-  return display;
-}
+
 
 export default function KreatorPage() {
   const { dict, lang } = useLanguage();
@@ -97,22 +68,15 @@ export default function KreatorPage() {
   const [currentOptions, setCurrentOptions] = useState<AiOption[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState<AiSummary | null>(null);
-  const [totalPrice, setTotalPrice] = useState(0);
-
   // Summary / email state (kept from original)
   const [summaryPhase, setSummaryPhase] = useState<SummaryPhase>("idle");
   const [architectText, setArchitectText] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const [isPortfolioDiscount, setIsPortfolioDiscount] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const offerPrintRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
-
-  const discountAmount = isPortfolioDiscount ? Math.round(0.1 * totalPrice) : 0;
-  const finalTotal = totalPrice - discountAmount;
-  const displayTotal = useCountUp(finalTotal);
 
   const currencyCode = k.currencyCode as string;
 
@@ -167,18 +131,13 @@ export default function KreatorPage() {
   }, [lang]);
 
   const handleOptionSelect = useCallback((option: AiOption) => {
-    const priceImpact = option.serviceId ? getPriceById(option.serviceId) : 0;
     const newEntry: HistoryEntry = {
       question: currentQuestion,
       answer: option.label,
       serviceId: option.serviceId,
-      priceImpact,
     };
     const newHistory = [...history, newEntry];
     setHistory(newHistory);
-
-    // Update price
-    setTotalPrice((prev) => prev + priceImpact);
 
     fetchAiQuestion(newHistory);
   }, [currentQuestion, history, fetchAiQuestion]);
@@ -204,23 +163,19 @@ export default function KreatorPage() {
     if (history.length === 0) {
       // Revert to start screen if at the very beginning
       setIsStarted(false);
-      setTotalPrice(0);
       return;
     }
-    const lastEntry = history[history.length - 1];
     const newHistory = history.slice(0, -1);
     setHistory(newHistory);
-    setTotalPrice((prev) => Math.max(0, prev - lastEntry.priceImpact));
     fetchAiQuestion(newHistory);
   }, [history, fetchAiQuestion]);
 
   const selectedFeatures = useMemo(() => {
     return history
-      .filter(e => e.priceImpact > 0)
+      .filter(e => e.serviceId)
       .map((e, i) => ({
         id: `feat-${i}`,
         label: e.answer,
-        price: e.priceImpact
       }));
   }, [history]);
 
@@ -239,14 +194,13 @@ export default function KreatorPage() {
     const config = {
       conversationHistory: history,
       aiSummary,
-      totalPrice,
       features: selectedFeatures,
     };
     try {
       const res = await fetch("/api/architect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config, priceRange: { min: 0, max: totalPrice }, lang }),
+        body: JSON.stringify({ config, priceRange: { min: 0, max: 0 }, lang }),
       });
       if (!res.ok || !res.body) throw new Error("Architect request failed");
       const reader = res.body.getReader();
@@ -261,11 +215,11 @@ export default function KreatorPage() {
       apiDoneRef.current = true;
       tryTransitionToDone();
     } catch {
-      setArchitectText(k.analysisFailed);
+      setArchitectText(k.analysisFailed as string);
       apiDoneRef.current = true;
       tryTransitionToDone();
     }
-  }, [history, aiSummary, totalPrice, selectedFeatures, tryTransitionToDone, k.analysisFailed, lang]);
+  }, [history, aiSummary, selectedFeatures, tryTransitionToDone, k.analysisFailed, lang]);
 
   // Processing phase effects
   const processingStarted = useRef(false);
@@ -326,7 +280,7 @@ export default function KreatorPage() {
           clientName: clientName.trim(),
           clientEmail: clientEmail.trim(),
           projectType: aiSummary?.projectType || "AI Configurator",
-          budgetRange: { min: 0, max: finalTotal },
+          budgetRange: { min: 0, max: 0 },
           config: {
             conversationHistory: history,
             aiSummary,
@@ -346,7 +300,7 @@ export default function KreatorPage() {
     } finally {
       setInquirySending(false);
     }
-  }, [history, aiSummary, selectedFeatures, architectText, finalTotal, clientName, clientEmail, k]);
+  }, [history, aiSummary, selectedFeatures, architectText, clientName, clientEmail, k]);
 
   const downloadOfferPdf = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -362,13 +316,12 @@ export default function KreatorPage() {
         ? Math.min((history.length / 5) * 100, 80)
         : 5;
 
-  // Price summary sidebar content
   const priceSummaryContent = (
     <motion.div layout className="space-y-4">
       <h3 className="text-base font-bold text-white">
         {k.yourConfig}
       </h3>
-      {selectedFeatures.length === 0 && totalPrice === 0 ? (
+      {selectedFeatures.length === 0 ? (
         <p className="text-sm text-zinc-500">{k.selectPathToSeePrice}</p>
       ) : (
         <>
@@ -384,54 +337,10 @@ export default function KreatorPage() {
                   className="flex items-center justify-between gap-2 text-sm text-zinc-400"
                 >
                   <span className="truncate">{item.label}</span>
-                  <span className="shrink-0 tabular-nums">
-                    +{formatPrice(item.price, lang, currencyCode)}
-                  </span>
                 </motion.li>
               ))}
             </AnimatePresence>
           </ul>
-          <div className="border-t border-zinc-800 pt-4">
-            <label className="mb-3 flex cursor-pointer items-start gap-2">
-              <input
-                type="checkbox"
-                checked={isPortfolioDiscount}
-                onChange={(e) => setIsPortfolioDiscount(e.target.checked)}
-                className="mt-1 size-4 rounded border-zinc-600 accent-emerald-500"
-              />
-              <span className="text-xs text-zinc-400">{k.portfolioDiscountLabel}</span>
-            </label>
-            {discountAmount > 0 ? (
-              <>
-                <p className="text-sm tabular-nums text-zinc-500 line-through">
-                  {k.estimatedTotal}: {formatPrice(totalPrice, lang, currencyCode)}
-                </p>
-                <motion.p
-                  key={`${displayTotal}-${lang}`}
-                  initial={{ opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="text-2xl font-bold tabular-nums text-emerald-500"
-                >
-                  {k.estimatedTotal}: {formatPrice(displayTotal, lang, currencyCode)}
-                </motion.p>
-                <span className="mt-1 inline-block rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">
-                  {k.savingsBadge.replace("{amount}", String(discountAmount))}
-                </span>
-              </>
-            ) : (
-              <motion.p
-                key={`${displayTotal}-${lang}`}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="text-2xl font-bold tabular-nums text-emerald-500"
-              >
-                {k.estimatedTotal}: {formatPrice(displayTotal, lang, currencyCode)}
-              </motion.p>
-            )}
-          </div>
-          <p className="text-xs text-zinc-500">{k.priceDisclaimer}</p>
         </>
       )}
     </motion.div>
@@ -513,51 +422,12 @@ export default function KreatorPage() {
                     </h3>
                     <ul className="space-y-2">
                       {selectedFeatures.map((item) => (
-                        <li key={item.id} className="flex items-center justify-between gap-2 text-sm text-zinc-300">
+                        <li key={item.id} className="flex items-center gap-2 text-sm text-zinc-300">
                           <span>{item.label}</span>
-                          <span className="tabular-nums">+{formatPrice(item.price, lang, currencyCode)}</span>
                         </li>
                       ))}
                     </ul>
                     <div className="mt-4 border-t border-zinc-700 pt-4">
-                      <label className="mb-3 flex cursor-pointer items-start gap-2">
-                        <input
-                          type="checkbox"
-                          checked={isPortfolioDiscount}
-                          onChange={(e) => setIsPortfolioDiscount(e.target.checked)}
-                          className="mt-1 size-4 rounded border-zinc-600 accent-emerald-500"
-                        />
-                        <span className="text-xs text-zinc-400">{k.portfolioDiscountLabel}</span>
-                      </label>
-                      {discountAmount > 0 ? (
-                        <>
-                          <p className="text-sm tabular-nums text-zinc-500 line-through">
-                            {k.sumLabel} {formatPrice(totalPrice, lang, currencyCode)}
-                          </p>
-                          <motion.p
-                            key={`final-${displayTotal}-${lang}`}
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                            className="text-2xl font-bold tabular-nums text-emerald-400"
-                          >
-                            {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
-                          </motion.p>
-                          <span className="mt-1 inline-block rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">
-                            {k.savingsBadge.replace("{amount}", String(discountAmount))}
-                          </span>
-                        </>
-                      ) : (
-                        <motion.p
-                          key={`final-${displayTotal}-${lang}`}
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                          className="text-2xl font-bold tabular-nums text-emerald-400"
-                        >
-                          {k.sumLabel} {formatPrice(displayTotal, lang, currencyCode)}
-                        </motion.p>
-                      )}
                       <p className="mt-2 text-xs text-zinc-500">{k.billingNote}</p>
                     </div>
                   </div>
@@ -662,7 +532,7 @@ export default function KreatorPage() {
                 <CardTitle className="flex items-center justify-between text-zinc-200">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="size-5 text-emerald-500" />
-                    System zamówień AI
+                    {k.aiOrderSystemLabel as string}
                   </div>
                   {isStarted && history.length > 0 && !isAiLoading && (
                     <Button
@@ -672,7 +542,7 @@ export default function KreatorPage() {
                       className="h-8 gap-1.5 text-xs text-zinc-500 hover:text-zinc-300"
                     >
                       <Undo2 className="size-3.5" />
-                      Cofnij
+                      {k.undoLabel as string}
                     </Button>
                   )}
                 </CardTitle>
@@ -699,20 +569,16 @@ export default function KreatorPage() {
 
                         {/* Warstwa 2: Wycentrowany tekst - precyzyjnie wycentrowany */}
                         <span className="absolute inset-0 flex items-center justify-center text-white font-medium text-xs sm:text-sm tracking-[0.2em] uppercase text-center px-4">
-                          Uruchom Inteligentny Kreator
+                          {k.startCreator as string}
                         </span>
                       </button>
 
                       <div className="mt-8 space-y-2">
                         <p className="mx-auto max-w-xs text-xs uppercase tracking-widest text-emerald-500/80">
-                          {lang === "PL"
-                            ? "BŁYSKAWICZNA WYCENA, KLIKNIJ KILKA PRZYCISKÓW I PRZEŚLIJ SWOJE ZLECENIE"
-                            : "INSTANT QUOTE, CLICK A FEW BUTTONS AND SEND YOUR ORDER"}
+                          {k.instantQuoteBanner as string}
                         </p>
                         <p className="mx-auto max-w-xs text-sm text-zinc-400">
-                          {lang === "PL"
-                            ? "AI przeanalizuje Twoje potrzeby i dobierze moduły w Next.js"
-                            : "AI will analyze your needs and pick Next.js modules"}
+                          {k.aiAnalyzeSub as string}
                         </p>
                       </div>
                     </motion.div>
@@ -741,11 +607,6 @@ export default function KreatorPage() {
                           <div className="flex justify-end">
                             <div className="rounded-xl rounded-tr-sm bg-emerald-600/20 px-4 py-2 text-sm font-medium text-emerald-300">
                               {entry.answer}
-                              {entry.priceImpact && entry.priceImpact > 0 && (
-                                <span className="ml-2 text-xs text-emerald-500">
-                                  +{entry.priceImpact} PLN
-                                </span>
-                              )}
                             </div>
                           </div>
                         </motion.div>
@@ -761,7 +622,7 @@ export default function KreatorPage() {
                       >
                         <Loader2 className="size-5 animate-spin text-emerald-500" />
                         <span className="text-sm text-zinc-400">
-                          {lang === "PL" ? "System zamówień analizuje..." : "Order system analyzing..."}
+                          {k.systemAnalyzingText as string}
                         </span>
                       </motion.div>
                     )}
@@ -807,33 +668,8 @@ export default function KreatorPage() {
                               <span className="relative block text-sm font-semibold text-zinc-100">
                                 {option.label}
                               </span>
-                              {option.priceImpact !== undefined && option.priceImpact > 0 && (
-                                <span className="relative mt-1 block text-xs font-medium text-emerald-400">
-                                  +{option.priceImpact} PLN
-                                </span>
-                              )}
                             </motion.button>
                           ))}
-                        </div>
-
-                        {/* Price Counter under the question */}
-                        <div className="flex flex-col items-center justify-center rounded-xl bg-emerald-500/5 py-4 ring-1 ring-emerald-500/20">
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={totalPrice}
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              className="text-center"
-                            >
-                              <span className="text-3xl font-bold tabular-nums text-emerald-400">
-                                {formatPrice(totalPrice, lang, currencyCode)}
-                              </span>
-                              <p className="text-[10px] uppercase tracking-widest text-zinc-500">
-                                Szacunkowy koszt na stacku Next.js + Vercel
-                              </p>
-                            </motion.div>
-                          </AnimatePresence>
                         </div>
                       </motion.div>
                     )}
@@ -865,9 +701,6 @@ export default function KreatorPage() {
                     <span className="flex items-center gap-2 text-sm font-bold text-white">
                       <ShoppingCart className="size-5 text-emerald-500" />
                       {k.yourConfig}
-                    </span>
-                    <span className="text-xl font-bold tabular-nums text-emerald-500">
-                      {formatPrice(displayTotal, lang, currencyCode)}
                     </span>
                   </button>
                 </SheetTrigger>

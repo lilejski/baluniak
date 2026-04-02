@@ -513,16 +513,16 @@ export default function AIDuelLayout() {
       {confirmPrompt && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-[2rem] bg-zinc-900/95 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
-            <p className="mb-3 text-center text-sm font-semibold text-zinc-100">Czy chcesz wkleić to zapytanie?</p>
+            <p className="mb-3 text-center text-sm font-semibold text-zinc-100">{COPY.pastePromptConfirm}</p>
             <p className="mb-6 rounded-xl bg-black/40 p-3 text-center text-xs text-zinc-400 ring-1 ring-white/[0.05]">
               &quot;{confirmPrompt}&quot;
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.06]" onClick={() => setConfirmPrompt(null)}>
-                Anuluj
+                {COPY.cancelPrompBtn}
               </Button>
               <Button className="flex-1 rounded-xl bg-emerald-600 font-medium text-emerald-50 hover:bg-emerald-500" onClick={() => { handleQuickAction(confirmPrompt); setConfirmPrompt(null); }}>
-                Tak, wklej
+                {COPY.yesPasteBtn}
               </Button>
             </div>
           </div>
@@ -534,16 +534,16 @@ export default function AIDuelLayout() {
         <div className="fixed inset-0 z-[125] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-[2rem] bg-zinc-900/95 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
             <FileText className="mx-auto mb-3 size-10 text-violet-400" aria-hidden />
-            <p className="mb-2 text-center text-sm font-semibold text-zinc-100">Gotowy brief?</p>
+            <p className="mb-2 text-center text-sm font-semibold text-zinc-100">{COPY.readyBriefTitle}</p>
             <p className="mb-6 text-center text-xs leading-relaxed text-zinc-400">
-              Czy chcesz, żeby agenci automatycznie podsumowali całą rozmowę i przesłali mailem jako gotowy brief dla Lead Developera?
+              {COPY.readyBriefAsk}
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded-xl bg-white/[0.03] text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.06]" onClick={() => setBriefConfirmOpen(false)}>
-                Nie teraz
+                {COPY.notNowBtn}
               </Button>
               <Button className="flex-1 rounded-xl bg-violet-600 font-medium text-white hover:bg-violet-500" onClick={() => { setBriefConfirmOpen(false); setBriefModalOpen(true); }}>
-                Tak, wyślij!
+                {COPY.yesSendBtn}
               </Button>
             </div>
           </div>
