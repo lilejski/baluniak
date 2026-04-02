@@ -91,7 +91,6 @@ export default function QuantumOmCaseStudyPage() {
             variants={itemVariants}
             className="mb-6 flex items-center gap-3 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
           >
-            <Rocket className="size-8 text-emerald-500" />
             {q.architekturaTitle}
           </motion.h2>
           <div className="space-y-4">

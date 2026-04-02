@@ -36,7 +36,8 @@ const mobileMenuItemVariants = {
 const navItemsConfig = [
   { labelKey: "navProjects" as const, hash: "#projekty" },
   { labelKey: "navAbout" as const, hash: "#about" },
-  { labelKey: "navCaseStudy" as const, path: "/projekty/fotarobota" },
+  { labelKey: "navFotarobota" as const, path: "/projekty/fotarobota" },
+  { labelKey: "navQuantumOm" as const, path: "/projekty/quantum-om" },
 ] as const;
 
 export function Navbar() {
