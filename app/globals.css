@@ -228,3 +228,32 @@ html.dark {
     transform: translateY(-8px);
   }
 }
+
+/* Neon sign lifted from the Quantum OM command centre (case study page). */
+@keyframes seele-flicker {
+  0%   { opacity: 1; }
+  3%   { opacity: 0.4; }
+  5%   { opacity: 1; }
+  8%   { opacity: 0.2; }
+  9%   { opacity: 1; }
+  15%  { opacity: 1; }
+  40%  { opacity: 0.8; }
+  41%  { opacity: 0.1; }
+  42%  { opacity: 1; }
+  55%  { opacity: 1; }
+  75%  { opacity: 0.6; }
+  76%  { opacity: 1; }
+  90%  { opacity: 1; }
+  92%  { opacity: 0.3; }
+  93%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.seele-flicker {
+  animation: seele-flicker 4s infinite;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seele-flicker { animation: none; }
+}
