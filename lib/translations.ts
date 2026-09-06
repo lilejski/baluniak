@@ -605,7 +605,7 @@ export const translations = {
         { label: "Limit strat dzienny", value: "2 na aktywo", desc: "Po dwóch stratnych transakcjach na jednym symbolu w ciągu doby — pauza." },
       ],
       guardDoctrine: "Doktryna „parasol”",
-      guardDoctrineDesc: "Bramkowanie kapitału dotyczy wyłącznie wejść. Wyjście z pozycji nie jest blokowane nigdy — ani przez cooldown, ani przez limity kapitałowe. Wzięło się to z realnego błędu: gdy gotówka leżała w coinach, zabezpieczenia potrafiły zablokować sprzedaż i uwięzić bota w stratnej pozycji. Odkąd wyjścia mają zawsze pierwszeństwo, taki zakleszczenie nie może się powtórzyć.",
+      guardDoctrineDesc: "Bramkowanie kapitału dotyczy wyłącznie wejść. Wyjście z pozycji nie jest blokowane nigdy — ani przez cooldown, ani przez limity kapitałowe. Wzięło się to z realnego błędu: gdy gotówka leżała w coinach, zabezpieczenia potrafiły zablokować sprzedaż i uwięzić bota w stratnej pozycji. Odkąd wyjścia mają zawsze pierwszeństwo, takie zakleszczenie nie może się powtórzyć.",
       memoryTitle: "Pamięć: bot, który wie, jak mu szło",
       memoryItems: [
         {

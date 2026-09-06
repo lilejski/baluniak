@@ -15,6 +15,7 @@ import {
   Shield,
   ShieldCheck,
   Tag,
+  Umbrella,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -369,13 +370,18 @@ export default function QuantumOmCaseStudyPage() {
           </div>
           <motion.div
             variants={itemVariants}
-            className="rounded-xl border border-amber-500/25 bg-amber-950/10 p-6"
+            className="relative overflow-hidden rounded-xl border border-amber-500/25 bg-amber-950/10 p-6"
           >
-            <h3 className="mb-2 flex items-center gap-2.5 font-medium text-amber-200">
-              <Shield className="size-4 shrink-0" aria-hidden />
+            <Umbrella
+              className="pointer-events-none absolute -bottom-8 -right-6 size-44 rotate-12 text-amber-400/10"
+              strokeWidth={1.1}
+              aria-hidden
+            />
+            <h3 className="relative mb-2 flex items-center gap-2.5 font-medium text-amber-200">
+              <Umbrella className="size-4 shrink-0" aria-hidden />
               {q.guardDoctrine}
             </h3>
-            <p className="text-sm leading-relaxed text-zinc-400">{q.guardDoctrineDesc}</p>
+            <p className="relative text-sm leading-relaxed text-zinc-400">{q.guardDoctrineDesc}</p>
           </motion.div>
         </motion.section>
 
