@@ -13,6 +13,7 @@ export const translations = {
       navShop: "Sklep",
       navFotarobota: "Fotarobota",
       navQuantumOm: "Quantum OM",
+      navCharon: "Charon",
       cta: "Zbuduj MVP Kreator",
       bookCall: "Umów Rozmowę",
       menu: "Menu",
@@ -365,6 +366,9 @@ export const translations = {
       quantumOmSubtitle: "Multi-Agent AI w analizie krypto.",
       quantumOmDesc: "Orkiestracja agentów AI podejmujących decyzje w oparciu o szybki konsensus i własne środowisko weryfikacji logiki (Guard Pipeline).",
       quantumOmTech: ["nextjs", "openai", "gemini", "supabase"],
+      charonSubtitle: "WMS/ERP + AI dla resellingu palet zwrotów.",
+      charonDesc: "System operacyjny, który prowadzi towar od manifestu palety po gotową aukcję — z wyceną, opisami i katalogowaniem generowanymi przez AI.",
+      charonTech: ["nextjs", "gemini", "supabase", "vercel"],
       saasStarterDesc: "Kolejne projekty już wkrótce",
       aiAutomationsDesc: "Kolejne projekty już wkrótce",
       techLabels: { nextjs: "Next.js", falai: "Fal.ai", vercel: "Vercel", posthog: "PostHog", seo: "SEO", performance: "Performance", migration: "Migration", openai: "OpenAI", gemini: "Gemini", supabase: "Supabase" },
@@ -442,6 +446,112 @@ export const translations = {
       legalTitle: "Nota Prawna i Charakter Projektu",
       legalDesc: "Projekt wyłącznie badawczy formujący laboratorium Multi-Agent AI, niedystrybuowany jako usługa komercyjna ani finansowa w Polsce.",
     },
+    charonPage: {
+      heroTitle: "Charon: inteligentny system operacyjny dla resellingu palet zwrotów",
+      heroSubline: "Autorski system klasy WMS/ERP dla jednoosobowego resellingu — od manifestu palety po gotową aukcję.",
+      heroSubtext: "Wycena, opisy sprzedażowe i katalogowanie oparte na AI.",
+      statusLabel: "Status projektu:",
+      statusValue: "In Production (system używany operacyjnie na co dzień)",
+      overviewTitle: "Czym jest Charon",
+      overviewP1: "Charon to kompletna platforma do zarządzania odsprzedażą towaru z palet liquidation, czyli zwrotów konsumenckich z rynku UK. Zamiast żonglować arkuszami, folderami zdjęć i ręcznym pisaniem ogłoszeń, cały proces — od analizy opłacalności palety, przez przyjęcie i katalogowanie, po wystawienie na Vinted, OLX, Allegro i Facebooka — dzieje się w jednym, mobilnym narzędziu.",
+      overviewP2: "Sercem systemu jest AI (Google Gemini), które wycenia towar, generuje opisy sprzedażowe i pomaga zdecydować, którą paletę w ogóle warto kupić. Zbudowany w całości samodzielnie, działa na darmowej infrastrukturze i zastępuje zestaw płatnych, rozproszonych narzędzi.",
+      problemTitle: "Problem — dlaczego powstał",
+      problemIntro: "Handel zwrotami z palet to biznes, w którym marża powstaje na dwóch etapach: trafnym zakupie palety i szybkim, tanim wystawieniu każdej sztuki. Gotowe systemy nie obsługują dobrze żadnego z nich dla solo-operatora.",
+      problemPoints: [
+        {
+          title: "Integratory marketplace",
+          desc: "Rozwiązania w rodzaju BaseLinkera świetnie synchronizują oferty, ale zakładają, że masz już opisany i wyceniony produkt. Nie pomagają zdecydować, co kupić, ani nie tworzą treści.",
+        },
+        {
+          title: "Systemy WMS/ERP",
+          desc: "Drogie, ciężkie i projektowane pod magazyny z zespołem, a nie pod jedną osobę z telefonem i paletą w garażu.",
+        },
+        {
+          title: "Ręczny workflow",
+          desc: "Excel, Dysk Google i kopiuj-wklej opisy są darmowe, ale wolne i nie skalują się przy setkach różnorodnych, jednostkowych produktów.",
+        },
+      ],
+      problemOutro: "Charon powstał, by połączyć te trzy światy w jeden przepływ skrojony dokładnie pod tę niszę i zredukować czas między „przyjechała paleta” a „wszystko wystawione”.",
+      flowTitle: "Co robi — pełny przepływ",
+      flowSteps: [
+        {
+          title: "Analiza opłacalności palety",
+          desc: "Wgrywasz manifest przewoźnika (PDF lub XLSX, formaty Jobalots, Kaufnet i generic). AI parsuje pozycje, szacuje wartość odsprzedaży oraz sell-through i uwzględnia sezonowość — jeszcze przed zakupem podpowiada, czy paleta się opłaca.",
+        },
+        {
+          title: "Przyjęcie towaru",
+          desc: "Mobile-first. Sprawdzasz fizyczny towar z manifestem prosto z telefonu, robisz zdjęcia, oznaczasz braki i uszkodzenia.",
+        },
+        {
+          title: "Kreator ofert z AI",
+          desc: "Dla każdej sztuki AI generuje tytuł, opis „jako osoba prywatna” zamiast korporacyjnego bełkotu, tagi i kategorię. Dobiera zdjęcia producenta oraz Twoje własne i proponuje trzypoziomową wycenę: szybką, rekomendowaną i maksymalną, opartą o cenę rynkową.",
+        },
+        {
+          title: "Katalog publiczny",
+          desc: "Gotowe produkty trafiają do przeglądarki dla klienta: kategorie nadrzędne, filtry po tagach i po portalu sprzedaży, galerie zdjęć ze swipe oraz link do Amazona jako dowód realnej wartości.",
+        },
+        {
+          title: "Szybkie wystawianie",
+          desc: "Eksport pakietu zdjęć i opisu jednym kliknięciem, hurtowa przecena, zarządzanie linkami do ofert na każdej platformie.",
+        },
+        {
+          title: "Raporty operacyjne",
+          desc: "Wartość towaru na wejściu kontra Twoje ceny, ile sztuk siedzi w kolejce, co jest „do wyjaśnienia”, co odłożone „dla siebie”, liczniki statusów.",
+        },
+      ],
+      edgeTitle: "Jak konkuruje z płatnymi systemami",
+      edgePoints: [
+        {
+          title: "Robi to, czego płatne nie robią",
+          desc: "AI-owy moduł opłacalności palety przed zakupem i automatyczne generowanie treści sprzedażowej. U konkurencji to dwa osobne, ręczne etapy albo dwa osobne, płatne narzędzia.",
+        },
+        {
+          title: "Jeden przepływ zamiast pięciu narzędzi",
+          desc: "Zastępuje kombinację arkusza kalkulacyjnego, dysku na zdjęcia, ręcznego copywritingu i integratora marketplace.",
+        },
+        {
+          title: "Koszt operacyjny bliski zeru",
+          desc: "Działa na darmowych planach (Vercel i Supabase, AI rozliczane za użycie), podczas gdy systemy komercyjne to stała opłata abonamentowa.",
+        },
+        {
+          title: "Skrojony, nie uniwersalny",
+          desc: "Każdy ekran zaprojektowany pod jeden konkretny biznes — jednostkowe zwroty z palet — więc nie ma zbędnej złożoności „pod wszystkich”.",
+        },
+        {
+          title: "Mobilny z założenia",
+          desc: "Cały proces przyjęcia i katalogowania działa z telefonu przy palecie i nie wymaga stanowiska magazynowego.",
+        },
+      ],
+      stackTitle: "Stack techniczny",
+      stackList: [
+        "Next.js 16 (App Router)",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "shadcn/ui",
+        "Supabase (PostgreSQL + Storage)",
+        "Google Gemini przez Vercel AI SDK",
+        "Vercel",
+      ],
+      challengesTitle: "Ciekawsze wyzwania inżynierskie",
+      challenges: [
+        {
+          title: "Przetwarzanie w limicie 60 sekund",
+          desc: "Wieloetapowy, przyrostowy scoring manifestów z kontrolą współbieżności, tak by nigdy nie przekroczyć limitu funkcji serverless.",
+        },
+        {
+          title: "Parser manifestów",
+          desc: "Obsługa różnych formatów przewoźników, zarówno PDF, jak i XLSX, z autodetekcją nagłówków.",
+        },
+        {
+          title: "Zaawansowany UX katalogu",
+          desc: "Infinite scroll z przywracaniem pozycji przy powrocie, galerie reagujące na gesty i generowanie paczek zdjęć po stronie serwera, co omija ograniczenia CORS.",
+        },
+        {
+          title: "Odporność na zmiany schematu",
+          desc: "Warstwa zapisu sama pomija brakujące kolumny, dzięki czemu UI działa jeszcze przed migracją bazy.",
+        },
+      ],
+    },
     projektyPage: {
       title: "Projekty",
       subtitle: "Wybrane realizacje i case study.",
@@ -484,6 +594,8 @@ export const translations = {
       wspolpracaDescription: "Nie trać czasu. Umów wycenę MVP, konsultację AI lub audyt produktu. Gwarantowana odpowiedź w 12h.",
       fotarobotaTitle: "Fotarobota – Case Study generatywnego AI | Product Builder | BALUNIAK",
       fotarobotaDescription: "Case study: od pojęcia do zyskownego SaaS. Automatyzacja zdjęć e-commerce w 2 tygodnie dzięki Next.js i pipeline'owi Fal.ai.",
+      charonTitle: "Charon – system WMS/ERP z AI dla resellingu palet | Case Study | BALUNIAK",
+      charonDescription: "Case study: autorski system operacyjny dla resellingu palet zwrotów. Analiza opłacalności manifestu, katalogowanie i opisy sprzedażowe generowane przez AI. Next.js 16, Supabase, Google Gemini.",
       sklepTitle: "Gotowe rozwiązania i moduły AI | BALUNIAK",
       sklepDescription: "Licencje na gotowe systemy (SaaS) oraz dostęp do bazy wiedzy o automatyzacji procesów AI w biznesie.",
     },
@@ -499,6 +611,7 @@ export const translations = {
       navShop: "Shop",
       navFotarobota: "Fotarobota",
       navQuantumOm: "Quantum OM",
+      navCharon: "Charon",
       cta: "Build MVP Creator",
       bookCall: "Book a Call",
       menu: "Menu",
@@ -850,6 +963,9 @@ export const translations = {
       quantumOmSubtitle: "Multi-Agent AI for crypto analysis.",
       quantumOmDesc: "AI agent orchestration making decisions based on fast consensus and an internal logic verification environment (Guard Pipeline).",
       quantumOmTech: ["nextjs", "openai", "gemini", "supabase"],
+      charonSubtitle: "WMS/ERP + AI for return-pallet reselling.",
+      charonDesc: "An operating system that carries stock from the pallet manifest to a live listing — with AI-generated pricing, copy and cataloguing.",
+      charonTech: ["nextjs", "gemini", "supabase", "vercel"],
       saasStarterDesc: "More projects coming soon",
       aiAutomationsDesc: "More projects coming soon",
       techLabels: { nextjs: "Next.js", falai: "Fal.ai", vercel: "Vercel", posthog: "PostHog", seo: "SEO", performance: "Performance", migration: "Migration", openai: "OpenAI", gemini: "Gemini", supabase: "Supabase" },
@@ -927,6 +1043,112 @@ export const translations = {
       legalTitle: "Legal Disclaimer & Project Nature",
       legalDesc: "This is purely an experimental research initiative forming a Multi-Agent laboratory, not distributed as a commercial or financial service under current regulations.",
     },
+    charonPage: {
+      heroTitle: "Charon: an intelligent operating system for return-pallet reselling",
+      heroSubline: "A custom WMS/ERP-class system for one-person reselling — from the pallet manifest to a live listing.",
+      heroSubtext: "AI-driven pricing, sales copy and cataloguing.",
+      statusLabel: "Project status:",
+      statusValue: "In Production (used operationally every day)",
+      overviewTitle: "What Charon is",
+      overviewP1: "Charon is a complete platform for reselling stock from liquidation pallets — consumer returns from the UK market. Instead of juggling spreadsheets, photo folders and hand-written listings, the whole process happens in one mobile tool: pallet profitability analysis, intake, cataloguing, and publishing to Vinted, OLX, Allegro and Facebook.",
+      overviewP2: "At its core sits AI (Google Gemini) that prices the stock, generates sales copy and helps decide which pallet is worth buying in the first place. Built entirely solo, it runs on free infrastructure and replaces a stack of paid, scattered tools.",
+      problemTitle: "The problem it solves",
+      problemIntro: "Pallet return trading is a business where margin is made at two moments: buying the right pallet, and listing every single item quickly and cheaply. Off-the-shelf systems handle neither well for a solo operator.",
+      problemPoints: [
+        {
+          title: "Marketplace integrators",
+          desc: "Tools like BaseLinker sync listings beautifully, but assume you already have a described, priced product. They neither help you decide what to buy nor write the content.",
+        },
+        {
+          title: "WMS/ERP systems",
+          desc: "Expensive, heavy and designed for warehouses with a team, not for one person with a phone and a pallet in the garage.",
+        },
+        {
+          title: "The manual workflow",
+          desc: "Excel, Google Drive and copy-pasted descriptions are free, but slow, and they do not scale across hundreds of varied one-off products.",
+        },
+      ],
+      problemOutro: "Charon exists to merge those three worlds into a single flow tailored to this exact niche, cutting the time between the pallet arriving and everything being listed.",
+      flowTitle: "What it does — the full flow",
+      flowSteps: [
+        {
+          title: "Pallet profitability analysis",
+          desc: "You upload the carrier manifest (PDF or XLSX, in Jobalots, Kaufnet and generic formats). AI parses the line items, estimates resale value and sell-through and factors in seasonality — telling you whether the pallet is worth it before you buy.",
+        },
+        {
+          title: "Stock intake",
+          desc: "Mobile-first. You check physical goods against the manifest straight from your phone, take photos and flag missing or damaged items.",
+        },
+        {
+          title: "AI listing builder",
+          desc: "For each item, AI generates a title, a description written as a private seller rather than corporate filler, tags and a category. It picks manufacturer images alongside your own and proposes three price tiers — quick, recommended and maximum — anchored to the market price.",
+        },
+        {
+          title: "Public catalogue",
+          desc: "Finished products land in a customer-facing browser: parent categories, filters by tag and by sales channel, swipeable photo galleries, and an Amazon link as proof of real-world value.",
+        },
+        {
+          title: "Fast publishing",
+          desc: "One-click export of the photo bundle and description, bulk repricing, and management of listing links across every platform.",
+        },
+        {
+          title: "Operational reports",
+          desc: "Intake value versus your prices, how much sits in the queue, what is flagged for review, what is set aside for personal use, and status counters.",
+        },
+      ],
+      edgeTitle: "How it competes with paid systems",
+      edgePoints: [
+        {
+          title: "It does what the paid ones do not",
+          desc: "Pre-purchase AI pallet profitability scoring and automatic sales-copy generation. Elsewhere those are two separate manual stages, or two separate paid tools.",
+        },
+        {
+          title: "One flow instead of five tools",
+          desc: "It replaces the combination of a spreadsheet, a photo drive, manual copywriting and a marketplace integrator.",
+        },
+        {
+          title: "Near-zero running cost",
+          desc: "It runs on free tiers (Vercel and Supabase, with AI billed per use), while commercial systems carry a fixed monthly subscription.",
+        },
+        {
+          title: "Tailored, not generic",
+          desc: "Every screen is designed for one specific business — one-off pallet returns — so there is no incidental complexity built for everyone else.",
+        },
+        {
+          title: "Mobile by design",
+          desc: "The entire intake and cataloguing process works from a phone next to the pallet, with no warehouse workstation required.",
+        },
+      ],
+      stackTitle: "Tech stack",
+      stackList: [
+        "Next.js 16 (App Router)",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "shadcn/ui",
+        "Supabase (PostgreSQL + Storage)",
+        "Google Gemini via the Vercel AI SDK",
+        "Vercel",
+      ],
+      challengesTitle: "The more interesting engineering problems",
+      challenges: [
+        {
+          title: "Processing inside a 60-second budget",
+          desc: "Multi-stage, incremental manifest scoring with concurrency control, so the serverless function limit is never exceeded.",
+        },
+        {
+          title: "The manifest parser",
+          desc: "Handling different carrier formats across both PDF and XLSX, with header autodetection.",
+        },
+        {
+          title: "Advanced catalogue UX",
+          desc: "Infinite scroll with scroll-position restoration on back-navigation, gesture-driven galleries, and server-side photo bundle generation that sidesteps CORS restrictions.",
+        },
+        {
+          title: "Schema-change resilience",
+          desc: "The write layer silently skips missing columns, so the UI keeps working before the database migration lands.",
+        },
+      ],
+    },
     projektyPage: {
       title: "Projects",
       subtitle: "Selected work and case studies.",
@@ -969,6 +1191,8 @@ export const translations = {
       wspolpracaDescription: "Let's build. Pick a slot in the calendar or leave a message. Reply within 12h. MVP, AI consulting, audit – Poland and international.",
       fotarobotaTitle: "Fotarobota – AI SaaS Case Study | Product Builder | BALUNIAK",
       fotarobotaDescription: "Case study: from idea to working SaaS in 2 weeks. Next.js, Fal.ai, product photo automation. Delivered by a Product Builder.",
+      charonTitle: "Charon – AI-powered WMS/ERP for pallet reselling | Case Study | BALUNIAK",
+      charonDescription: "Case study: a custom operating system for return-pallet reselling. AI manifest profitability scoring, cataloguing and sales copy. Next.js 16, Supabase, Google Gemini.",
       sklepTitle: "Shop – scripts & AI training | BALUNIAK",
       sklepDescription: "Scripts (including Fotarobota) and AI training. Ready-made solutions and implementation know-how from a Product Builder.",
     },

@@ -218,7 +218,50 @@ export function Projects() {
             </SpotlightCard>
           </Link>
 
-
+          {/* Charon: WMS/ERP + AI dla resellingu palet */}
+          <Link
+            href={`/${localeSegment}/projekty/charon`}
+            className="block h-full md:col-span-4"
+          >
+            <SpotlightCard accent="emerald" className="h-full transition-opacity hover:opacity-100">
+              <CardHeader className="pb-2">
+                <span className="mb-2 inline-block w-fit rounded-full border border-cyan-500/60 bg-black/80 px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-cyan-200">
+                  {p.caseStudyTag}
+                </span>
+                <CardTitle className="text-lg font-semibold text-card-foreground md:text-xl">
+                  Charon
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col justify-between space-y-4">
+                <CardDescription className="text-muted-foreground text-sm leading-relaxed">
+                  {p.charonDesc}
+                </CardDescription>
+                <p className="text-xs text-muted-foreground/90">{p.charonSubtitle}</p>
+                <div className="flex flex-wrap gap-2">
+                  {p.charonTech.map((key: string) => {
+                    const Icon = techIcons[key as keyof typeof techIcons];
+                    const label = p.techLabels[key as keyof typeof p.techLabels] ?? key;
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-zinc-300"
+                        title={label}
+                      >
+                        {Icon ? <Icon className="size-3.5 shrink-0 opacity-80" /> : null}
+                        <span>{label}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+                <Button variant="default" size="sm" className="w-fit" asChild>
+                  <span>
+                    {p.caseStudyCta}
+                    <ArrowRight className="ml-1 size-4" />
+                  </span>
+                </Button>
+              </CardContent>
+            </SpotlightCard>
+          </Link>
 
         </div>
       </div>
