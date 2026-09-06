@@ -211,8 +211,8 @@ export default function QuantumOmCaseStudyPage() {
               priority
             />
           </div>
-          <figcaption className="mt-3 text-center text-xs text-zinc-500">
-            Quantum OM — Command Center
+          <figcaption className="mt-3 text-center text-xs leading-relaxed text-zinc-500">
+            {q.dashboardCaption}
           </figcaption>
         </motion.figure>
 

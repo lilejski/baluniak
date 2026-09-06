@@ -526,7 +526,8 @@ export const translations = {
         { value: "22 USDC", label: "Maks. wielkość zlecenia" },
         { value: "3", label: "Maks. otwartych pozycji" },
       ],
-      liveDisclaimer: "Ostatni cykl live zakończył się na minusie — kapitał testowy został niemal w całości wytopiony. Wynik podaję wprost, bo to projekt badawczy, a nie oferta inwestycyjna: celem było sprawdzenie architektury pod obciążeniem, nie stopa zwrotu.",
+      liveDisclaimer: "Projekt ma charakter badawczy: chodziło o sprawdzenie, czy architektura wieloagentowa wytrzyma zderzenie z realnym rynkiem — realnymi cenami, poślizgiem, prowizjami i realną konsekwencją błędu. To nie jest strategia inwestycyjna ani oferta finansowa, a wyników handlowych nie publikuję.",
+      dashboardCaption: "Quantum OM — Command Center. Salda widoczne na zrzucie pokazują stan po wypłacie środków z konta.",
       agentsTitle: "Sztab analityków",
       agentsLead: "Pięć wyspecjalizowanych ról, świadomie rozdzielonych na różne modele i różne poziomy kosztu. Tanie modele mielą każdy cykl, drogi wchodzi tylko wtedy, gdy naprawdę trzeba rozstrzygnąć spór.",
       agents: [
@@ -1357,7 +1358,8 @@ export const translations = {
         { value: "22 USDC", label: "Max order size" },
         { value: "3", label: "Max open positions" },
       ],
-      liveDisclaimer: "The last live cycle ended in the red — the test capital was almost entirely burned through. I state that plainly because this is a research project, not an investment offer: the goal was to stress-test the architecture, not to produce a return.",
+      liveDisclaimer: "This is a research project: the point was to find out whether a multi-agent architecture holds up against a real market — real prices, real slippage, real fees and a real cost of being wrong. It is not an investment strategy or a financial offer, and I do not publish trading results.",
+      dashboardCaption: "Quantum OM — Command Center. The balances shown reflect the state after funds were withdrawn from the account.",
       agentsTitle: "The analyst panel",
       agentsLead: "Five specialised roles, deliberately split across different models and different cost tiers. Cheap models grind through every cycle; the expensive one only steps in when there is an actual dispute to settle.",
       agents: [
