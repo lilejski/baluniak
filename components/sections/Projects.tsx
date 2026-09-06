@@ -10,8 +10,6 @@ import {
   BarChart2,
   Cloud,
   Cpu,
-  ExternalLink,
-  LayoutGrid,
   Layout,
   Database,
   Bot,
@@ -19,7 +17,6 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/SpotlightCard";
 
 // Removed "SaaS Starter Kit" and "AI Automations"
@@ -37,10 +34,6 @@ const techIcons: Record<string, ComponentType<{ className?: string }>> = {
 export function Projects() {
   const { dict, localeSegment, lang } = useLanguage();
   const p = dict.projects;
-  const descriptions: Record<string, string> = {
-    saasStarter: p.saasStarterDesc,
-    aiAutomations: p.aiAutomationsDesc,
-  };
 
   return (
     <section
@@ -108,12 +101,6 @@ export function Projects() {
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
               <Button variant="default" size="sm" asChild>
-                <a href="https://www.fotarobota.pl" target="_blank" rel="noopener noreferrer">
-                  {p.visit}
-                  <ExternalLink className="ml-1 size-4" />
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
                 <Link href={`/${localeSegment}/projekty/fotarobota`}>
                   {p.caseStudyCta}
                   <ArrowRight className="ml-1 size-4" />
