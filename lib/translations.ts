@@ -500,6 +500,10 @@ export const translations = {
       archiveTitle: "Dlaczego projekt jest wygaszony",
       archiveBody: "Fotarobota była projektem walidacyjnym: sprawdzałem, czy da się dowieźć działający, płatny produkt oparty na AI w dwa tygodnie i czy ktoś za niego zapłaci. W obu przypadkach odpowiedź brzmiała „tak”. Po fazie walidacji wyłączyłem infrastrukturę — utrzymywanie osobnej domeny, bazy danych i bramki płatniczej dla projektu, który spełnił już swoją rolę, byłoby kosztem bez zwrotu.",
       archiveNote: "Wszystkie zdjęcia na tej stronie pochodzą z działającego systemu.",
+      forSaleBadge: "Projekt do przejęcia",
+      forSaleTitle: "Projekt jest do kupienia",
+      forSaleBody: "System jest skończony i sprawdzony w boju — działał komercyjnie i miał płacących użytkowników. Jeśli chcesz mieć własną platformę tego typu, są dwie drogi: możesz przejąć dokładnie ten projekt razem z kodem, architekturą i integracjami, albo zamówić budowę nowej wersji, zaprojektowanej od zera pod Twoją branżę, markę i model rozliczeń.",
+      forSaleCta: "Porozmawiajmy o przejęciu",
     },
     quantumOmPage: {
       heroTitle: "Quantum OM: Autonomiczny System Decyzyjny High-Frequency Analysis",
@@ -1172,6 +1176,10 @@ export const translations = {
       archiveTitle: "Why the project is archived",
       archiveBody: "Fotarobota was a validation project: I wanted to find out whether a working, paid AI product could be shipped in two weeks, and whether anyone would pay for it. Both answers were yes. Once the validation phase was over I shut the infrastructure down — keeping a separate domain, database and payment gateway alive for a project that had already served its purpose would have been a cost with no return.",
       archiveNote: "Every image on this page came out of the working system.",
+      forSaleBadge: "Available for acquisition",
+      forSaleTitle: "The project is for sale",
+      forSaleBody: "The system is finished and battle-tested — it ran commercially and had paying users. If you want a platform like this of your own, there are two routes: take over this exact project along with its code, architecture and integrations, or commission a fresh build designed from scratch around your own industry, brand and billing model.",
+      forSaleCta: "Let's talk about taking it over",
     },
     quantumOmPage: {
       heroTitle: "Quantum OM: Autonomous Decision System High-Frequency Analysis",

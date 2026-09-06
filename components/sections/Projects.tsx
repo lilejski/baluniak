@@ -64,7 +64,7 @@ export function Projects() {
         >
           <div className="relative w-full shrink-0 aspect-video md:aspect-auto md:h-auto md:min-h-0 md:w-1/2 md:max-h-[500px]">
             <Image
-              src="/fotarobota-preview.png"
+              src="/fotarobota-preview.webp"
               alt="Fotarobota"
               fill
               className="object-cover"

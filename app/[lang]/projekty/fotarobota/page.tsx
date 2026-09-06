@@ -4,10 +4,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Archive, ArrowLeft, Camera, CreditCard, TrendingUp, Zap } from "lucide-react";
+import {
+  Archive,
+  ArrowLeft,
+  Camera,
+  Clock,
+  CreditCard,
+  Leaf,
+  Tag,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BeforeAfterShowcase } from "@/components/BeforeAfterShowcase";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 const containerVariants = {
   hidden: {},
@@ -76,20 +87,27 @@ export default function FotarobotaCaseStudyPage() {
           <p className="mb-2 text-lg text-zinc-400 text-balance sm:text-xl">{f.heroSubline}</p>
           <p className="mb-6 text-sm text-zinc-500">{f.heroSubtext}</p>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800/60 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-zinc-400">
-            <Archive className="size-3" aria-hidden />
-            {f.statusLabel} {f.statusValue}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800/60 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              <Archive className="size-3" aria-hidden />
+              {f.statusLabel} {f.statusValue}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-300">
+              <Tag className="size-3" aria-hidden />
+              {f.forSaleBadge}
+            </span>
           </div>
 
+          {/* Full landing-page capture — keep its native ratio so nothing is cropped away */}
           <div
             className="relative mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_0_40px_rgba(16,185,129,0.12)]"
-            style={{ aspectRatio: "16/9" }}
+            style={{ aspectRatio: "1109 / 889" }}
           >
             <Image
-              src="/fotarobota-preview.png"
+              src="/fotarobota-preview.webp"
               alt="Fotarobota — podgląd produktu"
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="(max-width: 768px) 100vw, 896px"
               priority
             />
@@ -136,24 +154,30 @@ export default function FotarobotaCaseStudyPage() {
             {f.wyzwanieTitle}
           </motion.h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <motion.div
-              variants={itemVariants}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
-            >
-              <p className="text-sm leading-relaxed text-zinc-400">{f.wyzwanieP1}</p>
-            </motion.div>
-            <motion.div
-              variants={itemVariants}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm"
-            >
-              <p className="text-sm leading-relaxed text-zinc-400">{f.wyzwanieP2}</p>
-            </motion.div>
-            <motion.div
-              variants={itemVariants}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm sm:col-span-2 lg:col-span-1"
-            >
-              <p className="text-sm leading-relaxed text-zinc-400">{f.wyzwanieFood}</p>
-            </motion.div>
+            {[
+              { text: f.wyzwanieP1, Icon: Clock, tint: "text-amber-400/10", wide: false },
+              { text: f.wyzwanieP2, Icon: TrendingUp, tint: "text-sky-400/10", wide: false },
+              { text: f.wyzwanieFood, Icon: Leaf, tint: "text-lime-400/10", wide: true },
+            ].map((card) => (
+              <motion.div
+                key={card.text}
+                variants={itemVariants}
+                className={cn(
+                  "relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm",
+                  card.wide && "sm:col-span-2 lg:col-span-1"
+                )}
+              >
+                <card.Icon
+                  className={cn(
+                    "pointer-events-none absolute -bottom-5 -right-4 size-32 -rotate-12",
+                    card.tint
+                  )}
+                  strokeWidth={1.25}
+                  aria-hidden
+                />
+                <p className="relative text-sm leading-relaxed text-zinc-400">{card.text}</p>
+              </motion.div>
+            ))}
           </div>
         </motion.section>
 
@@ -371,6 +395,21 @@ export default function FotarobotaCaseStudyPage() {
           <motion.p variants={itemVariants} className="mt-4 text-xs text-zinc-500">
             {f.archiveNote}
           </motion.p>
+
+          {/* The system is finished and transferable — say so where the status is read */}
+          <motion.div
+            variants={itemVariants}
+            className="mt-8 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6"
+          >
+            <h3 className="mb-3 flex items-center gap-2.5 text-lg font-semibold text-emerald-300">
+              <Tag className="size-4 shrink-0" aria-hidden />
+              {f.forSaleTitle}
+            </h3>
+            <p className="mb-5 text-sm leading-relaxed text-zinc-300">{f.forSaleBody}</p>
+            <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-500">
+              <Link href={`/${localeSegment}#contact`}>{f.forSaleCta}</Link>
+            </Button>
+          </motion.div>
         </motion.section>
       </div>
     </div>
