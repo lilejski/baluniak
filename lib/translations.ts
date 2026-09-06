@@ -47,7 +47,7 @@ export const translations = {
       linkedinUrl: "https://www.linkedin.com/in/%C5%82ukasz-ba%C5%82uniak-64734a256/",
       githubUrl: "https://github.com/baluniak",
       xUrl: "https://x.com/baluniak",
-      email: "kontakt@baluniak.com",
+      email: "lukasz@baluniak.com",
     },
     hero: {
       badge: "Bałuniak Łukasz — Projekty MVP | Wdrożenia AI w Biznesie | Nowoczesne Strony Internetowe",
@@ -311,6 +311,7 @@ export const translations = {
       connectionError: "Problem z połączeniem",
       queriesCounterLabel: "Zapytania",
       workshopBanner: "Tryb Warsztatowy: Wspólnie doprecyzujmy Twój pomysł, a na końcu wyślę Ci podsumowanie na maila.",
+      pauseNotice: "Czatboty mają przerwę",
       workshopProgress: "Warsztat: wiadomość {current}/{max}",
       generateBriefButton: "Zakończ warsztat i wyślij Brief",
       briefModalTitle: "Wyślij Brief na email",
@@ -532,7 +533,7 @@ export const translations = {
       linkedinUrl: "https://www.linkedin.com/in/%C5%82ukasz-ba%C5%82uniak-64734a256/",
       githubUrl: "https://github.com/baluniak",
       xUrl: "https://x.com/baluniak",
-      email: "kontakt@baluniak.com",
+      email: "lukasz@baluniak.com",
     },
     hero: {
       badge: "Baluniak Łukasz — MVP Projects | AI Implementations | Modern Websites",
@@ -795,6 +796,7 @@ export const translations = {
       connectionError: "Connection issue",
       queriesCounterLabel: "Queries",
       workshopBanner: "Workshop Mode: Let's refine your idea together; at the end I'll email you a summary.",
+      pauseNotice: "The chatbots are on a break",
       workshopProgress: "Workshop: message {current}/{max}",
       generateBriefButton: "Finish workshop and send Brief",
       briefModalTitle: "Send Brief to email",

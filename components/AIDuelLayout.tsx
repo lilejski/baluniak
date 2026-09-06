@@ -554,6 +554,12 @@ export default function AIDuelLayout() {
       <div className="relative z-10 flex min-h-[80vh] flex-1 flex-col items-center justify-center px-5 py-6 sm:px-6">
         <div className="w-full max-w-5xl">
           <div className="overflow-hidden rounded-xl bg-black/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.06] backdrop-blur-md">
+            {/* Chatbots paused notice */}
+            <div className="bg-amber-400/10 px-4 py-2.5 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-amber-300 sm:text-sm">
+                {COPY.pauseNotice}
+              </p>
+            </div>
             {/* Workshop mode banner */}
             <div className="bg-white/[0.02] px-4 py-2.5 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
               <p className="text-xs font-medium text-zinc-300 sm:text-sm">
