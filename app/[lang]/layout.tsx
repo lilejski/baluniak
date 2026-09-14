@@ -87,14 +87,14 @@ export default async function LangLayout({
   }
   const initialLang = toLanguage(lang);
 
+  // <html> and <body> belong to the root layout alone. Rendering them here as
+  // well produced nested documents, which broke hydration on every page.
   return (
-    <html lang={lang} className="dark" suppressHydrationWarning>
-      <LanguageProvider initialLang={initialLang} localeSegment={lang}>
-        <Navbar />
-        <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
-        <Footer />
-        <Analytics />
-      </LanguageProvider>
-    </html>
+    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
+      <Navbar />
+      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <Footer />
+      <Analytics />
+    </LanguageProvider>
   );
 }

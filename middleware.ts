@@ -41,20 +41,6 @@ export function middleware(request: NextRequest) {
 
   // Already on a locale path → no redirect (prevents redirect loops)
   if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as "pl" | "en")) {
-    
-    // Auth Check for /admin routes
-    const isAdminRoute = segments[1] === "admin";
-    const isLoginRoute = segments[2] === "login";
-
-    if (isAdminRoute && !isLoginRoute) {
-      const session = request.cookies.get("crm_session")?.value;
-      if (session !== "authenticated") {
-        const loginUrl = request.nextUrl.clone();
-        loginUrl.pathname = `/${firstSegment}/admin/login`;
-        return NextResponse.redirect(loginUrl);
-      }
-    }
-
     return NextResponse.next();
   }
 
