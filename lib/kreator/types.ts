@@ -66,6 +66,8 @@ export type ContactDetails = {
 };
 
 export type OrderPayload = {
+  /** Where this visitor first arrived from. Absent when storage was blocked. */
+  attribution?: import("../attribution").Attribution;
   lang: Lang;
   serviceId: ServiceId;
   serviceLabel: string;

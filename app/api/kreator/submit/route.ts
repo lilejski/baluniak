@@ -41,6 +41,21 @@ const bodySchema = z.object({
     phone: z.string().trim().max(40).optional(),
     company: z.string().trim().max(160).optional(),
   }),
+  // Supplied by the browser, so every field is capped and optional — a missing
+  // or malformed attribution must never cost us the lead.
+  attribution: z
+    .object({
+      source: z.string().max(120).optional(),
+      medium: z.string().max(120).optional(),
+      campaign: z.string().max(120).optional(),
+      content: z.string().max(120).optional(),
+      term: z.string().max(120).optional(),
+      clickId: z.string().max(200).optional(),
+      referrer: z.string().max(300).optional(),
+      landingPath: z.string().max(200).optional(),
+      firstSeen: z.string().max(40),
+    })
+    .optional(),
 });
 
 export async function POST(req: Request) {

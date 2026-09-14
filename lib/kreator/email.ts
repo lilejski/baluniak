@@ -6,6 +6,7 @@
  * night palette for something that renders the same everywhere.
  */
 
+import { describeChannel } from "../attribution";
 import type { KreatorAnswer, OrderPayload } from "./types";
 
 const BRAND = "#059669";
@@ -108,6 +109,11 @@ const COPY = {
     labelPhone: "Telefon",
     labelCompany: "Firma",
     sentAt: "Wysłano",
+    channelTitle: "Skąd przyszedł",
+    channelFirstSeen: "Pierwsza wizyta",
+    channelLanding: "Wszedł na",
+    channelNoData:
+      "Brak danych — przeglądarka blokowała zapis albo wizyta zaczęła się przed wdrożeniem pomiaru.",
   },
   EN: {
     clientSubject: (s: string) => `Your request: ${s}`,
@@ -129,8 +135,42 @@ const COPY = {
     labelPhone: "Phone",
     labelCompany: "Company",
     sentAt: "Sent",
+    channelTitle: "Came from",
+    channelFirstSeen: "First visit",
+    channelLanding: "Landed on",
+    channelNoData: "No data — storage was blocked, or the visit predates the tracking.",
   },
 } as const;
+
+/** The line that answers "which channel produced this" at a glance. */
+function channelBlock(order: OrderPayload): string {
+  const t = COPY[order.lang];
+  const a = order.attribution;
+
+  if (!a) {
+    return `<p style="margin:0;font-size:13px;color:${MUTED};">${esc(t.channelNoData)}</p>`;
+  }
+
+  const details: string[] = [];
+  const firstSeen = new Date(a.firstSeen);
+  if (!Number.isNaN(firstSeen.getTime())) {
+    const when = firstSeen.toLocaleString(order.lang === "PL" ? "pl-PL" : "en-GB", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+    details.push(`${esc(t.channelFirstSeen)}: ${esc(when)}`);
+  }
+  if (a.landingPath) details.push(`${esc(t.channelLanding)}: ${esc(a.landingPath)}`);
+  if (a.referrer) details.push(esc(a.referrer));
+
+  const detailHtml = details.length
+    ? `<div style="margin-top:6px;font-size:12px;line-height:1.7;color:${MUTED};">${details.join("<br>")}</div>`
+    : "";
+
+  return `<div style="font-size:17px;font-weight:700;color:${BRAND};">${esc(
+    describeChannel(a, order.lang)
+  )}</div>${detailHtml}`;
+}
 
 const h2 = (text: string) =>
   `<div style="margin:28px 0 8px;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:${MUTED};">${esc(
@@ -213,6 +253,9 @@ export function ownerEmailHtml(order: OrderPayload): string {
 
     ${h2(t.serviceTitle)}
     <div style="font-size:16px;font-weight:600;color:${BRAND};">${esc(order.serviceLabel)}</div>
+
+    ${h2(t.channelTitle)}
+    ${channelBlock(order)}
 
     ${order.summary ? h2(t.aiTitle) + summaryBlock : ""}
 

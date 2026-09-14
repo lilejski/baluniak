@@ -17,6 +17,7 @@ import type {
   ServiceId,
 } from "@/lib/kreator/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { readAttribution } from "@/lib/attribution";
 
 type Stage = "service" | "question" | "review" | "done";
 
@@ -152,6 +153,7 @@ export default function KreatorPage() {
           answers: payloadAnswers,
           summary: summary || undefined,
           contact,
+          attribution: readAttribution() ?? undefined,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {

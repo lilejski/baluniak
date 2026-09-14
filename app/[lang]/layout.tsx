@@ -4,12 +4,25 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/Analytics";
+import { AttributionCapture } from "@/components/AttributionCapture";
 import { Analytics } from "@vercel/analytics/next";
 import type { Language } from "@/lib/translations";
 import { translations } from "@/lib/translations";
 
 const SUPPORTED_LANGS = ["pl", "en"] as const;
 const SITE_URL = "https://baluniak.com";
+
+/**
+ * The card social networks and chat apps show when someone shares a link.
+ * Without one they scrape whatever image they can find on the page — which
+ * was the logo SVG, rendered on white and awkwardly cropped.
+ */
+const OG_IMAGE = {
+  url: `${SITE_URL}/og-baluniak.png`,
+  width: 1200,
+  height: 630,
+  alt: "Łukasz Bałuniak — strony, sklepy i systemy dla firm",
+};
 
 function toLanguage(segment: string): Language {
   return segment === "en" ? "EN" : "PL";
@@ -50,6 +63,13 @@ export async function generateMetadata({
       siteName: "BALUNIAK.COM",
       locale: lang === "pl" ? "pl_PL" : "en_US",
       type: "website",
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t.homeTitle,
+      description: t.homeDescription,
+      images: [OG_IMAGE.url],
     },
     robots: { index: true, follow: true },
     icons: {
@@ -97,6 +117,7 @@ export default async function LangLayout({
       <Footer />
       <Analytics />
       <GoogleAnalytics />
+      <AttributionCapture />
     </LanguageProvider>
   );
 }
