@@ -39,6 +39,7 @@ const navItemsConfig = [
   { labelKey: "navFotarobota" as const, path: "/projekty/fotarobota" },
   { labelKey: "navQuantumOm" as const, path: "/projekty/quantum-om" },
   { labelKey: "navCharon" as const, path: "/projekty/charon" },
+  { labelKey: "navBlog" as const, path: "/blog" },
 ] as const;
 
 export function Navbar() {

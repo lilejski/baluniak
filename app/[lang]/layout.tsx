@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { GoogleAnalytics } from "@/components/Analytics";
 import { Analytics } from "@vercel/analytics/next";
 import type { Language } from "@/lib/translations";
 import { translations } from "@/lib/translations";
@@ -95,6 +96,7 @@ export default async function LangLayout({
       <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
       <Footer />
       <Analytics />
+      <GoogleAnalytics />
     </LanguageProvider>
   );
 }
