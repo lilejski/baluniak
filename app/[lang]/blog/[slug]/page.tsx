@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PostBody } from "@/components/blog/PostBody";
@@ -87,7 +87,24 @@ export default async function BlogPostPage({
   const { lang, slug } = await params;
   const postLang = toPostLang(lang);
   const post = getPost(postLang, slug);
-  if (!post) notFound();
+
+  if (!post) {
+    // The slug may simply belong to the other language — someone swapped the
+    // locale in the address bar, or followed an old link. Send them to the
+    // article they meant instead of a dead end: the translation when one
+    // exists, otherwise the version that does.
+    const otherLang = postLang === "pl" ? "en" : "pl";
+    const foreign = getPost(otherLang, slug);
+    if (foreign) {
+      const translated = getTranslation(foreign);
+      redirect(
+        translated
+          ? `/${lang}/blog/${translated.slug}`
+          : `/${otherLang}/blog/${foreign.slug}`
+      );
+    }
+    notFound();
+  }
 
   const copy = COPY[postLang];
   const related = getRelatedPosts(post);

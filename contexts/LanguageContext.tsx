@@ -73,8 +73,33 @@ export function LanguageProvider({
       } catch {
         // ignore
       }
-      const rest = pathname?.replace(/^\/(pl|en)/, "") || "";
-      const newPath = `/${langToSegment(next)}${rest}`;
+      const segment = langToSegment(next);
+
+      // Prefer the page's own declared alternate. Swapping just the locale
+      // prefix assumes the rest of the path is identical in both languages,
+      // which is false wherever the slug is translated — blog articles, for
+      // one — and lands the visitor on a 404. Pages emit these alternates
+      // already, for hreflang, so this reuses a source of truth rather than
+      // duplicating the slug mapping on the client.
+      let newPath: string | null = null;
+      if (typeof document !== "undefined") {
+        const alternate = document.querySelector<HTMLLinkElement>(
+          `link[rel="alternate"][hreflang="${segment}"]`
+        );
+        if (alternate?.href) {
+          try {
+            newPath = new URL(alternate.href).pathname;
+          } catch {
+            newPath = null;
+          }
+        }
+      }
+
+      if (!newPath) {
+        const rest = pathname?.replace(/^\/(pl|en)/, "") || "";
+        newPath = `/${segment}${rest}`;
+      }
+
       router.push(newPath);
     },
     [lang, pathname, router]
