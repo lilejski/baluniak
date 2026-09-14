@@ -26,7 +26,15 @@ const MODEL = "claude-sonnet-5";
  * Bounded deliberately: if the API is unreachable, retries would otherwise
  * make every visitor sit through the full backoff on every single question.
  */
-const AI_TIMEOUT_MS = 12_000;
+const AI_TIMEOUT_MS = 20_000;
+
+/**
+ * Output budgets. These models run adaptive thinking that is billed as output
+ * and drawn from the same ceiling, so the budget has to cover the reasoning as
+ * well as the answer — 700 left nothing for the answer itself.
+ */
+const QUESTION_TOKEN_BUDGET = 2_000;
+const SUMMARY_TOKEN_BUDGET = 2_500;
 
 const requestSchema = z.object({
   lang: z.enum(["PL", "EN"]),
@@ -79,7 +87,8 @@ const RULES = {
   PL: `Jesteś doradcą na stronie baluniak.com. Rozmawiasz z właścicielem małej firmy, który chce zamówić projekt.
 
 KOGO MASZ PRZED SOBĄ:
-Jan Kowalski sprzedaje wyrzynarki. Nie wie, co znaczy MVP, SaaS, backend, framework, API, deployment, stack ani hosting. Jeśli użyjesz takiego słowa, stracisz go.
+Właściciel małej firmy — może być stolarzem, fryzjerką, mechanikiem albo hurtownikiem. NIE WIESZ jeszcze, czym handluje, więc nigdy nie zgaduj ani nie podstawiaj branży. Pytaj tak, żeby to on Ci powiedział.
+Na pewno wiesz jedno: nie zna słów MVP, SaaS, backend, framework, API, deployment, stack ani hosting. Jeśli któregoś użyjesz, stracisz go.
 
 ZASADY BEZWZGLĘDNE:
 1. Pisz jak do sąsiada przez płot. Krótkie zdania, zwykłe słowa.
@@ -93,7 +102,8 @@ ZASADY BEZWZGLĘDNE:
   EN: `You are an advisor on baluniak.com. You are talking to a small business owner who wants to order a project.
 
 WHO YOU ARE TALKING TO:
-John sells jigsaws. He does not know what MVP, SaaS, backend, framework, API, deployment, stack or hosting mean. Use any of those words and you lose him.
+A small business owner — could be a carpenter, a hairdresser, a mechanic or a wholesaler. You do NOT yet know what they sell, so never guess a trade or assume one. Ask so that they tell you.
+One thing you do know: they have never heard of MVP, SaaS, backend, framework, API, deployment, stack or hosting. Use any of those and you lose them.
 
 ABSOLUTE RULES:
 1. Write like you are talking over a garden fence. Short sentences, ordinary words.
@@ -214,6 +224,17 @@ function scriptedStep(lang: Lang, serviceId: ServiceId, answers: KreatorAnswer[]
   return { done: false, question, step: answers.length + 1, totalHint: QUESTION_COUNT };
 }
 
+/** One line per model call, so spend stays visible in the deployment logs. */
+function logUsage(
+  label: string,
+  usage: { inputTokens?: number; outputTokens?: number } | undefined
+) {
+  if (!usage) return;
+  console.log(
+    "[kreator/next] " + label + ": in=" + (usage.inputTokens ?? "?") + " out=" + (usage.outputTokens ?? "?")
+  );
+}
+
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
@@ -221,7 +242,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const limit = rateLimit(clientKey(req, "kreator-next"), 40, 60_000);
+  // Two windows, sized against measured spend. A finished order is 5 calls at
+  // roughly $0.03 all-in, and a real person needs well under a minute of
+  // reading per question — so a burst ceiling plus an hourly ceiling caps what
+  // one address can spend without ever getting near a genuine visitor's pace.
+  const burst = rateLimit(clientKey(req, "kreator-next-burst"), 10, 60_000);
+  const hourly = rateLimit(clientKey(req, "kreator-next-hour"), 40, 60 * 60_000);
+  const limit = !burst.ok ? burst : hourly;
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -246,15 +273,15 @@ export async function POST(req: Request) {
 
   try {
     if (answers.length >= QUESTION_COUNT) {
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model: anthropic(MODEL),
         schema: summarySchema,
         prompt: summaryPrompt(lang, serviceLabel, answers),
-        maxOutputTokens: 700,
-        temperature: 0.4,
+        maxOutputTokens: SUMMARY_TOKEN_BUDGET,
         maxRetries: 1,
         abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS),
       });
+      logUsage("summary", usage);
       const summary = object.summary?.trim();
       return NextResponse.json({
         done: true,
@@ -262,15 +289,15 @@ export async function POST(req: Request) {
       } satisfies NextStep);
     }
 
-    const { object } = await generateObject({
+    const { object, usage } = await generateObject({
       model: anthropic(MODEL),
       schema: questionSchema,
       prompt: questionPrompt(lang, serviceLabel, answers),
-      maxOutputTokens: 700,
-      temperature: 0.6,
+      maxOutputTokens: QUESTION_TOKEN_BUDGET,
       maxRetries: 1,
       abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS),
     });
+    logUsage("question-" + (answers.length + 1), usage);
 
     return NextResponse.json({
       done: false,
