@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button";
 import { CalEmbed } from "@/components/CalEmbed";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 
-const PROJECT_TYPE_VALUES = ["mvp80", "strona-internetowa", "konsultacja-ai", "audyt", "inne"] as const;
+const PROJECT_TYPE_VALUES = ["program", "strona-internetowa", "konsultacja-ai", "audyt", "inne"] as const;
 type ProjectType = (typeof PROJECT_TYPE_VALUES)[number];
 
 function getProjectTypeOptions(w: Record<string, string>): { value: ProjectType; label: string }[] {
     return [
-        { value: "mvp80", label: w.projectTypeMvp80 },
+        { value: "program", label: w.projectTypeMvp80 },
         { value: "strona-internetowa", label: w.projectTypeStronaInternetowa },
         { value: "konsultacja-ai", label: w.projectTypeKonsultacjaAi },
         { value: "audyt", label: w.projectTypeAudyt },
@@ -70,6 +71,7 @@ export function ContactSection() {
         const json = (await res.json()) as { success?: boolean; error?: string };
         if (res.ok && json.success) {
             setSubmitted(true);
+            track("generate_lead", { form: "contact", project_type: data.projectType });
             reset({ name: "", email: "", projectType: undefined, message: "" });
             calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {

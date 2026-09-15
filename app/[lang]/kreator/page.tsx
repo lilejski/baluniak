@@ -18,6 +18,7 @@ import type {
 } from "@/lib/kreator/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { readAttribution } from "@/lib/attribution";
+import { track } from "@/lib/analytics";
 
 type Stage = "service" | "question" | "review" | "done";
 
@@ -68,6 +69,7 @@ export default function KreatorPage() {
           setSummary(step.summary);
           setCurrent(null);
           setStage("review");
+          track("kreator_review", { service, steps: nextAnswers.length, has_summary: Boolean(step.summary) });
         } else {
           setCurrent(step.question);
           setPrefill({ selected: [], note: "" });
@@ -80,6 +82,7 @@ export default function KreatorPage() {
         setSummary("");
         setCurrent(null);
         setStage("review");
+        track("kreator_review", { service, steps: nextAnswers.length, has_summary: false });
       } finally {
         setLoading(false);
         scrollTop();
@@ -91,6 +94,7 @@ export default function KreatorPage() {
   function pickService(id: ServiceId) {
     setServiceId(id);
     setHistory([]);
+    track("kreator_start", { service: id });
     void advance(id, []);
   }
 
@@ -104,6 +108,9 @@ export default function KreatorPage() {
     };
     const nextHistory = [...history, { question: current, answer }];
     setHistory(nextHistory);
+    // The step number is what makes the drop-off visible: a funnel of
+    // start → step 1 … n → review → generate_lead shows where people leave.
+    track("kreator_step", { service: serviceId, step: nextHistory.length });
     void advance(
       serviceId,
       nextHistory.map((h) => h.answer)
@@ -163,9 +170,12 @@ export default function KreatorPage() {
       if (!res.ok || !data.success) throw new Error("submit failed");
       setConfirmationSent(data.confirmationSent !== false);
       setStage("done");
+      // GA4's recommended lead event, so it can be marked as a key event as-is.
+      track("generate_lead", { form: "kreator", service: serviceId });
       scrollTop();
     } catch {
       setSendError(copy.errorSend);
+      track("kreator_submit_error", { service: serviceId });
     } finally {
       setSending(false);
     }
