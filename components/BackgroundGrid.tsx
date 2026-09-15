@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_SIZE = 40;
@@ -58,25 +58,30 @@ export function BackgroundGrid({
 
   const style = lineStyle ?? dotStyle;
 
-  const [beams, setBeams] = useState<Beam[]>([]);
+  // Beam positions come from a deterministic hash of the index instead of
+  // Math.random, so server and client render identical markup. That removes
+  // the hydration mismatch the old code avoided by generating beams in an
+  // effect — along with the extra render that effect cost on every load.
+  const beams = useMemo<Beam[]>(
+    () =>
+      Array.from({ length: BEAM_COUNT }).map((_, index) => {
+        const noise = (salt: number) => {
+          const x = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
+          return x - Math.floor(x);
+        };
+        const orientation: Beam["orientation"] =
+          index % 2 === 0 ? "horizontal" : "vertical";
 
-  // Generate beam positions and timings on the client to avoid hydration mismatch.
-  useEffect(() => {
-    const generated: Beam[] = Array.from({ length: BEAM_COUNT }).map((_, index) => {
-      const orientation: Beam["orientation"] =
-        index % 2 === 0 ? "horizontal" : "vertical";
-
-      return {
-        id: index,
-        orientation,
-        offsetPercent: Math.random() * 100,
-        delay: Math.random() * 14,
-        duration: 10 + Math.random() * 16,
-      };
-    });
-
-    setBeams(generated);
-  }, []);
+        return {
+          id: index,
+          orientation,
+          offsetPercent: noise(1) * 100,
+          delay: noise(2) * 14,
+          duration: 10 + noise(3) * 16,
+        };
+      }),
+    []
+  );
 
   const maskStyle =
     variant === "lines"

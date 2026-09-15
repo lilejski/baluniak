@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -55,17 +55,12 @@ const itemVariants = {
 /** Lightweight 3D floating card – CSS 3D + optional mouse parallax. No heavy libs for PageSpeed. */
 function Hero3DVisual() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
   const mouseRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number>(0);
   const transformRef = useRef({ rotateX: 0, rotateY: 0 });
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     const wrap = wrapRef.current;
     if (!wrap) return;
 
@@ -104,7 +99,7 @@ function Hero3DVisual() {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [mounted]);
+  }, []);
 
   return (
     <div

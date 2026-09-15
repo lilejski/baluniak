@@ -23,7 +23,7 @@ function getPreferredLocale(request: NextRequest): "pl" | "en" {
   return "en";
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip API, static assets, and Next internals (no redirect)

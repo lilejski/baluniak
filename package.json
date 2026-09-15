@@ -10,12 +10,10 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.36",
-    "@ai-sdk/react": "^3.0.71",
     "@calcom/embed-react": "^1.5.3",
     "@hookform/resolvers": "^5.2.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
-    "@supabase/supabase-js": "^2.99.2",
     "@vercel/analytics": "^1.6.1",
     "ai": "^6.0.69",
     "class-variance-authority": "^0.7.1",

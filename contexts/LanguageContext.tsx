@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,6 +34,9 @@ function langToSegment(lang: Language): "pl" | "en" {
   return lang === "PL" ? "pl" : "en";
 }
 
+/** A store that never changes — only its server and client snapshots differ. */
+const subscribeNoop = () => () => {};
+
 export function LanguageProvider({
   children,
   initialLang,
@@ -44,19 +48,17 @@ export function LanguageProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [lang, setLangState] = useState<Language>(initialLang);
-  const [mounted, setMounted] = useState(false);
+  const [langState, setLangState] = useState<Language>(initialLang);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // False during server render and hydration, true afterwards. Read from React
+  // rather than flipped in an effect, which cost an extra render on every load.
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
-  // Sync state from URL when pathname changes (e.g. back/forward)
-  useEffect(() => {
-    const segment = pathname?.split("/")[1]?.toLowerCase();
-    if (segment === "pl") setLangState("PL");
-    else if (segment === "en") setLangState("EN");
-  }, [pathname]);
+  // The URL decides the language, so back/forward and direct links are right
+  // without syncing state in an effect. Local state only bridges the moment
+  // between clicking the switcher and the navigation landing.
+  const segment = pathname?.split("/")[1]?.toLowerCase();
+  const lang: Language = segment === "pl" ? "PL" : segment === "en" ? "EN" : langState;
 
   useEffect(() => {
     if (!mounted || typeof document === "undefined") return;
