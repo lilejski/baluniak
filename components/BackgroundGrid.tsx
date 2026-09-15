@@ -65,9 +65,11 @@ export function BackgroundGrid({
   const beams = useMemo<Beam[]>(
     () =>
       Array.from({ length: BEAM_COUNT }).map((_, index) => {
+        // Rounded to 2 decimals: the browser normalises long decimals in the
+        // style attribute, so full precision reads as a hydration mismatch.
         const noise = (salt: number) => {
           const x = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
-          return x - Math.floor(x);
+          return Math.round((x - Math.floor(x)) * 10000) / 10000;
         };
         const orientation: Beam["orientation"] =
           index % 2 === 0 ? "horizontal" : "vertical";
