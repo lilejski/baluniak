@@ -5,7 +5,7 @@ slug: how-to-start-online-shop-step-by-step
 date: 2026-09-15
 translationKey: online-shop-first-steps
 tags: [Online shops, Small business]
-draft: true
+draft: false
 related: [website-for-small-business]
 sourceQuery: how to start an online shop step by step
 ---
