@@ -4,6 +4,7 @@ import { z } from "zod";
 import { TOPIC_BACKLOG, type PlannedTopic } from "@/content/topics";
 import { getAllPosts } from "@/lib/blog/posts";
 import type { PostLang } from "@/lib/blog/types";
+import { branchKey, draftedKeys } from "./github";
 import { buildReport, type Opportunity } from "./opportunities";
 
 const MODEL = "claude-sonnet-5";
@@ -30,8 +31,8 @@ function publishedKeys(): Set<string> {
   return keys;
 }
 
-function fromBacklog(done: Set<string>): PlannedTopic | null {
-  return TOPIC_BACKLOG.find((topic) => !done.has(topic.translationKey)) ?? null;
+function fromBacklog(taken: (key: string) => boolean): PlannedTopic | null {
+  return TOPIC_BACKLOG.find((topic) => !taken(topic.translationKey)) ?? null;
 }
 
 /**
@@ -45,6 +46,8 @@ function fromBacklog(done: Set<string>): PlannedTopic | null {
  */
 export async function chooseTopic(): Promise<TopicChoice | null> {
   const done = publishedKeys();
+  const drafted = await draftedKeys();
+  const taken = (key: string) => done.has(key) || drafted.has(branchKey(key));
 
   const report = await buildReport(90).catch(() => null);
   const best = report?.maturity.enoughToMine ? report.opportunities[0] : undefined;
@@ -59,7 +62,7 @@ export async function chooseTopic(): Promise<TopicChoice | null> {
       .replace(/\s+/g, "-")
       .slice(0, 60);
 
-    if (!done.has(slug)) {
+    if (!taken(slug)) {
       return {
         source: "search-console",
         translationKey: slug,
@@ -72,7 +75,7 @@ export async function chooseTopic(): Promise<TopicChoice | null> {
     }
   }
 
-  const planned = fromBacklog(done);
+  const planned = fromBacklog(taken);
   if (!planned) return null;
 
   return {

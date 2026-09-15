@@ -5,10 +5,14 @@ import { Projects } from "@/components/sections/Projects";
 import { TechStackTrust } from "@/components/sections/TechStackTrust";
 import { ModularStack } from "@/components/sections/ModularStack";
 import { ContactSection } from "@/components/sections/ContactSection";
+import { JsonLd } from "@/components/JsonLd";
+import { personJsonLd } from "@/lib/structured-data";
 
-export default function Home() {
+export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
   return (
     <>
+      <JsonLd data={personJsonLd(lang === "en" ? "en" : "pl")} />
       <HeroSection />
       <TechStackTrust />
       <ModularStack />

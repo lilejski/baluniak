@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { chooseTopic, draftArticle } from "@/lib/seo/draft";
-import { hasToken, openContentPullRequest } from "@/lib/seo/github";
+import { contentBranchName, hasToken, openContentPullRequest } from "@/lib/seo/github";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -69,8 +69,7 @@ export async function GET(req: Request) {
       });
     }
 
-    const stamp = new Date().toISOString().slice(0, 10);
-    const branchName = `content/${stamp}-${topic.translationKey}`.slice(0, 90);
+    const branchName = contentBranchName(topic.translationKey);
 
     const origin =
       topic.source === "search-console"

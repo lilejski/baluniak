@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { caseStudyJsonLd } from "@/lib/structured-data";
 import { translations } from "@/lib/translations";
 
 const SITE_URL = "https://baluniak.com";
@@ -31,10 +33,27 @@ export async function generateMetadata({
   };
 }
 
-export default function FotarobotaLayout({
+export default async function FotarobotaLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }) {
-  return children;
+  const { lang } = await params;
+  const isPl = lang === "pl";
+  return (
+    <>
+      <JsonLd
+        data={caseStudyJsonLd({
+          lang: isPl ? "pl" : "en",
+          slug: "fotarobota",
+          name: "Fotarobota",
+          description: translations[isPl ? "PL" : "EN"].seo.fotarobotaDescription,
+          category: "MultimediaApplication",
+        })}
+      />
+      {children}
+    </>
+  );
 }

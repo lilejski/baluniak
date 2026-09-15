@@ -111,7 +111,7 @@ export default async function LangLayout({
   // <html> and <body> belong to the root layout alone. Rendering them here as
   // well produced nested documents, which broke hydration on every page.
   return (
-    <LanguageProvider initialLang={initialLang} localeSegment={lang}>
+    <LanguageProvider initialLang={initialLang}>
       <Navbar />
       <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
       <Footer />

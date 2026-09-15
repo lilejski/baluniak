@@ -40,11 +40,9 @@ const subscribeNoop = () => () => {};
 export function LanguageProvider({
   children,
   initialLang,
-  localeSegment,
 }: {
   children: ReactNode;
   initialLang: Language;
-  localeSegment: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();

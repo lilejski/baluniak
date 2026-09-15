@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -51,111 +50,6 @@ const itemVariants = {
     transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
   },
 };
-
-/** Lightweight 3D floating card – CSS 3D + optional mouse parallax. No heavy libs for PageSpeed. */
-function Hero3DVisual() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const rafRef = useRef<number>(0);
-  const transformRef = useRef({ rotateX: 0, rotateY: 0 });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-
-    const throttleMs = 50;
-    let last = 0;
-
-    const onMove = (e: MouseEvent) => {
-      const now = Date.now();
-      if (now - last < throttleMs) return;
-      last = now;
-      mouseRef.current = { x: e.clientX, y: e.clientY };
-    };
-
-    const update = () => {
-      rafRef.current = requestAnimationFrame(update);
-      const { x, y } = mouseRef.current;
-      const rect = wrap.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (x - cx) / rect.width;
-      const dy = (y - cy) / rect.height;
-      const maxTilt = 12;
-      const targetX = dy * maxTilt;
-      const targetY = -dx * maxTilt;
-      const t = 0.08;
-      transformRef.current.rotateX += (targetX - transformRef.current.rotateX) * t;
-      transformRef.current.rotateY += (targetY - transformRef.current.rotateY) * t;
-      const { rotateX, rotateY } = transformRef.current;
-      wrap.style.setProperty("--hero-3d-x", `${rotateX}deg`);
-      wrap.style.setProperty("--hero-3d-y", `${rotateY}deg`);
-    };
-
-    window.addEventListener("mousemove", onMove, { passive: true });
-    rafRef.current = requestAnimationFrame(update);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={wrapRef}
-      className="relative flex min-h-[200px] w-full items-center justify-center md:min-h-[320px]"
-      style={{
-        transform: "perspective(800px)",
-        // CSS vars set by JS for parallax
-        ["--hero-3d-x" as string]: "0deg",
-        ["--hero-3d-y" as string]: "0deg",
-      }}
-    >
-      {/* Outer glow */}
-      <div
-        aria-hidden
-        className="absolute inset-0 flex items-center justify-center"
-        style={{
-          background: "radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 60%)",
-          transform: "scale(1.2)",
-        }}
-      />
-      {/* 3D card – pure CSS transform; wrapper has float animation in globals */}
-      <div className="hero-3d-float-wrapper">
-        <div
-          className="hero-3d-card relative h-[180px] w-[280px] rounded-2xl border border-zinc-700/80 bg-zinc-900/60 shadow-2xl backdrop-blur-md md:h-[220px] md:w-[320px]"
-          style={{
-          transformStyle: "preserve-3d",
-          transform:
-            "rotateX(var(--hero-3d-x, 0deg)) rotateY(var(--hero-3d-y, 0deg)) translateZ(0)",
-          boxShadow:
-            "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05), 0 0 40px -10px rgba(16,185,129,0.2)",
-        }}
-      >
-        {/* Inner gradient overlay */}
-        <div
-          className="absolute inset-0 rounded-2xl opacity-60"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, transparent 50%, rgba(16,185,129,0.06) 100%)",
-          }}
-        />
-        {/* Fake UI lines – decorative only */}
-        <div className="absolute left-5 top-5 right-5 flex gap-2">
-          <span className="h-2 w-12 rounded-full bg-zinc-600/80" />
-          <span className="h-2 w-8 rounded-full bg-zinc-600/60" />
-          <span className="h-2 w-6 rounded-full bg-zinc-600/40" />
-        </div>
-        <div className="absolute bottom-5 left-5 right-5 space-y-2">
-          <div className="h-2 w-full rounded-full bg-zinc-700/50" />
-          <div className="h-2 w-3/4 rounded-full bg-zinc-700/30" />
-        </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function HeroSection() {
   const { dict, localeSegment } = useLanguage();

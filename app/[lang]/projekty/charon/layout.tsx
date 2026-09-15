@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { caseStudyJsonLd } from "@/lib/structured-data";
 import { translations } from "@/lib/translations";
 
 const SITE_URL = "https://baluniak.com";
@@ -31,10 +33,27 @@ export async function generateMetadata({
   };
 }
 
-export default function CharonLayout({
+export default async function CharonLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }) {
-  return children;
+  const { lang } = await params;
+  const isPl = lang === "pl";
+  return (
+    <>
+      <JsonLd
+        data={caseStudyJsonLd({
+          lang: isPl ? "pl" : "en",
+          slug: "charon",
+          name: "Charon",
+          description: translations[isPl ? "PL" : "EN"].seo.charonDescription,
+          category: "BusinessApplication",
+        })}
+      />
+      {children}
+    </>
+  );
 }

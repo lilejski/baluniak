@@ -44,6 +44,44 @@ export function hasToken(): boolean {
   return Boolean(process.env.GITHUB_TOKEN);
 }
 
+const BRANCH_PREFIX = "content/";
+const MAX_BRANCH_LENGTH = 90;
+const DATE_STAMP_LENGTH = "2026-01-01-".length;
+
+/** The branch a draft lives on: content/<date>-<translationKey>, capped in length. */
+export function contentBranchName(translationKey: string, date = new Date()): string {
+  const stamp = date.toISOString().slice(0, 10);
+  return `${BRANCH_PREFIX}${stamp}-${translationKey}`.slice(0, MAX_BRANCH_LENGTH);
+}
+
+/** A translationKey as it survives in a branch name — long keys get cut. */
+export function branchKey(translationKey: string): string {
+  return translationKey.slice(0, MAX_BRANCH_LENGTH - BRANCH_PREFIX.length - DATE_STAMP_LENGTH);
+}
+
+/**
+ * Topics that already have a pull request — open, merged or closed.
+ *
+ * A topic used to count as done only once its file reached main, so a draft
+ * still waiting for review was written again by the next cron. A closed PR
+ * counts as well: closing a draft is a decision not to publish that topic.
+ */
+export async function draftedKeys(): Promise<Set<string>> {
+  const keys = new Set<string>();
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return keys;
+
+  const pulls = await gh<{ head: { ref: string } }[]>(
+    token,
+    `/repos/${OWNER}/${REPO}/pulls?state=all&per_page=100`
+  );
+  for (const pull of pulls) {
+    const match = /^content\/\d{4}-\d{2}-\d{2}-(.+)$/.exec(pull.head.ref);
+    if (match) keys.add(match[1]);
+  }
+  return keys;
+}
+
 /**
  * Creates a branch, commits the files to it and opens a pull request.
  * Returns the PR's URL.

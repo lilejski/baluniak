@@ -28,7 +28,7 @@ const blockVariants = {
 export function ModularStack() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
-  const { dict, lang } = useLanguage();
+  const { dict } = useLanguage();
   const blocks = dict.modularStack.blocks;
 
   return (
