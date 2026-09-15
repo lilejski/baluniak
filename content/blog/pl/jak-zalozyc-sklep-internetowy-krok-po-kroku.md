@@ -5,7 +5,7 @@ slug: jak-zalozyc-sklep-internetowy-krok-po-kroku
 date: 2026-09-15
 translationKey: online-shop-first-steps
 tags: [Sklepy online, Małe firmy]
-draft: true
+draft: false
 related: [strona-internetowa-dla-malej-firmy]
 sourceQuery: jak założyć sklep internetowy krok po kroku
 ---
