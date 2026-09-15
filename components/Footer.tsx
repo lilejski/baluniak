@@ -14,7 +14,7 @@ export function Footer() {
     <>
       {/* Pre-Footer CTA */}
       <section
-        className="relative z-10 border-t border-zinc-800 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16"
+        className="relative z-10 border-t border-zinc-800 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16 print:hidden"
         aria-labelledby="prefooter-cta-heading"
       >
         <div className="mx-auto max-w-2xl text-center">
@@ -43,7 +43,7 @@ export function Footer() {
       </section>
 
       {/* Footer — 3-column grid */}
-      <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
+      <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)] print:hidden">
         <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 md:py-14">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
             {/* Col 1: Brand + tagline */}

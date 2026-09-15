@@ -2,8 +2,9 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useInView } from "framer-motion";
-import { BarChart3, Cpu, Activity, Layout, Database, Brain, ExternalLink, Award } from "lucide-react";
+import { BarChart3, Cpu, Activity, Layout, Database, Brain, ExternalLink, Award, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +23,7 @@ const CERT_URL =
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-  const { dict } = useLanguage();
+  const { dict, localeSegment } = useLanguage();
   const stages = dict.about.stages;
   // Map each stage id to a Lucide icon
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -253,6 +254,17 @@ export function About() {
             </div>
           </a>
         </motion.div>
+
+        {/* The second door: recruiters get their own page instead of this client pitch */}
+        <p className="mt-10 text-center">
+          <Link
+            href={`/${localeSegment}/o-mnie`}
+            className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-emerald-400"
+          >
+            {dict.about.recruiterCta}
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+        </p>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 /**
- * Schema.org data for the home page and the case studies.
+ * Schema.org data for the home page, the about page and the case studies.
  *
  * Every page points at the same Person by `@id`, so search engines tie the
  * site and each project to one author — rather than guessing from the name,
@@ -13,7 +13,7 @@ type Lang = "pl" | "en";
 
 const PROFILES = [
   "https://www.linkedin.com/in/%C5%82ukasz-ba%C5%82uniak-64734a256/",
-  "https://github.com/baluniak",
+  "https://github.com/lilejski",
 ];
 
 const PERSON_CORE = {
@@ -23,10 +23,9 @@ const PERSON_CORE = {
   url: SITE_URL,
 } as const;
 
-export function personJsonLd(lang: Lang) {
+function person(lang: Lang) {
   const isPl = lang === "pl";
   return {
-    "@context": "https://schema.org",
     ...PERSON_CORE,
     image: `${SITE_URL}/og-baluniak.png`,
     jobTitle: isPl
@@ -39,6 +38,8 @@ export function personJsonLd(lang: Lang) {
           "automatyzacja procesów w firmie",
           "wdrożenie AI w firmie",
           "chatboty dla firm",
+          "Next.js",
+          "TypeScript",
         ]
       : [
           "websites for small businesses",
@@ -46,8 +47,25 @@ export function personJsonLd(lang: Lang) {
           "business process automation",
           "AI for small businesses",
           "chatbots for business",
+          "Next.js",
+          "TypeScript",
         ],
     sameAs: PROFILES,
+  };
+}
+
+export function personJsonLd(lang: Lang) {
+  return { "@context": "https://schema.org", ...person(lang) };
+}
+
+/** The recruiter-facing page: a profile whose subject is the same Person. */
+export function profilePageJsonLd(lang: Lang) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: `${SITE_URL}/${lang}/o-mnie`,
+    inLanguage: lang,
+    mainEntity: person(lang),
   };
 }
 

@@ -113,7 +113,7 @@ export default async function LangLayout({
   return (
     <LanguageProvider initialLang={initialLang}>
       <Navbar />
-      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main className="pt-16 pb-[max(3rem,env(safe-area-inset-bottom))] md:pb-0 print:p-0">{children}</main>
       <Footer />
       <Analytics />
       <GoogleAnalytics />

@@ -35,7 +35,7 @@ const mobileMenuItemVariants = {
 
 const navItemsConfig = [
   { labelKey: "navProjects" as const, hash: "#projekty" },
-  { labelKey: "navAbout" as const, hash: "#about" },
+  { labelKey: "navAbout" as const, path: "/o-mnie" },
   { labelKey: "navFotarobota" as const, path: "/projekty/fotarobota" },
   { labelKey: "navQuantumOm" as const, path: "/projekty/quantum-om" },
   { labelKey: "navCharon" as const, path: "/projekty/charon" },
@@ -66,7 +66,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 h-20 w-full md:h-40",
+        "sticky top-0 z-50 h-20 w-full md:h-40 print:hidden",
         "border-b border-zinc-800 bg-black/50 backdrop-blur-md"
       )}
       aria-label={dict.header.navAria}

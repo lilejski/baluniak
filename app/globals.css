@@ -257,3 +257,30 @@ html.dark {
 @media (prefers-reduced-motion: reduce) {
   .seele-flicker { animation: none; }
 }
+
+/* Printing /o-mnie produces the CV: dark UI turned into plain paper. */
+@page { margin: 14mm; }
+
+@media print {
+  html.dark,
+  .dark body {
+    background: #fff !important;
+    background-image: none !important;
+  }
+  .cv,
+  .cv * {
+    color: #18181b !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .cv .cv-card {
+    border-color: #d4d4d8 !important;
+    break-inside: avoid;
+  }
+  .cv h2 { break-after: avoid; }
+  .cv li > span[aria-hidden] {
+    background: #10b981 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -32,7 +32,7 @@ export default function RootLayout({
         <BackgroundGrid color="39, 39, 39" opacity={0.15} variant="lines" />
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 z-0"
+          className="pointer-events-none fixed inset-0 z-0 print:hidden"
           style={{
             background: `
               radial-gradient(ellipse 140% 90% at 50% -10%, rgba(9,9,11,0.92) 0%, rgba(9,9,11,0.6) 40%, transparent 65%),
@@ -43,7 +43,7 @@ export default function RootLayout({
           }}
         />
         <div className="relative z-10">{children}</div>
-        <GrainTexture opacity={0.06} className="z-[100]" />
+        <GrainTexture opacity={0.06} className="z-[100] print:hidden" />
       </body>
     </html>
   );
