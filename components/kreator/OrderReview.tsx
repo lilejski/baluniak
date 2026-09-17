@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, PenLine, Send } from "lucide-react";
+import { ChevronLeft, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ export function OrderReview({
   }
 
   const field =
-    "w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-emerald-500/50 focus-visible:ring-emerald-500/20";
+    "w-full";
 
   return (
     <motion.div
@@ -70,14 +70,14 @@ export function OrderReview({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h2 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+      <h2 className="text-h2">
         {copy.summaryTitle}
       </h2>
-      <p className="mt-2 text-sm text-zinc-500">{copy.summaryHint}</p>
+      <p className="mt-2 text-base text-fg-muted">{copy.summaryHint}</p>
 
       {/* Summary */}
-      <div className="mt-6 rounded-2xl border border-emerald-500/25 bg-emerald-950/15 p-6">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-400/80">
+      <div className="card mt-6 p-5 md:p-7">
+        <p className="eyebrow">
           {serviceLabel}
         </p>
         <div className="mt-4 space-y-3.5">
@@ -86,7 +86,7 @@ export function OrderReview({
             .map((p) => p.trim())
             .filter(Boolean)
             .map((paragraph, i) => (
-              <p key={i} className="text-sm leading-relaxed text-zinc-200 sm:text-base">
+              <p key={i} className="text-base leading-relaxed text-fg">
                 {paragraph}
               </p>
             ))}
@@ -98,7 +98,7 @@ export function OrderReview({
         <button
           type="button"
           onClick={() => setExtraOpen((v) => !v)}
-          className="inline-flex items-center gap-2 py-1.5 text-sm text-emerald-400/90 transition-colors hover:text-emerald-300"
+          className="inline-flex min-h-11 items-center gap-2 text-[0.9375rem] font-medium text-accent transition-colors hover:text-accent-hover"
         >
           <PenLine className="size-4 shrink-0" aria-hidden />
           {copy.summaryEdit}
@@ -109,28 +109,28 @@ export function OrderReview({
             onChange={(e) => setExtra(e.target.value.slice(0, MAX_NOTE_LENGTH))}
             rows={3}
             placeholder={copy.summaryEditPlaceholder}
-            className="mt-3 w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm leading-relaxed text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="field mt-3 resize-y leading-relaxed"
           />
         )}
       </div>
 
       {/* Answers recap */}
-      <details className="group mt-6 rounded-xl border border-zinc-800 bg-zinc-900/40">
-        <summary className="cursor-pointer list-none px-5 py-3.5 text-sm font-medium text-zinc-300 transition-colors hover:text-zinc-100">
+      <details className="card group mt-6">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-5 text-[0.9375rem] font-medium text-fg-muted transition-colors hover:text-fg">
           {copy.yourAnswers}
-          <span className="float-right text-zinc-600 transition-transform group-open:rotate-180">
+          <span className="text-fg-subtle transition-transform group-open:rotate-180">
             ▾
           </span>
         </summary>
-        <div className="space-y-4 border-t border-zinc-800 px-5 py-4">
+        <div className="space-y-4 border-t border-border px-5 py-4">
           {answers.map((a) => (
             <div key={a.questionId}>
-              <p className="text-xs text-zinc-500">{a.question}</p>
+              <p className="text-sm text-fg-subtle">{a.question}</p>
               {a.selected.length > 0 && (
-                <p className="mt-1 text-sm text-zinc-200">{a.selected.join(" · ")}</p>
+                <p className="mt-1 text-base text-fg">{a.selected.join(" · ")}</p>
               )}
               {a.note && (
-                <p className="mt-1.5 whitespace-pre-wrap rounded-lg bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300">
+                <p className="mt-1.5 whitespace-pre-wrap rounded-md bg-surface-2 px-3 py-2 text-base text-fg-muted">
                   {a.note}
                 </p>
               )}
@@ -141,12 +141,12 @@ export function OrderReview({
 
       {/* Contact */}
       <form onSubmit={submit} className="mt-10">
-        <h3 className="text-lg font-semibold tracking-tight text-zinc-100">{copy.contactTitle}</h3>
-        <p className="mt-1.5 text-sm text-zinc-500">{copy.contactHint}</p>
+        <h3 className="text-h3">{copy.contactTitle}</h3>
+        <p className="mt-1.5 text-base text-fg-muted">{copy.contactHint}</p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1.5 block text-sm text-zinc-400">{copy.nameLabel}</span>
+            <span className="field-label">{copy.nameLabel}</span>
             <Input
               value={contact.name}
               onChange={(e) => setContact({ ...contact, name: e.target.value })}
@@ -155,11 +155,11 @@ export function OrderReview({
               aria-invalid={Boolean(errors.name)}
               className={cn(field, errors.name && "border-red-500/60")}
             />
-            {errors.name && <span className="mt-1 block text-xs text-red-400">{errors.name}</span>}
+            {errors.name && <span className="mt-1.5 block text-sm text-red-400">{errors.name}</span>}
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm text-zinc-400">{copy.emailLabel}</span>
+            <span className="field-label">{copy.emailLabel}</span>
             <Input
               type="email"
               inputMode="email"
@@ -170,13 +170,13 @@ export function OrderReview({
               aria-invalid={Boolean(errors.email)}
               className={cn(field, errors.email && "border-red-500/60")}
             />
-            {errors.email && <span className="mt-1 block text-xs text-red-400">{errors.email}</span>}
+            {errors.email && <span className="mt-1.5 block text-sm text-red-400">{errors.email}</span>}
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm text-zinc-400">
+            <span className="field-label">
               {copy.phoneLabel}{" "}
-              <span className="text-zinc-600">({copy.phoneOptional})</span>
+              <span className="text-fg-subtle">({copy.phoneOptional})</span>
             </span>
             <Input
               type="tel"
@@ -190,8 +190,8 @@ export function OrderReview({
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm text-zinc-400">
-              {copy.companyLabel} <span className="text-zinc-600">({copy.phoneOptional})</span>
+            <span className="field-label">
+              {copy.companyLabel} <span className="text-fg-subtle">({copy.phoneOptional})</span>
             </span>
             <Input
               value={contact.company}
@@ -204,7 +204,7 @@ export function OrderReview({
         </div>
 
         {sendError && (
-          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-950/20 px-4 py-3 text-sm text-red-300">
+          <p className="mt-5 rounded-md border border-red-500/30 bg-red-950/20 px-4 py-3 text-[0.9375rem] text-red-300">
             {sendError}
           </p>
         )}
@@ -215,7 +215,6 @@ export function OrderReview({
             variant="ghost"
             onClick={onBack}
             disabled={sending}
-            className="text-zinc-400 hover:text-zinc-200"
           >
             <ChevronLeft className="mr-1 size-4" />
             {copy.back}
@@ -223,14 +222,13 @@ export function OrderReview({
           <Button
             type="submit"
             disabled={sending}
-            className="ml-auto min-w-44 bg-emerald-600 font-medium hover:bg-emerald-500 disabled:opacity-60"
+            className="ml-auto min-w-44 disabled:opacity-60"
           >
             {sending ? (
               copy.submitting
             ) : (
               <>
                 {copy.submit}
-                <Send className="ml-2 size-4" />
               </>
             )}
           </Button>

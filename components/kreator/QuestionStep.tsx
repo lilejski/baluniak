@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronLeft, ChevronRight, PenLine } from "lucide-react";
+import { Check, ChevronLeft, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MAX_NOTE_LENGTH, type KreatorQuestion } from "@/lib/kreator/types";
@@ -96,13 +96,13 @@ export function QuestionStep({
       {/* Progress */}
       <div className="mb-8">
         <div className="mb-3 flex items-baseline justify-between gap-4">
-          <span className="font-mono text-xs uppercase tracking-[0.18em] text-zinc-500">
+          <span className="text-sm font-medium text-fg-subtle">
             {copy.stepOf.replace("{current}", String(step)).replace("{total}", String(total))}
           </span>
         </div>
-        <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
+        <div className="h-1 overflow-hidden rounded-full bg-surface-2">
           <motion.div
-            className="h-full rounded-full bg-emerald-500"
+            className="h-full rounded-full bg-accent"
             initial={false}
             animate={{ width: `${(step / total) * 100}%` }}
             transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -118,10 +118,10 @@ export function QuestionStep({
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.3 }}
         >
-          <h2 className="text-2xl font-semibold leading-snug tracking-tight text-zinc-100 text-balance sm:text-3xl">
+          <h2 className="text-h2">
             {question.title}
           </h2>
-          {question.hint && <p className="mt-3 text-sm text-zinc-500">{question.hint}</p>}
+          {question.hint && <p className="mt-3 text-base text-fg-muted">{question.hint}</p>}
 
           <div className="mt-7 grid gap-2.5">
             {question.options.map((option, index) => {
@@ -133,10 +133,10 @@ export function QuestionStep({
                   onClick={() => toggle(option.label)}
                   aria-pressed={isOn}
                   className={cn(
-                    "group flex items-start gap-3.5 rounded-xl border px-4 py-3.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40",
+                    "group flex min-h-12 items-start gap-3.5 rounded-lg border px-4 py-3.5 text-left transition-colors",
                     isOn
-                      ? "border-emerald-500/60 bg-emerald-500/10"
-                      : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-900"
+                      ? "border-accent bg-accent-soft"
+                      : "border-border bg-surface hover:border-border-strong"
                   )}
                 >
                   <span
@@ -144,22 +144,22 @@ export function QuestionStep({
                       "mt-0.5 flex size-5 shrink-0 items-center justify-center border transition-all",
                       question.multi ? "rounded-md" : "rounded-full",
                       isOn
-                        ? "border-emerald-500 bg-emerald-500 text-zinc-950"
-                        : "border-zinc-600 text-transparent group-hover:border-zinc-500"
+                        ? "border-accent bg-accent text-accent-ink"
+                        : "border-border-strong text-transparent group-hover:border-fg-subtle"
                     )}
                   >
                     <Check className="size-3.5" strokeWidth={3} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className={cn("block text-sm", isOn ? "text-zinc-50" : "text-zinc-200")}>
+                    <span className={cn("block text-base text-fg", isOn && "font-medium")}>
                       {option.label}
                     </span>
                     {option.hint && (
-                      <span className="mt-0.5 block text-xs text-zinc-500">{option.hint}</span>
+                      <span className="mt-0.5 block text-sm text-fg-subtle">{option.hint}</span>
                     )}
                   </span>
                   <span
-                    className="mt-0.5 hidden shrink-0 font-mono text-[0.65rem] text-zinc-600 sm:block"
+                    className="mt-0.5 hidden shrink-0 font-mono text-xs text-fg-subtle sm:block"
                     aria-hidden
                   >
                     {index + 1}
@@ -174,7 +174,7 @@ export function QuestionStep({
             <button
               type="button"
               onClick={() => setNoteOpen((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm text-emerald-400/90 transition-colors hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+              className="inline-flex min-h-11 items-center gap-2 rounded-sm px-1 text-[0.9375rem] font-medium text-accent transition-colors hover:text-accent-hover"
             >
               <PenLine className="size-4 shrink-0" aria-hidden />
               {noteOpen ? copy.ownWordsToggleOpen : copy.ownWordsToggle}
@@ -198,9 +198,9 @@ export function QuestionStep({
                     }}
                     rows={4}
                     placeholder={copy.ownWordsPlaceholder}
-                    className="mt-3 w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm leading-relaxed text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="field mt-3 resize-y leading-relaxed"
                   />
-                  <p className="mt-2 text-xs text-zinc-600">{copy.ownWordsHint}</p>
+                  <p className="mt-2 text-sm text-fg-subtle">{copy.ownWordsHint}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -216,7 +216,6 @@ export function QuestionStep({
                 type="button"
                 variant="ghost"
                 onClick={onBack}
-                className="text-zinc-400 hover:text-zinc-200"
               >
                 <ChevronLeft className="mr-1 size-4" />
                 {copy.back}
@@ -226,10 +225,9 @@ export function QuestionStep({
               type="button"
               onClick={submit}
               disabled={!hasAnswer}
-              className="ml-auto min-w-36 bg-emerald-600 font-medium hover:bg-emerald-500 disabled:opacity-40"
+              className="ml-auto min-w-36 disabled:opacity-40"
             >
               {copy.next}
-              <ChevronRight className="ml-1 size-4" />
             </Button>
           </div>
         </motion.div>
