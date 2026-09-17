@@ -25,6 +25,8 @@
      under WCAG AA. Lightened (same hue) until it clears 4.5:1 on every
      surface, including --surface-2 behind form fields. */
   --text-subtle: #80867f;
+  /* Long-form reading (blog articles): brighter than --text-muted, softer than --text. */
+  --text-prose: #c9cdc7;
 
   --accent: #3dcb8b;
   --accent-hover: #56d89c;
@@ -48,6 +50,7 @@
   --color-fg: var(--text);
   --color-fg-muted: var(--text-muted);
   --color-fg-subtle: var(--text-subtle);
+  --color-fg-prose: var(--text-prose);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-press: var(--accent-press);
@@ -295,6 +298,18 @@
   padding-inline: 20px;
   @media (min-width: 768px) {
     max-width: calc(720px + 64px);
+    padding-inline: 32px;
+  }
+}
+
+/* Case studies and other long, mixed pages: narrower than a full page, wider than an article. */
+@utility container-narrow {
+  width: 100%;
+  max-width: calc(896px + 40px);
+  margin-inline: auto;
+  padding-inline: 20px;
+  @media (min-width: 768px) {
+    max-width: calc(896px + 64px);
     padding-inline: 32px;
   }
 }
