@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const CAL_ORIGIN = "https://cal.com";
 const CAL_LINK = "łukasz-bałuniak-wafkto/30min";
-const PRIMARY_COLOR = "#10b981";
+const PRIMARY_COLOR = "#3DCB8B";
 
 type CalEmbedProps = {
   fallbackMessage: string;
@@ -14,11 +14,11 @@ type CalEmbedProps = {
 
 function CalEmbedFallback({ message, email }: { message: string; email: string }) {
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/30 p-6 text-center">
-      <p className="text-sm text-zinc-300">{message}</p>
+    <div className="flex min-h-[400px] flex-col items-center justify-center gap-3 rounded-md border border-border bg-surface-2 p-6 text-center">
+      <p className="text-[0.9375rem] text-fg-muted">{message}</p>
       <a
         href={`mailto:${email}`}
-        className="text-emerald-400 underline decoration-emerald-500/50 underline-offset-2 hover:text-emerald-300"
+        className="link-inline"
       >
         {email}
       </a>
@@ -66,7 +66,7 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
   if (!mounted) {
     return (
       <div
-        className="min-h-[700px] w-full animate-pulse rounded-lg bg-zinc-800/30"
+        className="min-h-[700px] w-full animate-pulse bg-surface-2"
         style={{ minHeight: "700px" }}
         aria-hidden
       />
@@ -80,7 +80,7 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
   if (!CalComponent) {
     return (
       <div
-        className="min-h-[700px] w-full animate-pulse rounded-lg bg-zinc-800/30"
+        className="min-h-[700px] w-full animate-pulse bg-surface-2"
         style={{ minHeight: "700px" }}
         aria-hidden
       />
@@ -89,7 +89,7 @@ export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
 
   return (
     <div
-      className="cal-embed-container min-h-[700px] w-full overflow-auto rounded-lg [&_iframe]:min-h-[700px] [&_iframe]:w-full"
+      className="cal-embed-container min-h-[700px] w-full overflow-auto [&_iframe]:min-h-[700px] [&_iframe]:w-full"
       style={{ minHeight: "700px" }}
     >
       <CalComponent

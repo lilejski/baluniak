@@ -5,8 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Send, CheckCircle } from "lucide-react";
+import { Calendar, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { CalEmbed } from "@/components/CalEmbed";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -80,29 +81,20 @@ export function ContactSection() {
     };
 
     return (
-        <section id="contact" className="bg-zinc-950/20 py-24 sm:py-32">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <header className="mb-16 text-center">
-                    <h2 className="text-3xl font-light tracking-tight text-zinc-100 sm:text-4xl">
-                        {w.pageTitle}
-                    </h2>
-                    <p className="mt-4 text-zinc-400 sm:text-lg">
-                        {w.pageSubtitle}
-                    </p>
-                </header>
+        <section id="contact" className="border-t border-border bg-bg section-y">
+            <div className="container-page">
+                <SectionHeading title={w.pageTitle} lead={w.pageSubtitle} />
 
-                <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
-                    <div className="order-2 lg:order-1">
-                        <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-xl">
-                            <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
-                                <span className="size-2 rounded-full bg-emerald-500/80" />
-                                <span className="size-2 rounded-full bg-zinc-600" />
-                                <span className="size-2 rounded-full bg-zinc-600" />
-                                <span className="ml-2 text-xs font-medium text-zinc-500">
+                {/* Mobile: the form first, the calendar below it */}
+                <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
+                    <div className="min-w-0">
+                        <div className="card overflow-hidden">
+                            <div className="border-b border-border px-5 py-4 md:px-7">
+                                <p className="text-base font-semibold text-fg">
                                     {w.formTitle}
-                                </span>
+                                </p>
                             </div>
-                            <div className="p-5 sm:p-6">
+                            <div className="p-5 md:p-7">
                                 <AnimatePresence mode="wait">
                                     {submitted ? (
                                         <motion.div
@@ -116,12 +108,12 @@ export function ContactSection() {
                                                 initial={{ scale: 0 }}
                                                 animate={{ scale: 1 }}
                                                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                                                className="mb-4 flex size-16 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-emerald-950/50"
+                                                className="mb-4 flex size-16 items-center justify-center rounded-full border border-border-strong"
                                             >
-                                                <CheckCircle className="size-8 text-emerald-400" />
+                                                <CheckCircle className="size-8 text-accent" strokeWidth={1.5} />
                                             </motion.div>
-                                            <p className="text-lg font-medium text-zinc-100">{w.successTitle}</p>
-                                            <p className="mt-1 text-sm text-zinc-500">{w.successHint}</p>
+                                            <p className="text-h4">{w.successTitle}</p>
+                                            <p className="mt-1 text-[0.9375rem] text-fg-muted">{w.successHint}</p>
                                         </motion.div>
                                     ) : (
                                         <motion.form
@@ -133,78 +125,65 @@ export function ContactSection() {
                                             className="space-y-5"
                                         >
                                             <div>
-                                                <label htmlFor="name" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">{w.labelName}</label>
+                                                <label htmlFor="name" className="field-label">{w.labelName}</label>
                                                 <input
                                                     id="name"
                                                     {...register("name")}
-                                                    className={cn(
-                                                        "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                                                        errors.name ? "border-rose-500/50" : "border-zinc-700"
-                                                    )}
+                                                    className={cn("field", errors.name && "border-rose-500/60")}
                                                     placeholder={fp.namePlaceholder}
                                                 />
-                                                {errors.name && <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>}
+                                                {errors.name && <p className="mt-1.5 text-sm text-rose-400">{errors.name.message}</p>}
                                             </div>
 
                                             <div>
-                                                <label htmlFor="email" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">{w.labelEmail}</label>
+                                                <label htmlFor="email" className="field-label">{w.labelEmail}</label>
                                                 <input
                                                     id="email"
                                                     type="email"
                                                     {...register("email")}
-                                                    className={cn(
-                                                        "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                                                        errors.email ? "border-rose-500/50" : "border-zinc-700"
-                                                    )}
+                                                    className={cn("field", errors.email && "border-rose-500/60")}
                                                     placeholder={fp.emailPlaceholder}
                                                 />
-                                                {errors.email && <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>}
+                                                {errors.email && <p className="mt-1.5 text-sm text-rose-400">{errors.email.message}</p>}
                                             </div>
 
                                             <div>
-                                                <label htmlFor="projectType" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">{w.labelHowCanIHelp}</label>
+                                                <label htmlFor="projectType" className="field-label">{w.labelHowCanIHelp}</label>
                                                 <select
                                                     id="projectType"
                                                     {...register("projectType")}
-                                                    className={cn(
-                                                        "w-full rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                                                        errors.projectType ? "border-rose-500/50" : "border-zinc-700"
-                                                    )}
+                                                    className={cn("field", errors.projectType && "border-rose-500/60")}
                                                 >
                                                     <option value="">{w.selectPlaceholder}</option>
                                                     {projectTypeOptions.map(({ value, label }) => (
                                                         <option key={value} value={value}>{label}</option>
                                                     ))}
                                                 </select>
-                                                {errors.projectType && <p className="mt-1 text-xs text-rose-400">{errors.projectType.message}</p>}
+                                                {errors.projectType && <p className="mt-1.5 text-sm text-rose-400">{errors.projectType.message}</p>}
                                             </div>
 
                                             <div>
-                                                <label htmlFor="message" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">{w.labelMessage}</label>
+                                                <label htmlFor="message" className="field-label">{w.labelMessage}</label>
                                                 <textarea
                                                     id="message"
                                                     {...register("message")}
                                                     rows={3}
-                                                    className={cn(
-                                                        "w-full resize-none rounded-lg border bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50",
-                                                        errors.message ? "border-rose-500/50" : "border-zinc-700"
-                                                    )}
+                                                    className={cn("field min-h-[120px] resize-none", errors.message && "border-rose-500/60")}
                                                     placeholder={fp.messagePlaceholder}
                                                 />
-                                                {errors.message && <p className="mt-1 text-xs text-rose-400">{errors.message.message}</p>}
+                                                {errors.message && <p className="mt-1.5 text-sm text-rose-400">{errors.message.message}</p>}
                                             </div>
 
                                             <Button
                                                 type="submit"
                                                 disabled={isSubmitting}
                                                 size="lg"
-                                                className="min-h-12 w-full bg-emerald-600 font-semibold hover:bg-emerald-500"
+                                                className="w-full"
                                             >
-                                                <Send className="mr-2 size-5 shrink-0" />
                                                 {isSubmitting ? w.submitting : w.submitButton}
                                             </Button>
 
-                                            <p className="text-center text-xs text-zinc-500">
+                                            <p className="text-center text-sm text-fg-subtle">
                                                 {w.guarantee}
                                             </p>
                                         </motion.form>
@@ -214,11 +193,11 @@ export function ContactSection() {
                         </div>
                     </div>
 
-                    <div ref={calRef} className="order-1 lg:order-2 min-w-0 flex-1">
-                        <div className="relative overflow-visible rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-[0_0_60px_rgba(16,185,129,0.08)]">
-                            <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-3">
-                                <Calendar className="size-4 text-emerald-500" />
-                                <span className="text-sm font-medium text-zinc-300">{w.calendarTitle}</span>
+                    <div ref={calRef} className="min-w-0 flex-1">
+                        <div className="card relative overflow-visible">
+                            <div className="flex items-center gap-2.5 border-b border-border px-5 py-4 md:px-7">
+                                <Calendar className="size-5 text-accent" strokeWidth={1.5} aria-hidden />
+                                <span className="text-base font-semibold text-fg">{w.calendarTitle}</span>
                             </div>
                             <div className="relative min-h-[700px] w-full">
                                 <CalEmbed

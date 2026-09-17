@@ -2,10 +2,12 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Zap, Brain, Shield } from "lucide-react";
+import { Globe, LayoutDashboard, Workflow } from "lucide-react";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const CARD_ICONS = [Zap, Brain, Shield] as const;
+/** Website, custom software, automation — in the order of the cards. */
+const CARD_ICONS = [Globe, LayoutDashboard, Workflow] as const;
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -27,17 +29,12 @@ export function WhyProductEngineer() {
     <section
       ref={sectionRef}
       id="why-product-engineer"
-      className="relative border-t border-zinc-800 bg-zinc-950/50 px-5 py-16 sm:px-6 md:py-20"
+      className="relative border-t border-border bg-bg section-y"
       aria-labelledby="why-pe-heading"
     >
-      <div className="mx-auto max-w-5xl">
-        <h2
-          id="why-pe-heading"
-          className="mb-10 text-center text-2xl font-bold tracking-tight text-zinc-100 md:text-3xl"
-        >
-          {section.title}
-        </h2>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="container-page">
+        <SectionHeading id="why-pe-heading" title={section.title} />
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((card, i) => {
             const Icon = CARD_ICONS[i];
             return (
@@ -47,15 +44,11 @@ export function WhyProductEngineer() {
                 variants={cardVariants}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
-                className="flex flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-sm transition-colors hover:border-emerald-500/30 hover:bg-zinc-900/60"
+                className="card flex flex-col p-5 md:p-7"
               >
-                <div className="mb-4 flex size-12 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
-                  <Icon className="size-6" aria-hidden />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold text-zinc-100">
-                  {card.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-zinc-400">
+                <Icon className="mb-4 size-6 text-accent" strokeWidth={1.5} aria-hidden />
+                <h3 className="text-h4">{card.title}</h3>
+                <p className="mt-2 text-base leading-relaxed text-fg-muted">
                   {card.description}
                 </p>
               </motion.article>
