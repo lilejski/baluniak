@@ -35,7 +35,7 @@ export function SectionHeading({
       <Heading id={id} className={cn(Heading === "h1" ? "text-h1" : "text-h2", "text-fg")}>
         {title}
       </Heading>
-      {lead ? <p className={cn("text-lead", centered && "mx-auto")}>{lead}</p> : null}
+      {lead ? <p className={cn("text-lead text-fg-muted", centered && "mx-auto")}>{lead}</p> : null}
     </header>
   )
 }

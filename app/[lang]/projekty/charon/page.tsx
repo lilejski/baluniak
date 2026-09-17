@@ -85,7 +85,7 @@ export default function CharonCaseStudyPage() {
           transition={{ duration: 0.3 }}
           className="mb-8"
         >
-          <Button variant="ghost" size="sm" asChild className="-ml-4">
+          <Button variant="ghost" size="sm" asChild className="-ml-4 h-auto min-h-10 whitespace-normal py-2 text-left">
             <Link href={`/${localeSegment}/projekty`} className="inline-flex items-center gap-2">
               <ArrowLeft className="size-4" />
               {f.backToProjectsHome}

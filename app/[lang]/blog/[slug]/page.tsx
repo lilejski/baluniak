@@ -160,7 +160,7 @@ export default async function BlogPostPage({
             </h1>
 
             {post.description && (
-              <p className="text-lead mt-5">
+              <p className="text-lead mt-5 text-fg-muted">
                 {post.description}
               </p>
             )}

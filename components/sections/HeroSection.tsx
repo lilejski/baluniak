@@ -133,7 +133,7 @@ export function HeroSection() {
             ) : null}
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="text-lead mt-5">
+          <motion.p variants={itemVariants} className="text-lead mt-5 text-fg-muted">
             {h.subtext}
           </motion.p>
 

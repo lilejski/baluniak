@@ -209,7 +209,7 @@ export default function KreatorPage() {
             <h1 className="text-h1 mt-3">
               {copy.title}
             </h1>
-            <p className="text-lead mt-4">
+            <p className="text-lead mt-4 text-fg-muted">
               {copy.subtitle}
             </p>
 
