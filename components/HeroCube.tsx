@@ -30,7 +30,7 @@ function MiniCube({ position }: { position: [number, number, number] }) {
           opacity={0.92}
         />
       </mesh>
-      <Edges geometry={geom} threshold={5} color="#10b981" />
+      <Edges geometry={geom} threshold={5} color="#3DCB8B" />
     </group>
   );
 }
@@ -124,24 +124,24 @@ export function HeroCube() {
         }}
       >
         <ambientLight intensity={0.35} />
-        {/* Chłodne światło z góry – błękit */}
+        {/* Jasne światło z góry – blada zieleń marki */}
         <directionalLight
           position={[0, 5, 3]}
           intensity={2}
-          color="#0ea5e9"
+          color="#9FE3C4"
           castShadow={false}
         />
         {/* Ciepłe światło z dołu – zieleń/szmaragd */}
         <pointLight
           position={[0, -2, 1]}
           intensity={3}
-          color="#34d399"
+          color="#3DCB8B"
           distance={8}
         />
         <pointLight
           position={[2, 1, 2]}
           intensity={0.4}
-          color="#10b981"
+          color="#2FB078"
           distance={6}
         />
         {/* Lewitacja (Float) + kostka z auto-obrotem */}
@@ -152,14 +152,14 @@ export function HeroCube() {
         >
           <RubikGroup groupRef={groupRef} isInteractingRef={isInteractingRef} />
         </Float>
-        {/* Premium glow / miękki cień pod kostką – bez białego tła, przezroczysty canvas */}
+        {/* Miękki cień pod kostką w odcieniu marki – przezroczysty canvas */}
         <ContactShadows
           position={[0, -1.5, 0]}
-          opacity={0.7}
+          opacity={0.35}
           scale={10}
           blur={2.5}
           far={4}
-          color="#4a1d91"
+          color="#1E8C7A"
         />
         <InteractionTracker isInteractingRef={isInteractingRef} />
       </Canvas>
