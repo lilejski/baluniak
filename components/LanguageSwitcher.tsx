@@ -29,14 +29,17 @@ function FlagUK({ className }: { className?: string }) {
   );
 }
 
-const flagSize = "w-6 h-4"; // small, clean
+const flagSize = "w-5 h-3.5";
 
 export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
   const { lang, setLang } = useLanguage();
 
+  const buttonBase =
+    "flex min-h-11 min-w-11 items-center justify-center rounded-sm transition-colors lg:min-h-9 lg:min-w-9";
+
   return (
     <div
-      className={cn("flex items-center gap-0.5 rounded-lg border border-white/10 bg-white/5 p-0.5", inSheet && "mt-4")}
+      className={cn("flex items-center gap-0.5 rounded-md border border-border p-0.5", inSheet && "mt-4 w-fit")}
       role="group"
       aria-label="Language"
     >
@@ -48,15 +51,13 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
           setLang("PL");
         }}
         className={cn(
-          "flex min-h-12 min-w-12 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:min-h-9 md:min-w-9",
-          lang === "PL"
-            ? "bg-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-            : "opacity-70 hover:opacity-100 hover:bg-white/10"
+          buttonBase,
+          lang === "PL" ? "bg-surface-2" : "opacity-55 hover:bg-surface-2 hover:opacity-100"
         )}
         aria-label="Polski"
         aria-pressed={lang === "PL"}
       >
-        <FlagPL className={cn("rounded-sm", flagSize)} />
+        <FlagPL className={cn("rounded-[2px]", flagSize)} />
       </button>
       <button
         type="button"
@@ -66,15 +67,13 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
           setLang("EN");
         }}
         className={cn(
-          "flex min-h-12 min-w-12 items-center justify-center rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:min-h-9 md:min-w-9",
-          lang === "EN"
-            ? "bg-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-            : "opacity-70 hover:opacity-100 hover:bg-white/10"
+          buttonBase,
+          lang === "EN" ? "bg-surface-2" : "opacity-55 hover:bg-surface-2 hover:opacity-100"
         )}
         aria-label="English"
         aria-pressed={lang === "EN"}
       >
-        <FlagUK className={cn("rounded-sm", flagSize)} />
+        <FlagUK className={cn("rounded-[2px]", flagSize)} />
       </button>
     </div>
   );
