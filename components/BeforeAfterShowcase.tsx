@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
-import { Camera, CheckCircle2, Sparkles, X } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +77,7 @@ export function BeforeAfterShowcase() {
       <div
         role="tablist"
         aria-label={f.demoTitle}
-        className="mb-6 inline-flex gap-1 rounded-xl border border-white/10 bg-black/40 p-1"
+        className="mb-6 inline-flex gap-1 rounded-md border border-border bg-surface p-1"
       >
         {tabs.map((tab) => (
           <button
@@ -87,10 +87,10 @@ export function BeforeAfterShowcase() {
             aria-selected={category === tab.id}
             onClick={() => selectCategory(tab.id)}
             className={cn(
-              "rounded-lg px-5 py-2 text-sm font-semibold tracking-wide transition-colors",
+              "min-h-10 rounded-sm px-4 text-sm font-semibold transition-colors",
               category === tab.id
-                ? "bg-amber-500/90 text-zinc-950 shadow-lg shadow-amber-500/20"
-                : "text-zinc-400 hover:text-zinc-100"
+                ? "bg-accent text-accent-ink"
+                : "text-fg-muted hover:text-fg"
             )}
           >
             {tab.label}
@@ -100,30 +100,29 @@ export function BeforeAfterShowcase() {
 
       <div className="flex flex-col gap-3 md:flex-row md:gap-5">
         {/* Before */}
-        <div className="relative overflow-hidden rounded-2xl border-2 border-white/15 bg-black/40 shadow-xl md:w-2/5">
+        <div className="relative overflow-hidden rounded-md border border-border bg-surface md:w-2/5">
           <div className="relative h-56 w-full md:h-80">
             <Image
               src={BEFORE_SHOT[category]}
               alt={f.demoBeforeLabel}
               fill
-              className="object-cover opacity-90"
+              className="object-cover"
               sizes="(max-width: 768px) 100vw, 360px"
             />
           </div>
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/70 px-3 py-1 text-xs font-bold uppercase tracking-wider text-zinc-200 backdrop-blur-md">
-            <Camera className="size-3" aria-hidden />
+          <span className="absolute left-3 top-3 inline-flex items-center rounded-sm border border-border bg-bg/85 px-2.5 py-1 text-xs font-semibold text-fg">
             {f.demoBeforeLabel}
           </span>
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-3">
-            <p className="flex items-center gap-1.5 text-xs font-medium text-red-300">
-              <X className="size-3 shrink-0" aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 bg-bg/80 px-3 py-2">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-fg-muted">
+              <X className="size-3.5 shrink-0" aria-hidden />
               {category === "food" ? f.demoBeforeCaptionFood : f.demoBeforeCaptionEcom}
             </p>
           </div>
         </div>
 
         {/* After */}
-        <div className="relative overflow-hidden rounded-2xl border-2 border-amber-500/70 bg-black/40 shadow-xl ring-1 ring-amber-500/20 md:flex-1">
+        <div className="relative overflow-hidden rounded-md border border-accent bg-surface md:flex-1">
           <div className="relative h-56 w-full md:h-80">
             {shots.map((src, i) => (
               <Image
@@ -140,17 +139,16 @@ export function BeforeAfterShowcase() {
               />
             ))}
           </div>
-          <span className="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg bg-amber-500/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-zinc-950 shadow-lg backdrop-blur-md">
-            <Sparkles className="size-3" aria-hidden />
+          <span className="absolute right-3 top-3 z-10 inline-flex items-center rounded-sm bg-accent px-2.5 py-1 text-xs font-semibold text-accent-ink">
             {f.demoAfterLabel}
           </span>
-          <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 to-transparent p-3">
-            <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-300">
-              <CheckCircle2 className="size-3 shrink-0" aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 z-10 bg-bg/80 px-3 py-2">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-fg">
+              <CheckCircle2 className="size-3.5 shrink-0 text-accent" aria-hidden />
               {f.demoAfterCaption}
             </p>
           </div>
-          <div className="absolute bottom-9 right-3 z-10 flex gap-1.5">
+          <div className="absolute bottom-10 right-3 z-10 flex gap-1.5">
             {shots.map((src, i) => (
               <button
                 key={src}
@@ -160,7 +158,7 @@ export function BeforeAfterShowcase() {
                 aria-current={i === afterIndex}
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",
-                  i === afterIndex ? "w-4 bg-amber-400" : "w-1.5 bg-white/40 hover:bg-white/70"
+                  i === afterIndex ? "w-4 bg-accent" : "w-1.5 bg-fg/40 hover:bg-fg/70"
                 )}
               />
             ))}
@@ -168,7 +166,7 @@ export function BeforeAfterShowcase() {
         </div>
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-zinc-500">{f.demoNote}</p>
+      <p className="mt-4 text-sm leading-relaxed text-fg-subtle">{f.demoNote}</p>
     </div>
   );
 }

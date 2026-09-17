@@ -19,6 +19,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TechLine } from "@/components/ui/tech-line";
 import { SeeleNeon } from "@/components/SeeleNeon";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -37,15 +38,6 @@ const itemVariants = {
     transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
   },
 };
-
-/** Accent per agent, in the order they appear in the dictionary. */
-const AGENT_ACCENTS = [
-  { ring: "border-emerald-500/30", text: "text-emerald-300", chip: "bg-emerald-500/10" },
-  { ring: "border-pink-500/30", text: "text-pink-300", chip: "bg-pink-500/10" },
-  { ring: "border-sky-500/30", text: "text-sky-300", chip: "bg-sky-500/10" },
-  { ring: "border-amber-500/30", text: "text-amber-300", chip: "bg-amber-500/10" },
-  { ring: "border-violet-500/30", text: "text-violet-300", chip: "bg-violet-500/10" },
-];
 
 const INTERFACE_ICONS = [Gauge, Bell, Eye, Cpu];
 
@@ -79,15 +71,15 @@ export default function QuantumOmCaseStudyPage() {
   const legalInView = useInView(legalRef, { once: true, amount: 0.15 });
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))] text-zinc-100">
-      <div className="mx-auto max-w-4xl px-5 py-8 pb-16 sm:px-6 sm:py-10 sm:pb-10">
+    <div className="min-h-screen bg-bg pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="container-narrow page-top">
         <motion.div
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
           className="mb-8"
         >
-          <Button variant="ghost" size="sm" asChild className="text-zinc-400 hover:text-zinc-200">
+          <Button variant="ghost" size="sm" asChild className="-ml-4">
             <Link href={`/${localeSegment}/projekty`} className="inline-flex items-center gap-2">
               <ArrowLeft className="size-4" />
               {f.backToProjectsHome}
@@ -99,27 +91,27 @@ export default function QuantumOmCaseStudyPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-12 sm:mb-16"
+          className="mb-16 sm:mb-20"
         >
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-zinc-100 text-balance sm:text-4xl md:text-5xl">
+          <h1 className="text-h1 mb-4">
             {q.heroTitle}
           </h1>
-          <p className="mb-2 text-lg text-emerald-400 text-balance sm:text-xl font-medium">
+          <p className="text-lead mb-2 text-fg">
             {q.heroSubline}
           </p>
-          <p className="mb-6 text-sm text-zinc-400">{q.heroSubtext}</p>
+          <p className="mb-6 text-base text-fg-muted">{q.heroSubtext}</p>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-emerald-300">
-              <Wallet className="size-3" aria-hidden />
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-fg">
+              <Wallet className="size-4 text-accent" strokeWidth={1.5} aria-hidden />
               {q.liveCapitalBadge}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800/60 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-zinc-400">
-              <PauseCircle className="size-3" aria-hidden />
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-fg-muted">
+              <PauseCircle className="size-4 text-fg-subtle" strokeWidth={1.5} aria-hidden />
               {q.statusLabel} {q.statusValue}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/40 bg-violet-500/10 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-violet-300">
-              <Tag className="size-3" aria-hidden />
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-accent">
+              <Tag className="size-4" strokeWidth={1.5} aria-hidden />
               {q.forSaleBadge}
             </span>
           </div>
@@ -147,26 +139,26 @@ export default function QuantumOmCaseStudyPage() {
           <motion.h2
             id="live-heading"
             variants={itemVariants}
-            className="mb-5 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-5"
           >
             {q.liveTitle}
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="mb-6 border-l-2 border-emerald-500/60 pl-5 text-base leading-relaxed text-zinc-200 sm:text-lg"
+            className="mb-6 border-l-2 border-accent pl-5 text-lg leading-relaxed text-fg"
           >
             {q.liveLead}
           </motion.p>
-          <motion.p variants={itemVariants} className="mb-4 text-sm leading-relaxed text-zinc-400 sm:text-base">
+          <motion.p variants={itemVariants} className="mb-4 text-base leading-relaxed text-fg-muted">
             {q.liveP1}
           </motion.p>
-          <motion.p variants={itemVariants} className="mb-8 text-sm leading-relaxed text-zinc-400 sm:text-base">
+          <motion.p variants={itemVariants} className="mb-8 text-base leading-relaxed text-fg-muted">
             {q.liveP2}
           </motion.p>
 
           <motion.p
             variants={itemVariants}
-            className="mb-4 text-xs font-medium uppercase tracking-wider text-zinc-500"
+            className="eyebrow-muted mb-3"
           >
             {q.liveStatsTitle}
           </motion.p>
@@ -175,17 +167,17 @@ export default function QuantumOmCaseStudyPage() {
               <motion.div
                 key={stat.label}
                 variants={itemVariants}
-                className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
+                className="card p-4 md:p-5"
               >
-                <p className="font-mono text-xl font-semibold text-emerald-300">{stat.value}</p>
-                <p className="mt-1 text-xs leading-snug text-zinc-500">{stat.label}</p>
+                <p className="font-display text-2xl font-semibold tabular-nums text-fg">{stat.value}</p>
+                <p className="mt-1 text-sm leading-snug text-fg-subtle">{stat.label}</p>
               </motion.div>
             ))}
           </div>
 
           <motion.p
             variants={itemVariants}
-            className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/40 p-5 text-sm leading-relaxed text-zinc-400"
+            className="card mt-6 p-5 text-[0.9375rem] leading-relaxed text-fg-muted"
           >
             {q.liveDisclaimer}
           </motion.p>
@@ -200,7 +192,7 @@ export default function QuantumOmCaseStudyPage() {
           className="mb-20"
         >
           <div
-            className="relative overflow-hidden rounded-xl border border-zinc-800 bg-black shadow-[0_0_50px_rgba(16,185,129,0.10)]"
+            className="relative overflow-hidden rounded-md border border-border bg-black"
             style={{ aspectRatio: "1600 / 1755" }}
           >
             <Image
@@ -212,7 +204,7 @@ export default function QuantumOmCaseStudyPage() {
               priority
             />
           </div>
-          <figcaption className="mt-3 text-center text-xs leading-relaxed text-zinc-500">
+          <figcaption className="mt-3 text-center text-sm leading-relaxed text-fg-subtle">
             {q.dashboardCaption}
           </figcaption>
         </motion.figure>
@@ -227,18 +219,18 @@ export default function QuantumOmCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-6"
           >
             {q.architekturaTitle}
           </motion.h2>
           <div className="space-y-4">
-            <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+            <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
               {q.architekturaP1}
             </motion.p>
-            <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+            <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
               {q.architekturaP2}
             </motion.p>
-            <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+            <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
               {q.architekturaP3}
             </motion.p>
           </div>
@@ -256,40 +248,33 @@ export default function QuantumOmCaseStudyPage() {
           <motion.h2
             id="agents-heading"
             variants={itemVariants}
-            className="mb-4 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-4"
           >
             {q.agentsTitle}
           </motion.h2>
-          <motion.p variants={itemVariants} className="mb-8 text-sm leading-relaxed text-zinc-400 sm:text-base">
+          <motion.p variants={itemVariants} className="mb-8 text-base leading-relaxed text-fg-muted">
             {q.agentsLead}
           </motion.p>
           <div className="grid gap-4 sm:grid-cols-2">
-            {q.agents.map((agent, index) => {
-              const accent = AGENT_ACCENTS[index % AGENT_ACCENTS.length];
-              return (
-                <motion.div
-                  key={agent.codename}
-                  variants={itemVariants}
-                  className={`rounded-xl border bg-zinc-900/50 p-5 ${accent.ring}`}
-                >
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className={`font-mono text-sm font-bold tracking-widest ${accent.text}`}>
-                        {agent.codename}
-                      </p>
-                      <p className="mt-0.5 text-xs text-zinc-500">{agent.role}</p>
-                    </div>
-                    <span
-                      className={`shrink-0 rounded-md px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-zinc-400 ${accent.chip}`}
-                    >
-                      {agent.weight}
-                    </span>
+            {q.agents.map((agent) => (
+              <motion.div
+                key={agent.codename}
+                variants={itemVariants}
+                className="card p-5"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-h4">{agent.codename}</p>
+                    <p className="mt-0.5 text-sm text-fg-subtle">{agent.role}</p>
                   </div>
-                  <p className="mb-3 text-sm leading-relaxed text-zinc-400">{agent.desc}</p>
-                  <p className="font-mono text-[0.7rem] text-zinc-600">{agent.model}</p>
-                </motion.div>
-              );
-            })}
+                  <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-fg-muted">
+                    {agent.weight}
+                  </span>
+                </div>
+                <p className="mb-3 text-base leading-relaxed text-fg-muted">{agent.desc}</p>
+                <p className="text-sm text-fg-subtle">{agent.model}</p>
+              </motion.div>
+            ))}
           </div>
         </motion.section>
 
@@ -305,7 +290,7 @@ export default function QuantumOmCaseStudyPage() {
           <motion.h2
             id="cycle-heading"
             variants={itemVariants}
-            className="mb-8 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-8"
           >
             {q.cycleTitle}
           </motion.h2>
@@ -314,14 +299,14 @@ export default function QuantumOmCaseStudyPage() {
               <motion.li
                 key={step.title}
                 variants={itemVariants}
-                className="flex gap-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-emerald-500/30"
+                className="card flex gap-4 p-5"
               >
-                <span className="mt-0.5 font-mono text-xs font-semibold text-emerald-500/80">
+                <span className="mt-0.5 font-mono text-sm tabular-nums text-accent">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="mb-1 font-medium text-zinc-100">{step.title}</h3>
-                  <p className="text-sm leading-relaxed text-zinc-400">{step.desc}</p>
+                  <h3 className="text-h4 mb-1">{step.title}</h3>
+                  <p className="text-base leading-relaxed text-fg-muted">{step.desc}</p>
                 </div>
               </motion.li>
             ))}
@@ -340,14 +325,14 @@ export default function QuantumOmCaseStudyPage() {
           <motion.h2
             id="guard-heading"
             variants={itemVariants}
-            className="mb-4 flex items-center gap-3 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-4 flex items-center gap-3"
           >
-            <ShieldCheck className="size-6 shrink-0 text-emerald-400" aria-hidden />
+            <ShieldCheck className="size-6 shrink-0 text-accent" strokeWidth={1.5} aria-hidden />
             {q.guardTitle}
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="mb-8 border-l-2 border-emerald-500/60 pl-5 text-sm leading-relaxed text-zinc-300 sm:text-base"
+            className="mb-8 border-l-2 border-accent pl-5 text-base leading-relaxed text-fg"
           >
             {q.guardLead}
           </motion.p>
@@ -356,32 +341,27 @@ export default function QuantumOmCaseStudyPage() {
               <motion.div
                 key={rule.label}
                 variants={itemVariants}
-                className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5"
+                className="card p-5"
               >
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <p className="eyebrow-muted">
                   {rule.label}
                 </p>
-                <p className="mb-2 mt-1 font-mono text-lg font-semibold text-emerald-300">
+                <p className="mb-2 mt-1 font-display text-xl font-semibold tabular-nums text-fg">
                   {rule.value}
                 </p>
-                <p className="text-xs leading-relaxed text-zinc-500">{rule.desc}</p>
+                <p className="text-sm leading-relaxed text-fg-muted">{rule.desc}</p>
               </motion.div>
             ))}
           </div>
           <motion.div
             variants={itemVariants}
-            className="relative overflow-hidden rounded-xl border border-amber-500/25 bg-amber-950/10 p-6"
+            className="card p-5 md:p-7"
           >
-            <Umbrella
-              className="pointer-events-none absolute -bottom-8 -right-6 size-44 rotate-12 text-amber-400/10"
-              strokeWidth={1.1}
-              aria-hidden
-            />
-            <h3 className="relative mb-2 flex items-center gap-2.5 font-medium text-amber-200">
-              <Umbrella className="size-4 shrink-0" aria-hidden />
+            <h3 className="text-h4 mb-2 flex items-center gap-2.5">
+              <Umbrella className="size-5 shrink-0 text-accent" strokeWidth={1.5} aria-hidden />
               {q.guardDoctrine}
             </h3>
-            <p className="relative text-sm leading-relaxed text-zinc-400">{q.guardDoctrineDesc}</p>
+            <p className="text-base leading-relaxed text-fg-muted">{q.guardDoctrineDesc}</p>
           </motion.div>
         </motion.section>
 
@@ -397,7 +377,7 @@ export default function QuantumOmCaseStudyPage() {
           <motion.h2
             id="memory-heading"
             variants={itemVariants}
-            className="mb-8 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-8"
           >
             {q.memoryTitle}
           </motion.h2>
@@ -406,10 +386,10 @@ export default function QuantumOmCaseStudyPage() {
               <motion.div
                 key={item.title}
                 variants={itemVariants}
-                className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6"
+                className="card p-5 md:p-6"
               >
-                <h3 className="mb-2 font-mono text-sm font-medium text-emerald-300">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-zinc-400">{item.desc}</p>
+                <h3 className="text-h4 mb-2">{item.title}</h3>
+                <p className="text-base leading-relaxed text-fg-muted">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -427,11 +407,11 @@ export default function QuantumOmCaseStudyPage() {
           <motion.h2
             id="interface-heading"
             variants={itemVariants}
-            className="mb-4 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-4"
           >
             {q.interfaceTitle}
           </motion.h2>
-          <motion.p variants={itemVariants} className="mb-8 text-sm leading-relaxed text-zinc-400 sm:text-base">
+          <motion.p variants={itemVariants} className="mb-8 text-base leading-relaxed text-fg-muted">
             {q.interfaceLead}
           </motion.p>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -441,11 +421,11 @@ export default function QuantumOmCaseStudyPage() {
                 <motion.div
                   key={item.title}
                   variants={itemVariants}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6"
+                  className="card p-5 md:p-6"
                 >
-                  <Icon className="mb-4 size-7 text-violet-400" aria-hidden />
-                  <h3 className="mb-2 font-medium text-zinc-100">{item.title}</h3>
-                  <p className="text-sm leading-relaxed text-zinc-400">{item.desc}</p>
+                  <Icon className="mb-4 size-6 text-accent" strokeWidth={1.5} aria-hidden />
+                  <h3 className="text-h4 mb-2">{item.title}</h3>
+                  <p className="text-base leading-relaxed text-fg-muted">{item.desc}</p>
                 </motion.div>
               );
             })}
@@ -462,25 +442,25 @@ export default function QuantumOmCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-8 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-8"
           >
             {q.innovationsTitle}
           </motion.h2>
-          <div className="grid gap-6 sm:grid-cols-3">
-            <motion.div variants={itemVariants} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <Bot className="mb-4 size-8 text-violet-400" />
-              <h3 className="mb-2 font-medium text-emerald-300">{q.innovation1Title}</h3>
-              <p className="text-sm leading-relaxed text-zinc-400">{q.innovation1Desc}</p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <motion.div variants={itemVariants} className="card p-5 md:p-6">
+              <Bot className="mb-4 size-6 text-accent" strokeWidth={1.5} />
+              <h3 className="text-h4 mb-2">{q.innovation1Title}</h3>
+              <p className="text-base leading-relaxed text-fg-muted">{q.innovation1Desc}</p>
             </motion.div>
-            <motion.div variants={itemVariants} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <Shield className="mb-4 size-8 text-emerald-400" />
-              <h3 className="mb-2 font-medium text-emerald-300">{q.innovation2Title}</h3>
-              <p className="text-sm leading-relaxed text-zinc-400">{q.innovation2Desc}</p>
+            <motion.div variants={itemVariants} className="card p-5 md:p-6">
+              <Shield className="mb-4 size-6 text-accent" strokeWidth={1.5} />
+              <h3 className="text-h4 mb-2">{q.innovation2Title}</h3>
+              <p className="text-base leading-relaxed text-fg-muted">{q.innovation2Desc}</p>
             </motion.div>
-            <motion.div variants={itemVariants} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <Cpu className="mb-4 size-8 text-amber-400" />
-              <h3 className="mb-2 font-medium text-emerald-300">{q.innovation3Title}</h3>
-              <p className="text-sm leading-relaxed text-zinc-400">{q.innovation3Desc}</p>
+            <motion.div variants={itemVariants} className="card p-5 md:p-6">
+              <Cpu className="mb-4 size-6 text-accent" strokeWidth={1.5} />
+              <h3 className="text-h4 mb-2">{q.innovation3Title}</h3>
+              <p className="text-base leading-relaxed text-fg-muted">{q.innovation3Desc}</p>
             </motion.div>
           </div>
         </motion.section>
@@ -495,19 +475,12 @@ export default function QuantumOmCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-4"
           >
             {q.stackListTitle}
           </motion.h2>
-          <motion.div variants={itemVariants} className="flex flex-wrap gap-2">
-            {q.stackList.map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-xs text-zinc-300"
-              >
-                {item}
-              </span>
-            ))}
+          <motion.div variants={itemVariants}>
+            <TechLine items={q.stackList} className="text-base" />
           </motion.div>
         </motion.section>
 
@@ -517,39 +490,39 @@ export default function QuantumOmCaseStudyPage() {
           initial="hidden"
           animate={pausedInView ? "visible" : "hidden"}
           variants={containerVariants}
-          className="mb-10 rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-6 sm:p-8"
+          className="card mb-10 p-5 md:p-8"
           aria-labelledby="paused-heading"
         >
           <motion.h2
             id="paused-heading"
             variants={itemVariants}
-            className="mb-4 flex items-center gap-3 text-xl font-semibold tracking-tight text-zinc-300"
+            className="text-h2 mb-4 flex items-center gap-3"
           >
-            <PauseCircle className="size-5 shrink-0 text-zinc-500" aria-hidden />
+            <PauseCircle className="size-6 shrink-0 text-fg-subtle" strokeWidth={1.5} aria-hidden />
             {q.pausedTitle}
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-400">
+          <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
             {q.pausedBody}
           </motion.p>
 
           <motion.div
             variants={itemVariants}
-            className="mt-6 rounded-xl border border-sky-500/25 bg-sky-950/10 p-5"
+            className="mt-6 rounded-md border border-border bg-surface-2 p-5"
           >
-            <h3 className="mb-2 font-medium text-sky-200">{q.pausedPortabilityTitle}</h3>
-            <p className="text-sm leading-relaxed text-zinc-400">{q.pausedPortabilityBody}</p>
+            <h3 className="text-h4 mb-2">{q.pausedPortabilityTitle}</h3>
+            <p className="text-base leading-relaxed text-fg-muted">{q.pausedPortabilityBody}</p>
           </motion.div>
 
           <motion.div
             variants={itemVariants}
-            className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6"
+            className="mt-4 rounded-md border border-border bg-surface-2 p-5 md:p-6"
           >
-            <h3 className="mb-3 flex items-center gap-2.5 text-lg font-semibold text-emerald-300">
-              <Tag className="size-4 shrink-0" aria-hidden />
+            <h3 className="text-h4 mb-3 flex items-center gap-2.5">
+              <Tag className="size-5 shrink-0 text-accent" strokeWidth={1.5} aria-hidden />
               {q.forSaleTitle}
             </h3>
-            <p className="mb-5 text-sm leading-relaxed text-zinc-300">{q.forSaleBody}</p>
-            <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-500">
+            <p className="mb-6 text-base leading-relaxed text-fg-muted">{q.forSaleBody}</p>
+            <Button asChild className="w-full sm:w-auto">
               <Link href={`/${localeSegment}#contact`}>{q.forSaleCta}</Link>
             </Button>
           </motion.div>
@@ -561,15 +534,15 @@ export default function QuantumOmCaseStudyPage() {
           initial="hidden"
           animate={legalInView ? "visible" : "hidden"}
           variants={containerVariants}
-          className="mb-10 rounded-2xl border border-zinc-800/80 bg-zinc-900/80 p-6 sm:p-8"
+          className="card mb-10 p-5 md:p-8"
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-4 text-xl font-semibold tracking-tight text-zinc-300"
+            className="text-h2 mb-4"
           >
             {q.legalTitle}
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-500">
+          <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
             {q.legalDesc}
           </motion.p>
         </motion.section>

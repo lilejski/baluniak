@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Award, Github, Linkedin, Mail } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Award, Github, Linkedin } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { TechLine } from "@/components/ui/tech-line";
 import { JsonLd } from "@/components/JsonLd";
 import { PrintButton } from "@/components/PrintButton";
 import { profilePageJsonLd } from "@/lib/structured-data";
@@ -52,12 +54,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const h2 = "mb-5 text-2xl font-semibold tracking-tight text-zinc-100";
-const card = "cv-card rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 sm:p-6";
-const ghostButton =
-  "inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-200 transition-colors hover:border-white/20 hover:bg-white/10";
-const primaryButton =
-  "inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-emerald-50 transition-colors hover:bg-emerald-500";
+const h2 = "text-h2 mb-5";
+const card = "cv-card card p-5 md:p-6";
+const ghostButton = buttonVariants({ variant: "secondary", size: "sm" });
+const primaryButton = buttonVariants({ size: "sm" });
 
 /**
  * The recruiter door. Rendered on the server with no entrance animations, so
@@ -71,21 +71,21 @@ export default async function AboutMePage({ params }: Props) {
   const githubLabel = footer.githubUrl.replace(/^https:\/\//, "");
 
   return (
-    <article className="cv mx-auto max-w-4xl px-5 py-10 text-zinc-100 sm:px-6 sm:py-14">
+    <article className="cv container-narrow page-top text-fg">
       <JsonLd data={profilePageJsonLd(segment)} />
 
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-full border-2 border-emerald-500 sm:size-32 print:size-20">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-full border border-border-strong sm:size-32 print:size-20">
           <Image src="/li.jpg" alt={page.name} fill sizes="8rem" className="object-cover" priority />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-400 print:hidden">
+          <p className="eyebrow print:hidden">
             {page.eyebrow}
           </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{page.name}</h1>
-          <p className="mt-1 text-lg text-emerald-300">{page.role}</p>
-          <p className="mt-4 max-w-[65ch] leading-relaxed text-zinc-300">{page.summary}</p>
-          <p className="mt-4 inline-block rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-3 py-1.5 text-sm text-emerald-100">
+          <h1 className="text-h1 mt-2">{page.name}</h1>
+          <p className="text-lead mt-2 text-fg">{page.role}</p>
+          <p className="mt-4 max-w-[65ch] text-base leading-relaxed text-fg-muted">{page.summary}</p>
+          <p className="mt-4 inline-block rounded-md border border-border-strong bg-surface-2 px-3 py-1.5 text-sm text-fg">
             <span className="font-semibold">{page.availabilityLabel}:</span> {page.availability}
           </p>
 
@@ -96,7 +96,6 @@ export default async function AboutMePage({ params }: Props) {
 
           <div className="mt-6 flex flex-wrap gap-3 print:hidden">
             <a href={`mailto:${footer.email}`} className={primaryButton}>
-              <Mail className="size-4" aria-hidden />
               {page.contactCta}
             </a>
             <a href={footer.linkedinUrl} target="_blank" rel="noopener noreferrer" className={ghostButton}>
@@ -115,8 +114,8 @@ export default async function AboutMePage({ params }: Props) {
       <section aria-label={page.factsLabel} className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {page.facts.map((fact) => (
           <div key={fact.label} className={card}>
-            <p className="text-2xl font-bold text-emerald-400">{fact.value}</p>
-            <p className="mt-1 text-sm leading-snug text-zinc-400">{fact.label}</p>
+            <p className="font-display text-2xl font-semibold tabular-nums text-fg">{fact.value}</p>
+            <p className="mt-1 text-sm leading-snug text-fg-subtle">{fact.label}</p>
           </div>
         ))}
       </section>
@@ -128,17 +127,8 @@ export default async function AboutMePage({ params }: Props) {
         <div className="grid gap-3 sm:grid-cols-2">
           {page.skills.map((group) => (
             <div key={group.group} className={card}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">{group.group}</h3>
-              <ul className="flex flex-wrap gap-2">
-                {group.items.map((item) => (
-                  <li
-                    key={item}
-                    className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-zinc-300"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <h3 className="text-h4 mb-2">{group.group}</h3>
+              <TechLine items={group.items} className="text-[0.9375rem]" />
             </div>
           ))}
         </div>
@@ -148,7 +138,7 @@ export default async function AboutMePage({ params }: Props) {
         <h2 id="projects-heading" className={h2}>
           {page.projectsTitle}
         </h2>
-        <p className="-mt-2 mb-6 max-w-[65ch] text-sm text-zinc-400">{page.projectsLead}</p>
+        <p className="-mt-2 mb-6 max-w-[65ch] text-base text-fg-muted">{page.projectsLead}</p>
         <div className="space-y-4">
           {page.projects.map((project) => {
             const caseStudy = CASE_STUDY_PATHS[project.id];
@@ -156,29 +146,29 @@ export default async function AboutMePage({ params }: Props) {
             return (
               <article key={project.id} className={card}>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h3 className="text-xl font-semibold text-zinc-100">{project.name}</h3>
-                  <p className="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                  <h3 className="text-h3">{project.name}</h3>
+                  <p className="text-sm text-fg-subtle">
                     {page.statusLabel}: {project.status}
                   </p>
                 </div>
-                <p className="mt-1 text-zinc-300">{project.tagline}</p>
-                <ul className="mt-4 space-y-2 text-sm leading-relaxed text-zinc-400">
+                <p className="mt-1 text-base text-fg">{project.tagline}</p>
+                <ul className="mt-4 space-y-2 text-base leading-relaxed text-fg-muted">
                   {project.decisions.map((decision) => (
                     <li key={decision} className="flex gap-3">
-                      <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-emerald-500" />
+                      <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-accent" />
                       <span>{decision}</span>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-4 font-mono text-xs text-zinc-500">
-                  <span className="text-zinc-400">{page.stackLabel}:</span> {project.stack}
+                <p className="mt-4 text-sm text-fg-subtle">
+                  <span className="text-fg-muted">{page.stackLabel}:</span> {project.stack}
                 </p>
                 {(caseStudy || source) && (
                   <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm print:hidden">
                     {caseStudy && (
                       <Link
                         href={`/${segment}${caseStudy}`}
-                        className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300"
+                        className="inline-flex min-h-11 items-center gap-1 font-medium text-accent hover:text-accent-hover"
                       >
                         {page.caseStudyCta}
                         <ArrowRight className="size-4" aria-hidden />
@@ -189,7 +179,7 @@ export default async function AboutMePage({ params }: Props) {
                         href={source}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300"
+                        className="inline-flex min-h-11 items-center gap-1 font-medium text-accent hover:text-accent-hover"
                       >
                         {page.sourceCta}
                         <ArrowUpRight className="size-4" aria-hidden />
@@ -210,8 +200,8 @@ export default async function AboutMePage({ params }: Props) {
         <div className="grid gap-3 sm:grid-cols-2">
           {page.principles.map((principle) => (
             <div key={principle.title} className={card}>
-              <h3 className="font-semibold text-zinc-100">{principle.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{principle.desc}</p>
+              <h3 className="text-h4">{principle.title}</h3>
+              <p className="mt-1.5 text-base leading-relaxed text-fg-muted">{principle.desc}</p>
             </div>
           ))}
         </div>
@@ -225,12 +215,12 @@ export default async function AboutMePage({ params }: Props) {
           href={page.certUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${card} flex items-center gap-4 transition-colors hover:border-zinc-700`}
+          className={`${card} card-interactive flex items-center gap-4`}
         >
-          <Award className="size-8 shrink-0 text-[#4285F4]" aria-hidden />
+          <Award className="size-6 shrink-0 text-accent" strokeWidth={1.5} aria-hidden />
           <span className="min-w-0">
-            <span className="block font-medium text-zinc-100">{page.certName}</span>
-            <span className="mt-0.5 inline-flex items-center gap-1 text-sm text-[#76a9fc] print:hidden">
+            <span className="block font-medium text-fg">{page.certName}</span>
+            <span className="mt-0.5 inline-flex items-center gap-1 text-sm text-accent underline underline-offset-3 print:hidden">
               {page.certCta}
               <ArrowUpRight className="size-3.5" aria-hidden />
             </span>
@@ -239,22 +229,21 @@ export default async function AboutMePage({ params }: Props) {
       </section>
 
       <section
-        className="mt-14 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-6 sm:p-8 print:hidden"
+        className="card mt-14 p-5 md:p-8 print:hidden"
         aria-labelledby="contact-heading"
       >
-        <h2 id="contact-heading" className="text-2xl font-semibold tracking-tight text-zinc-100">
+        <h2 id="contact-heading" className="text-h2">
           {page.contactTitle}
         </h2>
-        <p className="mt-2 text-zinc-300">{page.contactLead}</p>
+        <p className="mt-3 text-base text-fg-muted">{page.contactLead}</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <a href={`mailto:${footer.email}`} className={primaryButton}>
-            <Mail className="size-4" aria-hidden />
             {footer.email}
           </a>
           <PrintButton label={page.printCta} className={ghostButton} />
         </div>
-        <p className="mt-6 text-sm text-zinc-400">
-          <Link href={`/${segment}`} className="inline-flex items-center gap-1 hover:text-zinc-200">
+        <p className="mt-6 text-sm text-fg-subtle">
+          <Link href={`/${segment}`} className="inline-flex min-h-11 items-center gap-1 hover:text-fg">
             {page.clientsLink}
             <ArrowRight className="size-4" aria-hidden />
           </Link>

@@ -10,15 +10,16 @@ import {
   FileSpreadsheet,
   LayoutGrid,
   ScanLine,
-  Send,
-  Sparkles,
-  Zap,
+  Share2,
+  Wand2,
+  Target,
   Layers,
   Wallet,
   Smartphone,
   Boxes,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TechLine } from "@/components/ui/tech-line";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const containerVariants = {
@@ -38,18 +39,18 @@ const itemVariants = {
 };
 
 /** Icons for the six pipeline stages, in flow order. */
-const flowIcons: ComponentType<{ className?: string }>[] = [
+const flowIcons: ComponentType<{ className?: string; strokeWidth?: number }>[] = [
   FileSpreadsheet,
   ScanLine,
-  Sparkles,
+  Wand2,
   LayoutGrid,
-  Send,
+  Share2,
   BarChart2,
 ];
 
 /** Icons for the five competitive-edge points, in order. */
-const edgeIcons: ComponentType<{ className?: string }>[] = [
-  Zap,
+const edgeIcons: ComponentType<{ className?: string; strokeWidth?: number }>[] = [
+  Target,
   Layers,
   Wallet,
   Boxes,
@@ -76,15 +77,15 @@ export default function CharonCaseStudyPage() {
   const challengesInView = useInView(challengesRef, { once: true, amount: 0.1 });
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(2rem,env(safe-area-inset-bottom))] text-zinc-100">
-      <div className="mx-auto max-w-4xl px-5 py-8 pb-16 sm:px-6 sm:py-10 sm:pb-10">
+    <div className="min-h-screen bg-bg pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="container-narrow page-top">
         <motion.div
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
           className="mb-8"
         >
-          <Button variant="ghost" size="sm" asChild className="text-zinc-400 hover:text-zinc-200">
+          <Button variant="ghost" size="sm" asChild className="-ml-4">
             <Link href={`/${localeSegment}/projekty`} className="inline-flex items-center gap-2">
               <ArrowLeft className="size-4" />
               {f.backToProjectsHome}
@@ -96,21 +97,18 @@ export default function CharonCaseStudyPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-12 sm:mb-16"
+          className="mb-16 sm:mb-20"
         >
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-zinc-100 text-balance sm:text-4xl md:text-5xl">
+          <h1 className="text-h1 mb-4">
             {c.heroTitle}
           </h1>
-          <p className="mb-2 text-lg text-cyan-300 text-balance sm:text-xl font-medium">
+          <p className="text-lead mb-2 text-fg">
             {c.heroSubline}
           </p>
-          <p className="mb-6 text-sm text-zinc-400">{c.heroSubtext}</p>
+          <p className="mb-6 text-base text-fg-muted">{c.heroSubtext}</p>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-cyan-300">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex size-2 rounded-full bg-cyan-500"></span>
-            </span>
+          <div className="inline-flex items-center gap-2 text-sm font-medium text-fg-muted">
+            <span className="size-2 rounded-full bg-accent" aria-hidden />
             {c.statusLabel} {c.statusValue}
           </div>
         </motion.header>
@@ -125,15 +123,15 @@ export default function CharonCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-6"
           >
             {c.overviewTitle}
           </motion.h2>
           <div className="space-y-4">
-            <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+            <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
               {c.overviewP1}
             </motion.p>
-            <motion.p variants={itemVariants} className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+            <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
               {c.overviewP2}
             </motion.p>
           </div>
@@ -149,11 +147,11 @@ export default function CharonCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-6"
           >
             {c.problemTitle}
           </motion.h2>
-          <motion.p variants={itemVariants} className="mb-8 text-sm leading-relaxed text-zinc-400 sm:text-base">
+          <motion.p variants={itemVariants} className="mb-8 text-base leading-relaxed text-fg-muted">
             {c.problemIntro}
           </motion.p>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -161,14 +159,14 @@ export default function CharonCaseStudyPage() {
               <motion.div
                 key={point.title}
                 variants={itemVariants}
-                className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5"
+                className="card p-5"
               >
-                <h3 className="mb-2 text-sm font-medium text-zinc-200">{point.title}</h3>
-                <p className="text-sm leading-relaxed text-zinc-400">{point.desc}</p>
+                <h3 className="text-h4 mb-2">{point.title}</h3>
+                <p className="text-base leading-relaxed text-fg-muted">{point.desc}</p>
               </motion.div>
             ))}
           </div>
-          <motion.p variants={itemVariants} className="mt-8 text-sm leading-relaxed text-zinc-300 sm:text-base">
+          <motion.p variants={itemVariants} className="mt-8 text-base leading-relaxed text-fg">
             {c.problemOutro}
           </motion.p>
         </motion.section>
@@ -183,30 +181,28 @@ export default function CharonCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-8 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-8"
           >
             {c.flowTitle}
           </motion.h2>
-          <ol className="space-y-4">
+          <ol className="space-y-3">
             {c.flowSteps.map((step, index) => {
               const Icon = flowIcons[index];
               return (
                 <motion.li
                   key={step.title}
                   variants={itemVariants}
-                  className="flex gap-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-cyan-500/30"
+                  className="card flex gap-4 p-5"
                 >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-cyan-500/20 bg-cyan-500/10">
-                    {Icon ? <Icon className="size-5 text-cyan-300" /> : null}
-                  </div>
+                  {Icon ? <Icon className="mt-0.5 size-6 shrink-0 text-accent" strokeWidth={1.5} /> : null}
                   <div className="min-w-0">
-                    <h3 className="mb-1 flex items-baseline gap-2 font-medium text-zinc-100">
-                      <span className="font-mono text-xs text-cyan-500/80">
+                    <h3 className="text-h4 mb-1 flex items-baseline gap-2">
+                      <span className="font-mono text-sm font-normal tabular-nums text-fg-subtle">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                       {step.title}
                     </h3>
-                    <p className="text-sm leading-relaxed text-zinc-400">{step.desc}</p>
+                    <p className="text-base leading-relaxed text-fg-muted">{step.desc}</p>
                   </div>
                 </motion.li>
               );
@@ -224,7 +220,7 @@ export default function CharonCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-8 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-8"
           >
             {c.edgeTitle}
           </motion.h2>
@@ -235,11 +231,11 @@ export default function CharonCaseStudyPage() {
                 <motion.div
                   key={point.title}
                   variants={itemVariants}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6"
+                  className="card p-5 md:p-6"
                 >
-                  {Icon ? <Icon className="mb-4 size-7 text-cyan-400" /> : null}
-                  <h3 className="mb-2 font-medium text-cyan-200">{point.title}</h3>
-                  <p className="text-sm leading-relaxed text-zinc-400">{point.desc}</p>
+                  {Icon ? <Icon className="mb-4 size-6 text-accent" strokeWidth={1.5} /> : null}
+                  <h3 className="text-h4 mb-2">{point.title}</h3>
+                  <p className="text-base leading-relaxed text-fg-muted">{point.desc}</p>
                 </motion.div>
               );
             })}
@@ -256,19 +252,12 @@ export default function CharonCaseStudyPage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-6 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl"
+            className="text-h2 mb-4"
           >
             {c.stackTitle}
           </motion.h2>
-          <motion.div variants={itemVariants} className="flex flex-wrap gap-2">
-            {c.stackList.map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-xs text-zinc-300"
-              >
-                {item}
-              </span>
-            ))}
+          <motion.div variants={itemVariants}>
+            <TechLine items={c.stackList} className="text-base" />
           </motion.div>
         </motion.section>
 
@@ -278,21 +267,21 @@ export default function CharonCaseStudyPage() {
           initial="hidden"
           animate={challengesInView ? "visible" : "hidden"}
           variants={containerVariants}
-          className="mb-10 rounded-2xl border border-zinc-800/80 bg-zinc-900/80 p-6 sm:p-8"
+          className="card mb-10 p-5 md:p-8"
         >
           <motion.h2
             variants={itemVariants}
-            className="mb-6 text-xl font-semibold tracking-tight text-zinc-200 sm:text-2xl"
+            className="text-h2 mb-6"
           >
             {c.challengesTitle}
           </motion.h2>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2">
             {c.challenges.map((challenge) => (
               <motion.div key={challenge.title} variants={itemVariants}>
-                <h3 className="mb-1.5 font-mono text-sm font-medium text-cyan-300">
+                <h3 className="text-h4 mb-1.5">
                   {challenge.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-zinc-400">{challenge.desc}</p>
+                <p className="text-base leading-relaxed text-fg-muted">{challenge.desc}</p>
               </motion.div>
             ))}
           </div>
