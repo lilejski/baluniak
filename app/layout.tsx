@@ -7,11 +7,13 @@ export const metadata: Metadata = {
   description: 'Moje portfolio i projekty',
 };
 
-// Headings. Variable font: one file covers the 600 and 700 weights used.
+// Headings. Variable font: one file covers the 600 and 700 weights used, plus
+// the optical-size and width axes the display headings are tuned with.
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
   subsets: ["latin", "latin-ext"],
   display: "swap",
+  axes: ["opsz", "wdth"],
 });
 
 // Body, UI, navigation, buttons and forms.

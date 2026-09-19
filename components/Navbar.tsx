@@ -89,14 +89,14 @@ export function Navbar() {
         </Link>
 
         {/* Desktop: nav + language + book a call (primary) + order (secondary) */}
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-1 xl:flex">
           {navItems.map(({ label, href, active }) => (
             <Link
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "rounded-md px-2.5 py-2 text-[0.9375rem] font-medium transition-colors hover:text-fg",
+                "whitespace-nowrap rounded-md px-2.5 py-2 text-[0.9375rem] font-medium transition-colors hover:text-fg",
                 active
                   ? "text-fg underline decoration-accent decoration-2 underline-offset-[10px]"
                   : "text-fg-muted"
@@ -121,7 +121,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile: language + burger (thumb-friendly spacing) */}
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-2 xl:hidden">
           <LanguageSwitcher />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

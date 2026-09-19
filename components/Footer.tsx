@@ -90,6 +90,20 @@ export function Footer() {
               </p>
             </div>
           </div>
+
+          {/* Signature: the name set large in outline, cropped by the page edge */}
+          <div aria-hidden className="pointer-events-none mt-14 select-none overflow-hidden md:mt-20">
+            <p
+              className="translate-y-[22%] whitespace-nowrap font-display font-bold leading-[0.8] text-transparent"
+              style={{
+                fontSize: "clamp(4.5rem, 19vw, 15.5rem)",
+                letterSpacing: "-0.045em",
+                WebkitTextStroke: "1px var(--border-strong)",
+              }}
+            >
+              baluniak
+            </p>
+          </div>
         </div>
       </footer>
     </>
