@@ -5,20 +5,21 @@ import { motion } from "framer-motion";
 import {
   ArrowRightLeft,
   Compass,
+  Bot,
   Gauge,
   Globe,
   LayoutDashboard,
   ShoppingBag,
-  Sparkles,
   Workflow,
 } from "lucide-react";
 import type { Service, ServiceId } from "@/lib/kreator/types";
 
-const ICONS: Record<string, ComponentType<{ className?: string }>> = {
+/** Keys match `service.icon` in the content file; the AI service shows a neutral bot icon. */
+const ICONS: Record<string, ComponentType<{ className?: string; strokeWidth?: number }>> = {
   Globe,
   ShoppingBag,
   LayoutDashboard,
-  Sparkles,
+  Sparkles: Bot,
   Workflow,
   Gauge,
   ArrowRightLeft,
@@ -38,8 +39,8 @@ export function ServicePicker({
 }) {
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl">{heading}</h2>
-      <p className="mt-2 text-sm text-zinc-500">{hint}</p>
+      <h2 className="text-h3">{heading}</h2>
+      <p className="mt-2 text-base text-fg-muted">{hint}</p>
 
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {services.map((service, index) => {
@@ -52,20 +53,12 @@ export function ServicePicker({
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: index * 0.045 }}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.99 }}
-              className="group relative flex gap-4 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5 text-left transition-colors hover:border-emerald-500/40 hover:bg-zinc-900 focus-visible:border-emerald-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+              className="card card-interactive group relative flex gap-4 p-5 text-left"
             >
-              <span
-                className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
-                aria-hidden
-              />
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-zinc-700/70 bg-zinc-800/60 text-zinc-400 transition-colors group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 group-hover:text-emerald-300">
-                <Icon className="size-5" />
-              </span>
+              <Icon className="mt-0.5 size-6 shrink-0 text-accent" strokeWidth={1.5} />
               <span className="min-w-0">
-                <span className="block font-medium text-zinc-100">{service.label}</span>
-                <span className="mt-1 block text-sm leading-relaxed text-zinc-500">
+                <span className="text-h4 block">{service.label}</span>
+                <span className="mt-1 block text-[0.9375rem] leading-relaxed text-fg-muted">
                   {service.blurb}
                 </span>
               </span>

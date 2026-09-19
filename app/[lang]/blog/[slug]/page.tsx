@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PostBody } from "@/components/blog/PostBody";
 import { PostCard } from "@/components/blog/PostCard";
@@ -18,7 +18,7 @@ const COPY = {
     read: "Czytaj dalej",
     related: "Przeczytaj również",
     ctaTitle: "Masz podobny problem u siebie?",
-    ctaBody: "Opisz go własnymi słowami — kilka prostych pytań, bez żargonu i bez zobowiązań.",
+    ctaBody: "Opisz go własnymi słowami — kilka prostych pytań, bez zobowiązań.",
     ctaButton: "Przejdź do kreatora",
   },
   en: {
@@ -27,7 +27,7 @@ const COPY = {
     read: "Read on",
     related: "Read next",
     ctaTitle: "Facing something similar?",
-    ctaBody: "Describe it in your own words — a few plain questions, no jargon, no commitment.",
+    ctaBody: "Describe it in your own words — a few plain questions, no commitment.",
     ctaButton: "Open the order builder",
   },
 } as const;
@@ -135,14 +135,14 @@ export default async function BlogPostPage({
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(3rem,env(safe-area-inset-bottom))] text-zinc-100">
+    <div className="min-h-screen bg-bg pb-[max(3rem,env(safe-area-inset-bottom))]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto max-w-3xl px-5 py-10 sm:px-6 sm:py-14">
-        <Button variant="ghost" size="sm" asChild className="mb-8 -ml-3 text-zinc-500 hover:text-zinc-300">
+      <div className="container-article page-top">
+        <Button variant="ghost" size="sm" asChild className="-ml-4 mb-8">
           <Link href={`/${lang}/blog`} className="inline-flex items-center gap-2">
             <ArrowLeft className="size-4" />
             {copy.back}
@@ -152,46 +152,34 @@ export default async function BlogPostPage({
         <article>
           <header className="mb-10">
             {post.tags.length > 0 && (
-              <div className="mb-4 flex flex-wrap gap-1.5">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-md border border-emerald-500/25 bg-emerald-500/5 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-emerald-300/90"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              <p className="eyebrow-muted mb-3">{post.tags.join(" · ")}</p>
             )}
 
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-zinc-100 text-balance sm:text-4xl md:text-[2.75rem]">
+            <h1 className="text-h1">
               {post.title}
             </h1>
 
             {post.description && (
-              <p className="mt-4 text-base leading-relaxed text-zinc-400 sm:text-lg">
+              <p className="text-lead mt-5 text-fg-muted">
                 {post.description}
               </p>
             )}
 
-            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-800 pt-5 text-xs text-zinc-500">
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarDays className="size-3.5 shrink-0" aria-hidden />
-                <time dateTime={post.date}>{dateLabel}</time>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Clock className="size-3.5 shrink-0" aria-hidden />
+            <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-5 text-sm text-fg-subtle">
+              <time dateTime={post.date}>{dateLabel}</time>
+              <span aria-hidden>·</span>
+              <span>
                 {post.readingMinutes} {copy.minutes}
               </span>
               {post.draft && (
-                <span className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono uppercase tracking-wider text-amber-300">
+                <span className="rounded-full border border-border-strong px-2 py-0.5 text-xs font-medium text-fg-muted">
                   draft
                 </span>
               )}
             </div>
 
             {post.cover && (
-              <div className="relative mt-8 aspect-[2/1] overflow-hidden rounded-2xl border border-zinc-800">
+              <div className="relative mt-8 aspect-[2/1] overflow-hidden rounded-md border border-border">
                 <Image
                   src={post.cover}
                   alt=""
@@ -208,22 +196,21 @@ export default async function BlogPostPage({
         </article>
 
         {/* Call to action — every article should offer somewhere to go next */}
-        <section className="mt-16 rounded-2xl border border-emerald-500/25 bg-emerald-950/15 p-6 sm:p-8">
-          <h2 className="text-lg font-semibold tracking-tight text-zinc-100 sm:text-xl">
+        <section className="card mt-16 p-5 md:p-8">
+          <h2 className="text-h2">
             {copy.ctaTitle}
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-300">{copy.ctaBody}</p>
-          <Button asChild size="sm" className="mt-5 bg-emerald-600 hover:bg-emerald-500">
+          <p className="mt-3 text-base leading-relaxed text-fg-muted">{copy.ctaBody}</p>
+          <Button asChild className="mt-6 w-full sm:w-auto">
             <Link href={`/${lang}/kreator`}>
               {copy.ctaButton}
-              <ArrowRight className="ml-1.5 size-4" />
             </Link>
           </Button>
         </section>
 
         {related.length > 0 && (
           <section className="mt-14">
-            <h2 className="mb-6 text-xl font-semibold tracking-tight text-zinc-100">
+            <h2 className="text-h2 mb-6">
               {copy.related}
             </h2>
             <div className="grid gap-5 sm:grid-cols-2">

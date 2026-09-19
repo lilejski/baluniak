@@ -14,31 +14,31 @@ const LOGOS = [
   { name: "Tailwind CSS", href: "https://tailwindcss.com", icon: Palette },
 ] as const;
 
+/** A quiet line of names — present for anyone who looks, never competing with the hero. */
 export function TechStackTrust() {
   const { dict } = useLanguage();
   const heading = dict.hero.techStackTrust;
 
   return (
     <section
-      className="relative z-10 border-y border-white/5 bg-zinc-950/50 py-8 sm:py-10"
+      className="relative border-y border-border bg-bg py-8 sm:py-10"
       aria-label={heading}
     >
-      <div className="mx-auto max-w-5xl px-5 sm:px-6">
-        <p className="mb-6 text-center text-xs font-medium uppercase tracking-widest text-zinc-500 sm:mb-8">
+      <div className="container-page">
+        <p className="eyebrow-muted mb-4 text-center">
           {heading}
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 sm:gap-x-12 md:gap-x-14">
-          {LOGOS.map(({ name, href, icon: Icon }) => (
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 sm:gap-x-8">
+          {LOGOS.map(({ name, href }) => (
             <a
               key={name}
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 opacity-60 transition-opacity duration-200 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 focus:ring-offset-zinc-950"
+              className="inline-flex min-h-11 items-center text-sm font-medium text-fg-subtle transition-colors hover:text-fg-muted"
               aria-label={name}
             >
-              <Icon className="size-5 sm:size-6 text-zinc-400" aria-hidden />
-              <span className="font-sans text-sm font-semibold tracking-tight text-zinc-300">{name}</span>
+              {name}
             </a>
           ))}
         </div>

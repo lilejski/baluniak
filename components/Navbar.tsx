@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,7 +15,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { GrainTexture } from "@/components/GrainTexture";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -33,14 +33,21 @@ const mobileMenuItemVariants = {
   open: { opacity: 1, y: 0 },
 } as const;
 
-const navItemsConfig = [
-  { labelKey: "navProjects" as const, hash: "#projekty" },
-  { labelKey: "navAbout" as const, path: "/o-mnie" },
+/** The case studies, shown under "Projects" instead of as top-level items. */
+const projectItemsConfig = [
   { labelKey: "navFotarobota" as const, path: "/projekty/fotarobota" },
   { labelKey: "navQuantumOm" as const, path: "/projekty/quantum-om" },
   { labelKey: "navCharon" as const, path: "/projekty/charon" },
+] as const;
+
+const navItemsConfig = [
+  { labelKey: "navAbout" as const, path: "/o-mnie" },
   { labelKey: "navBlog" as const, path: "/blog" },
 ] as const;
+
+const desktopLink =
+  "whitespace-nowrap rounded-md px-2.5 py-2 text-[0.9375rem] font-medium transition-colors hover:text-fg";
+const activeLink = "text-fg underline decoration-accent decoration-2 underline-offset-[10px]";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -58,84 +65,127 @@ export function Navbar() {
     }
   };
 
-  const navItems = navItemsConfig.map((item) => ({
-    label: dict.header[item.labelKey],
-    href: "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`,
-  }));
+  const isCurrent = (href: string) => pathname === href || pathname?.startsWith(`${href}/`);
+
+  const projectsHref = `/${localeSegment}#projekty`;
+  const projectItems = projectItemsConfig.map((item) => {
+    const href = `/${localeSegment}${item.path}`;
+    return { label: dict.header[item.labelKey], href, active: isCurrent(href) };
+  });
+  const projectsActive = projectItems.some((item) => item.active);
+
+  const navItems = navItemsConfig.map((item) => {
+    const href = `/${localeSegment}${item.path}`;
+    return { label: dict.header[item.labelKey], href, active: isCurrent(href) };
+  });
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 h-20 w-full md:h-40 print:hidden",
-        "border-b border-zinc-800 bg-black/50 backdrop-blur-md"
+        "sticky top-0 z-50 h-16 w-full md:h-20 print:hidden",
+        "border-b border-border bg-bg/85 backdrop-blur-md"
       )}
       aria-label={dict.header.navAria}
     >
-      <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-5 sm:px-6">
+      <nav className="container-page flex h-full items-center justify-between gap-4">
         <Link
           href={`/${localeSegment}`}
           onClick={handleLogoClick}
-          className="relative z-10 flex flex-shrink-0 items-center transition-opacity hover:opacity-90"
+          className="relative z-10 flex flex-shrink-0 items-center rounded-md"
         >
-          <motion.div
-            whileHover={{ scale: 1.08 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            className="flex items-center"
-          >
-            <Image
-              src="/logo-baluniak.svg"
-              alt="Bałuniak Logo"
-              width={500}
-              height={125}
-              priority
-              className="static h-14 w-auto md:h-32 md:max-w-none"
-            />
-          </motion.div>
+          <Image
+            src="/logo-baluniak.svg"
+            alt="Bałuniak Logo"
+            width={500}
+            height={125}
+            priority
+            className="static h-12 w-auto md:h-16"
+          />
         </Link>
 
-        {/* Desktop: nav + language + Book Call + Build MVP */}
-        <div className="hidden items-center gap-2 md:flex">
-          {navItems.map(({ label, href }) => (
-            <Button key={href} variant="ghost" asChild>
-              <Link
-                href={href}
-                className="text-zinc-300 hover:bg-white/10 hover:text-white"
+        {/* Desktop: projects menu + links + language + book a call (primary) + order (secondary) */}
+        <div className="hidden items-center gap-1 lg:flex">
+          <DropdownMenu.Root modal={false}>
+            <DropdownMenu.Trigger
+              className={cn(
+                desktopLink,
+                "group inline-flex items-center gap-1 outline-none",
+                projectsActive ? activeLink : "text-fg-muted"
+              )}
+            >
+              {dict.header.navProjects}
+              <ChevronDown
+                className="size-4 transition-transform duration-150 group-data-[state=open]:rotate-180"
+                aria-hidden
+              />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                align="start"
+                sideOffset={10}
+                className="card z-[60] min-w-60 p-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
               >
-                {label}
-              </Link>
-            </Button>
+                <DropdownMenu.Item asChild>
+                  <Link
+                    href={projectsHref}
+                    className="flex min-h-10 items-center rounded-sm px-3 text-[0.9375rem] text-fg-muted outline-none data-[highlighted]:bg-surface-2 data-[highlighted]:text-fg"
+                  >
+                    {dict.projects.allProjects}
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="my-1.5 h-px bg-border" />
+                {projectItems.map(({ label, href, active }) => (
+                  <DropdownMenu.Item key={href} asChild>
+                    <Link
+                      href={href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex min-h-10 items-center rounded-sm px-3 font-display text-[0.9375rem] font-semibold outline-none data-[highlighted]:bg-surface-2 data-[highlighted]:text-fg",
+                        active ? "text-accent" : "text-fg"
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
+          {navItems.map(({ label, href, active }) => (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={cn(desktopLink, active ? activeLink : "text-fg-muted")}
+            >
+              {label}
+            </Link>
           ))}
-          <LanguageSwitcher />
-          <Button asChild size="default" className="border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500 hover:shadow-[0_0_22px_rgba(37,99,235,0.5)]">
+          <div className="ml-2">
+            <LanguageSwitcher />
+          </div>
+          <Button asChild size="sm" className="ml-2">
             <Link href={`/${localeSegment}#contact`}>
               {dict.header.bookCall}
             </Link>
           </Button>
-          <Button asChild size="default" className="ml-1">
-            <Link
-              href={`/${localeSegment}/kreator`}
-              className="bg-emerald-600 font-semibold text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white"
-            >
-              <motion.span
-                className="inline-block"
-                animate={{ opacity: [1, 0.85, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                {dict.header.cta}
-              </motion.span>
+          <Button asChild size="sm" variant="secondary" className="ml-1">
+            <Link href={`/${localeSegment}/kreator`}>
+              {dict.header.cta}
             </Link>
           </Button>
         </div>
 
         {/* Mobile: language + burger (thumb-friendly spacing) */}
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <LanguageSwitcher />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="min-h-12 min-w-12 text-zinc-300 hover:bg-white/10 hover:text-white"
+                className="text-fg-muted hover:bg-surface-2 hover:text-fg hover:no-underline"
                 aria-label={dict.header.openMenu}
               >
                 <Menu className="size-6" />
@@ -143,71 +193,99 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="border-white/10 bg-zinc-950/95 backdrop-blur-xl"
+              className="overflow-y-auto border-border bg-bg"
             >
-              <div className="relative flex h-full flex-col">
-                <GrainTexture opacity={0.09} position="absolute" className="z-0" />
-                <div className="relative z-10 flex flex-1 flex-col">
-                  <SheetHeader>
-                    <SheetTitle className="text-left text-zinc-100">
-                      {dict.header.menu}
-                    </SheetTitle>
-                  </SheetHeader>
-                  <motion.div
-                    className="mt-6 flex flex-col gap-1"
-                    variants={mobileMenuListVariants}
-                    initial="closed"
-                    animate={open ? "open" : "closed"}
-                  >
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button variant="ghost" asChild className="w-full justify-start">
-                        <Link
-                          href={`/${localeSegment}`}
-                          onClick={() => setOpen(false)}
-                          className="text-zinc-300"
-                        >
-                          {dict.header.home}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    {navItems.map(({ label, href }) => (
-                      <motion.div key={href} variants={mobileMenuItemVariants}>
-                        <Button variant="ghost" asChild className="w-full justify-start">
-                          <Link
-                            href={href}
-                            onClick={() => setOpen(false)}
-                            className="text-zinc-300"
-                          >
-                            {label}
-                          </Link>
-                        </Button>
-                      </motion.div>
-                    ))}
-                    <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-white/10 pt-4">
-                      <LanguageSwitcher inSheet />
-                    </motion.div>
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full border-0 bg-blue-600 font-semibold text-white shadow-[0_0_18px_rgba(37,99,235,0.4)] hover:bg-blue-500">
-                        <Link
-                          href={`/${localeSegment}#contact`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {dict.header.bookCall}
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    <motion.div variants={mobileMenuItemVariants}>
-                      <Button asChild size="lg" className="w-full bg-emerald-600 font-semibold text-emerald-50 hover:bg-emerald-500 hover:text-white">
-                        <Link
-                          href={`/${localeSegment}/kreator`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {dict.header.cta}
-                        </Link>
-                      </Button>
-                    </motion.div>
+              <div className="flex h-full flex-col">
+                <SheetHeader>
+                  <SheetTitle className="text-left text-h4 text-fg">
+                    {dict.header.menu}
+                  </SheetTitle>
+                </SheetHeader>
+                <motion.div
+                  className="mt-2 flex flex-col gap-1 px-4 pb-6"
+                  variants={mobileMenuListVariants}
+                  initial="closed"
+                  animate={open ? "open" : "closed"}
+                >
+                  <motion.div variants={mobileMenuItemVariants}>
+                    <Link
+                      href={`/${localeSegment}`}
+                      onClick={() => setOpen(false)}
+                      className="flex min-h-12 items-center rounded-md px-3 text-base font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+                    >
+                      {dict.header.home}
+                    </Link>
                   </motion.div>
-                </div>
+
+                  {/* Projects, with the case studies nested under them */}
+                  <motion.div variants={mobileMenuItemVariants}>
+                    <Link
+                      href={projectsHref}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex min-h-12 items-center rounded-md px-3 text-base font-medium transition-colors hover:bg-surface-2 hover:text-fg",
+                        projectsActive ? "text-fg" : "text-fg-muted"
+                      )}
+                    >
+                      {dict.header.navProjects}
+                    </Link>
+                    <div className="ml-3 flex flex-col border-l border-border pl-2">
+                      {projectItems.map(({ label, href, active }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setOpen(false)}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "flex min-h-11 items-center rounded-md px-3 text-[0.9375rem] transition-colors hover:bg-surface-2 hover:text-fg",
+                            active ? "text-accent" : "text-fg-subtle"
+                          )}
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {navItems.map(({ label, href, active }) => (
+                    <motion.div key={href} variants={mobileMenuItemVariants}>
+                      <Link
+                        href={href}
+                        onClick={() => setOpen(false)}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "flex min-h-12 items-center rounded-md px-3 text-base font-medium transition-colors hover:bg-surface-2 hover:text-fg",
+                          active ? "text-fg" : "text-fg-muted"
+                        )}
+                      >
+                        {label}
+                      </Link>
+                    </motion.div>
+                  ))}
+                  <motion.div variants={mobileMenuItemVariants} className="mt-4 border-t border-border pt-4">
+                    <LanguageSwitcher inSheet />
+                  </motion.div>
+                  <motion.div variants={mobileMenuItemVariants} className="mt-4">
+                    <Button asChild size="lg" className="w-full">
+                      <Link
+                        href={`/${localeSegment}#contact`}
+                        onClick={() => setOpen(false)}
+                      >
+                        {dict.header.bookCall}
+                      </Link>
+                    </Button>
+                  </motion.div>
+                  <motion.div variants={mobileMenuItemVariants} className="mt-2">
+                    <Button asChild size="lg" variant="secondary" className="w-full">
+                      <Link
+                        href={`/${localeSegment}/kreator`}
+                        onClick={() => setOpen(false)}
+                      >
+                        {dict.header.cta}
+                      </Link>
+                    </Button>
+                  </motion.div>
+                </motion.div>
               </div>
             </SheetContent>
           </Sheet>

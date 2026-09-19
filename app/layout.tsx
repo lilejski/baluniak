@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
-import { BackgroundGrid } from "@/components/BackgroundGrid";
-import { GrainTexture } from "@/components/GrainTexture";
+import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,14 +7,28 @@ export const metadata: Metadata = {
   description: 'Moje portfolio i projekty',
 };
 
-const inter = Inter({
-  variable: "--font-inter",
+// Headings. Variable font: one file covers the 600 and 700 weights used, plus
+// the optical-size and width axes the display headings are tuned with.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
+  axes: ["opsz", "wdth"],
 });
 
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
+// Body, UI, navigation, buttons and forms.
+const instrument = Instrument_Sans({
+  variable: "--font-instrument",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
+
+// Code in articles and small numbers only.
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export default function RootLayout({
@@ -27,23 +39,9 @@ export default function RootLayout({
   return (
     <html lang="pl" className="dark" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${robotoMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}
+        className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable} min-h-screen bg-bg font-sans text-fg antialiased`}
       >
-        <BackgroundGrid color="39, 39, 39" opacity={0.15} variant="lines" />
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 z-0 print:hidden"
-          style={{
-            background: `
-              radial-gradient(ellipse 140% 90% at 50% -10%, rgba(9,9,11,0.92) 0%, rgba(9,9,11,0.6) 40%, transparent 65%),
-              radial-gradient(ellipse 130% 80% at 50% 120%, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 45%, transparent 75%),
-              radial-gradient(circle at 15% 0%, rgba(16,185,129,0.12), transparent 55%),
-              radial-gradient(circle at 85% 100%, rgba(16,185,129,0.08), transparent 55%)
-            `,
-          }}
-        />
-        <div className="relative z-10">{children}</div>
-        <GrainTexture opacity={0.06} className="z-[100] print:hidden" />
+        <div className="relative">{children}</div>
       </body>
     </html>
   );

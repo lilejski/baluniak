@@ -192,9 +192,9 @@ export default function KreatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-[max(3rem,env(safe-area-inset-bottom))] text-zinc-100">
-      <div ref={topRef} className="mx-auto max-w-2xl px-5 py-10 sm:px-6 sm:py-14">
-        <Button variant="ghost" size="sm" asChild className="mb-8 -ml-3 text-zinc-500 hover:text-zinc-300">
+    <div className="min-h-screen bg-bg pb-[max(3rem,env(safe-area-inset-bottom))]">
+      <div ref={topRef} className="container-article page-top">
+        <Button variant="ghost" size="sm" asChild className="-ml-4 mb-8">
           <Link href={`/${localeSegment}`} className="inline-flex items-center gap-2">
             <ArrowLeft className="size-4" />
             baluniak.com
@@ -203,23 +203,23 @@ export default function KreatorPage() {
 
         {stage !== "done" && (
           <header className="mb-10">
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-emerald-400/80">
+            <p className="eyebrow-muted">
               {copy.eyebrow}
             </p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-zinc-100 text-balance sm:text-4xl">
+            <h1 className="text-h1 mt-3">
               {copy.title}
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base">
+            <p className="text-lead mt-4 text-fg-muted">
               {copy.subtitle}
             </p>
 
             {serviceId && stage !== "service" && (
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/60 py-1 pl-3 pr-1 text-sm">
-                <span className="text-zinc-300">{serviceLabel}</span>
+              <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-border bg-surface py-1 pl-3 pr-1 text-sm">
+                <span className="text-fg">{serviceLabel}</span>
                 <button
                   type="button"
                   onClick={startOver}
-                  className="rounded-full px-2.5 py-1 text-xs text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                  className="min-h-9 rounded-sm px-2.5 text-sm text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
                 >
                   {copy.changeService}
                 </button>
@@ -240,8 +240,8 @@ export default function KreatorPage() {
               animate={{ opacity: 1 }}
               className="flex min-h-64 flex-col items-center justify-center gap-4 text-center"
             >
-              <LoaderCircle className="size-7 animate-spin text-emerald-500" aria-hidden />
-              <p className="text-sm text-zinc-500">{copy.thinking}</p>
+              <LoaderCircle className="size-7 animate-spin text-accent" aria-hidden />
+              <p className="text-base text-fg-muted">{copy.thinking}</p>
             </motion.div>
           ) : stage === "service" ? (
             <motion.div key="service" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -288,26 +288,26 @@ export default function KreatorPage() {
               transition={{ duration: 0.45 }}
               className="py-6 text-center"
             >
-              <div className="mx-auto flex size-16 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10">
-                <CircleCheck className="size-8 text-emerald-400" aria-hidden />
+              <div className="mx-auto flex size-16 items-center justify-center rounded-full border border-border-strong">
+                <CircleCheck className="size-8 text-accent" strokeWidth={1.5} aria-hidden />
               </div>
-              <h1 className="mt-7 text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl">
+              <h1 className="text-h1 mt-7">
                 {copy.doneTitle}
               </h1>
-              <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-fg-muted">
                 {copy.doneBody}
               </p>
               {confirmationSent && (
-                <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-xs text-zinc-500">
+                <p className="mt-5 inline-flex items-center gap-2 rounded-md border border-border bg-surface px-4 py-2 text-sm text-fg-muted">
                   <Mail className="size-3.5 shrink-0" aria-hidden />
                   {copy.doneMeta}
                 </p>
               )}
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-                <Button asChild className="bg-emerald-600 hover:bg-emerald-500">
+                <Button asChild>
                   <Link href={`/${localeSegment}`}>baluniak.com</Link>
                 </Button>
-                <Button variant="ghost" onClick={startOver} className="text-zinc-400 hover:text-zinc-200">
+                <Button variant="ghost" onClick={startOver}>
                   {copy.startOver}
                 </Button>
               </div>

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Linkedin, ArrowRight } from "lucide-react";
+import { Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Footer() {
@@ -14,65 +14,50 @@ export function Footer() {
     <>
       {/* Pre-Footer CTA */}
       <section
-        className="relative z-10 border-t border-zinc-800 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-5 py-14 sm:px-6 md:py-16 print:hidden"
+        className="relative border-t border-border bg-bg section-y print:hidden"
         aria-labelledby="prefooter-cta-heading"
       >
-        <div className="mx-auto max-w-2xl text-center">
-          <h2
+        <div className="container-page flex flex-col items-center">
+          <SectionHeading
             id="prefooter-cta-heading"
-            className="text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl"
-          >
-            {copy.preCtaHeader}
-          </h2>
-          <p className="mt-3 text-base leading-relaxed text-zinc-400 sm:text-lg">
-            {copy.preCtaSubtext}
-          </p>
-          <div className="mt-8 flex justify-center">
-            <Button
-              asChild
-              size="lg"
-              className="min-h-14 min-w-[220px] bg-emerald-600 px-8 text-base font-semibold text-emerald-50 shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_28px_rgba(16,185,129,0.4)]"
-            >
-              <Link href={`/${localeSegment}/kreator`}>
-                {copy.preCtaButton}
-                <ArrowRight className="ml-2 size-5 shrink-0" />
-              </Link>
-            </Button>
-          </div>
+            align="center"
+            title={copy.preCtaHeader}
+            lead={copy.preCtaSubtext}
+          />
+          <Button asChild size="lg" className="mt-8 w-full sm:w-auto">
+            <Link href={`/${localeSegment}/kreator`}>
+              {copy.preCtaButton}
+            </Link>
+          </Button>
         </div>
       </section>
 
       {/* Footer — 3-column grid */}
-      <footer className="relative z-10 border-t border-zinc-800 bg-zinc-950 pb-[env(safe-area-inset-bottom)] print:hidden">
-        <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 md:py-14">
+      <footer className="relative border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] print:hidden">
+        <div className="container-page py-12 md:py-16">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
             {/* Col 1: Brand + tagline */}
             <div className="space-y-3">
-              <p className="font-bold tracking-tight text-zinc-100">
+              <p className="font-display text-lg font-semibold tracking-tight text-fg">
                 BALUNIAK.COM
               </p>
-              <p className="text-sm font-medium text-emerald-400/90">
+              <p className="max-w-[38ch] text-[0.9375rem] leading-relaxed text-fg-muted">
                 {copy.productEngineerTagline}
               </p>
-              <motion.p
-                layout
-                className="text-sm leading-relaxed text-zinc-500"
-              >
+              <p className="max-w-[38ch] text-sm leading-relaxed text-fg-subtle">
                 {copy.brandTagline}
-              </motion.p>
+              </p>
             </div>
 
             {/* Col 2: Quick Links */}
             <div>
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                {copy.navTitle}
-              </p>
-              <ul className="space-y-2">
+              <p className="eyebrow-muted mb-2">{copy.navTitle}</p>
+              <ul>
                 {copy.quickLinks.map((item) => (
                   <li key={item.label}>
                     <Link
                       href={`/${localeSegment}${item.href}`}
-                      className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+                      className="inline-flex min-h-11 items-center text-[0.9375rem] text-fg-muted transition-colors hover:text-fg"
                     >
                       {item.label}
                     </Link>
@@ -83,29 +68,41 @@ export function Footer() {
 
             {/* Col 3: Social + Email */}
             <div>
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                {copy.contactTitle}
-              </p>
-              <div className="flex flex-wrap items-center gap-4">
+              <p className="eyebrow-muted mb-2">{copy.contactTitle}</p>
+              <div className="flex flex-wrap items-center">
                 <a
                   href={copy.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                  className="-ml-3 inline-flex size-11 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
                   aria-label="LinkedIn"
                 >
-                  <Linkedin className="size-5" />
+                  <Linkedin className="size-5" strokeWidth={1.5} />
                 </a>
               </div>
-              <p className="mt-4">
+              <p>
                 <a
                   href={`mailto:${copy.email}`}
-                  className="text-sm text-zinc-400 transition-colors hover:text-emerald-400"
+                  className="inline-flex min-h-11 items-center text-[0.9375rem] text-fg-muted transition-colors hover:text-fg"
                 >
                   {copy.email}
                 </a>
               </p>
             </div>
+          </div>
+
+          {/* Signature: the name set large in outline, cropped by the page edge */}
+          <div aria-hidden className="pointer-events-none mt-14 select-none overflow-hidden md:mt-20">
+            <p
+              className="translate-y-[22%] whitespace-nowrap font-display font-bold leading-[0.8] text-transparent"
+              style={{
+                fontSize: "clamp(4.5rem, 19vw, 15.5rem)",
+                letterSpacing: "-0.045em",
+                WebkitTextStroke: "1px var(--border-strong)",
+              }}
+            >
+              baluniak
+            </p>
           </div>
         </div>
       </footer>
