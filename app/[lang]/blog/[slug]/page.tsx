@@ -18,7 +18,7 @@ const COPY = {
     read: "Czytaj dalej",
     related: "Przeczytaj również",
     ctaTitle: "Masz podobny problem u siebie?",
-    ctaBody: "Opisz go własnymi słowami — kilka prostych pytań, bez żargonu i bez zobowiązań.",
+    ctaBody: "Opisz go własnymi słowami — kilka prostych pytań, bez zobowiązań.",
     ctaButton: "Przejdź do kreatora",
   },
   en: {
@@ -27,7 +27,7 @@ const COPY = {
     read: "Read on",
     related: "Read next",
     ctaTitle: "Facing something similar?",
-    ctaBody: "Describe it in your own words — a few plain questions, no jargon, no commitment.",
+    ctaBody: "Describe it in your own words — a few plain questions, no commitment.",
     ctaButton: "Open the order builder",
   },
 } as const;

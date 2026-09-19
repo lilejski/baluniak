@@ -793,7 +793,7 @@ const UI_PL = {
     eyebrow: "Kreator zamówienia",
     title: "Powiedz, czego potrzebujesz",
     subtitle:
-      "Kilka prostych pytań, bez fachowego żargonu. Na końcu dostaniesz podsumowanie na maila, a ja odezwę się z propozycją.",
+      "Kilka prostych pytań. Na końcu dostaniesz podsumowanie na maila, a ja odezwę się z propozycją.",
     pickService: "Od czego zaczynamy?",
     pickServiceHint: "Wybierz to, co najbardziej pasuje. Zawsze można zmienić zdanie.",
     stepOf: "Pytanie {current} z {total}",
@@ -842,7 +842,7 @@ const UI_EN: KreatorCopy = {
     eyebrow: "Order builder",
     title: "Tell me what you need",
     subtitle:
-      "A few plain questions, no technical jargon. At the end you get a summary by email, and I come back to you with a proposal.",
+      "A few plain questions. At the end you get a summary by email, and I come back to you with a proposal.",
     pickService: "Where do we start?",
     pickServiceHint: "Pick whatever fits best. You can always change your mind.",
     stepOf: "Question {current} of {total}",

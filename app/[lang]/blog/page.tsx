@@ -14,12 +14,12 @@ const COPY = {
     eyebrow: "Blog",
     title: "Wiedza, która zostaje po rozmowie",
     subtitle:
-      "Konkretnie o stronach, sklepach i automatyzacji — bez żargonu i bez sprzedawania na siłę. Piszę o tym, o co klienci pytają najczęściej.",
+      "Konkretnie o stronach, sklepach i automatyzacji — bez sprzedawania na siłę. Piszę o tym, o co klienci pytają najczęściej.",
     empty: "Pierwsze teksty są w drodze.",
     read: "Czytaj dalej",
     minutes: "min czytania",
     back: "Strona główna",
-    seoTitle: "Blog — strony, sklepy i automatyzacja bez żargonu | BALUNIAK",
+    seoTitle: "Blog — strony, sklepy i automatyzacja dla małych firm | BALUNIAK",
     seoDescription:
       "Praktyczne teksty o nowoczesnych stronach, sklepach internetowych, automatyzacji i wdrożeniach AI w małych firmach. Pisane tak, żeby dało się je zrozumieć.",
   },
@@ -27,12 +27,12 @@ const COPY = {
     eyebrow: "Blog",
     title: "What stays with you after the conversation",
     subtitle:
-      "Straight talk about websites, shops and automation — no jargon, no hard sell. I write about whatever clients ask most often.",
+      "Straight talk about websites, shops and automation — no hard sell. I write about whatever clients ask most often.",
     empty: "The first pieces are on their way.",
     read: "Read on",
     minutes: "min read",
     back: "Home",
-    seoTitle: "Blog — websites, shops and automation without the jargon | BALUNIAK",
+    seoTitle: "Blog — websites, shops and automation for small businesses | BALUNIAK",
     seoDescription:
       "Practical writing about modern websites, online shops, automation and AI for small businesses. Written to be understood.",
   },

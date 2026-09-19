@@ -35,7 +35,7 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
   const { lang, setLang } = useLanguage();
 
   const buttonBase =
-    "flex min-h-11 min-w-11 items-center justify-center rounded-sm transition-colors xl:min-h-9 xl:min-w-9";
+    "flex min-h-11 min-w-11 items-center justify-center rounded-sm transition-colors lg:min-h-9 lg:min-w-9";
 
   return (
     <div

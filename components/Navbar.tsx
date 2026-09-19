@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -32,14 +33,21 @@ const mobileMenuItemVariants = {
   open: { opacity: 1, y: 0 },
 } as const;
 
-const navItemsConfig = [
-  { labelKey: "navProjects" as const, hash: "#projekty" },
-  { labelKey: "navAbout" as const, path: "/o-mnie" },
+/** The case studies, shown under "Projects" instead of as top-level items. */
+const projectItemsConfig = [
   { labelKey: "navFotarobota" as const, path: "/projekty/fotarobota" },
   { labelKey: "navQuantumOm" as const, path: "/projekty/quantum-om" },
   { labelKey: "navCharon" as const, path: "/projekty/charon" },
+] as const;
+
+const navItemsConfig = [
+  { labelKey: "navAbout" as const, path: "/o-mnie" },
   { labelKey: "navBlog" as const, path: "/blog" },
 ] as const;
+
+const desktopLink =
+  "whitespace-nowrap rounded-md px-2.5 py-2 text-[0.9375rem] font-medium transition-colors hover:text-fg";
+const activeLink = "text-fg underline decoration-accent decoration-2 underline-offset-[10px]";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -57,11 +65,18 @@ export function Navbar() {
     }
   };
 
+  const isCurrent = (href: string) => pathname === href || pathname?.startsWith(`${href}/`);
+
+  const projectsHref = `/${localeSegment}#projekty`;
+  const projectItems = projectItemsConfig.map((item) => {
+    const href = `/${localeSegment}${item.path}`;
+    return { label: dict.header[item.labelKey], href, active: isCurrent(href) };
+  });
+  const projectsActive = projectItems.some((item) => item.active);
+
   const navItems = navItemsConfig.map((item) => {
-    const href = "path" in item ? `/${localeSegment}${item.path}` : `/${localeSegment}${item.hash}`;
-    // Only real routes can be "current"; in-page anchors never are.
-    const active = "path" in item && (pathname === href || pathname?.startsWith(`${href}/`));
-    return { label: dict.header[item.labelKey], href, active };
+    const href = `/${localeSegment}${item.path}`;
+    return { label: dict.header[item.labelKey], href, active: isCurrent(href) };
   });
 
   return (
@@ -88,19 +103,61 @@ export function Navbar() {
           />
         </Link>
 
-        {/* Desktop: nav + language + book a call (primary) + order (secondary) */}
-        <div className="hidden items-center gap-1 xl:flex">
+        {/* Desktop: projects menu + links + language + book a call (primary) + order (secondary) */}
+        <div className="hidden items-center gap-1 lg:flex">
+          <DropdownMenu.Root modal={false}>
+            <DropdownMenu.Trigger
+              className={cn(
+                desktopLink,
+                "group inline-flex items-center gap-1 outline-none",
+                projectsActive ? activeLink : "text-fg-muted"
+              )}
+            >
+              {dict.header.navProjects}
+              <ChevronDown
+                className="size-4 transition-transform duration-150 group-data-[state=open]:rotate-180"
+                aria-hidden
+              />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                align="start"
+                sideOffset={10}
+                className="card z-[60] min-w-60 p-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+              >
+                <DropdownMenu.Item asChild>
+                  <Link
+                    href={projectsHref}
+                    className="flex min-h-10 items-center rounded-sm px-3 text-[0.9375rem] text-fg-muted outline-none data-[highlighted]:bg-surface-2 data-[highlighted]:text-fg"
+                  >
+                    {dict.projects.allProjects}
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="my-1.5 h-px bg-border" />
+                {projectItems.map(({ label, href, active }) => (
+                  <DropdownMenu.Item key={href} asChild>
+                    <Link
+                      href={href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex min-h-10 items-center rounded-sm px-3 font-display text-[0.9375rem] font-semibold outline-none data-[highlighted]:bg-surface-2 data-[highlighted]:text-fg",
+                        active ? "text-accent" : "text-fg"
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
           {navItems.map(({ label, href, active }) => (
             <Link
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={cn(
-                "whitespace-nowrap rounded-md px-2.5 py-2 text-[0.9375rem] font-medium transition-colors hover:text-fg",
-                active
-                  ? "text-fg underline decoration-accent decoration-2 underline-offset-[10px]"
-                  : "text-fg-muted"
-              )}
+              className={cn(desktopLink, active ? activeLink : "text-fg-muted")}
             >
               {label}
             </Link>
@@ -121,7 +178,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile: language + burger (thumb-friendly spacing) */}
-        <div className="flex items-center gap-2 xl:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <LanguageSwitcher />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -136,7 +193,7 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="border-border bg-bg"
+              className="overflow-y-auto border-border bg-bg"
             >
               <div className="flex h-full flex-col">
                 <SheetHeader>
@@ -145,7 +202,7 @@ export function Navbar() {
                   </SheetTitle>
                 </SheetHeader>
                 <motion.div
-                  className="mt-2 flex flex-col gap-1 px-4"
+                  className="mt-2 flex flex-col gap-1 px-4 pb-6"
                   variants={mobileMenuListVariants}
                   initial="closed"
                   animate={open ? "open" : "closed"}
@@ -159,6 +216,37 @@ export function Navbar() {
                       {dict.header.home}
                     </Link>
                   </motion.div>
+
+                  {/* Projects, with the case studies nested under them */}
+                  <motion.div variants={mobileMenuItemVariants}>
+                    <Link
+                      href={projectsHref}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex min-h-12 items-center rounded-md px-3 text-base font-medium transition-colors hover:bg-surface-2 hover:text-fg",
+                        projectsActive ? "text-fg" : "text-fg-muted"
+                      )}
+                    >
+                      {dict.header.navProjects}
+                    </Link>
+                    <div className="ml-3 flex flex-col border-l border-border pl-2">
+                      {projectItems.map(({ label, href, active }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setOpen(false)}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "flex min-h-11 items-center rounded-md px-3 text-[0.9375rem] transition-colors hover:bg-surface-2 hover:text-fg",
+                            active ? "text-accent" : "text-fg-subtle"
+                          )}
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+
                   {navItems.map(({ label, href, active }) => (
                     <motion.div key={href} variants={mobileMenuItemVariants}>
                       <Link

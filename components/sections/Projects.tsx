@@ -25,8 +25,11 @@ export function Projects() {
       <div className="container-page">
         <SectionHeading id="projects-heading" title={p.sectionTitle} />
 
-        {/* Fotarobota: image above the text on mobile, side by side from md */}
-        <div className="card mt-10 overflow-hidden md:grid md:grid-cols-2">
+        {/* Fotarobota: the whole card is the link, like every other project card */}
+        <Link
+          href={`/${localeSegment}/projekty/fotarobota`}
+          className="card card-interactive mt-10 block overflow-hidden md:grid md:grid-cols-2"
+        >
           <div className="p-3 md:p-4">
             <div className="relative aspect-video w-full overflow-hidden rounded-md border border-border md:aspect-auto md:h-full md:min-h-[320px]">
               <Image
@@ -44,37 +47,19 @@ export function Projects() {
             <p className="mt-1 text-sm text-fg-subtle">{p.fotarobotaSubtitle}</p>
             <p className="mt-3 text-base leading-relaxed text-fg-muted">{p.fotarobotaDesc}</p>
             <TechLine items={techLabels(p.fotarobotaTech)} className="mt-3" />
-            <Button variant="secondary" size="sm" asChild className="mt-6 w-fit">
-              <Link href={`/${localeSegment}/projekty/fotarobota`}>
-                {p.caseStudyCta}
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Other projects */}
-        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {/* Featured article: moving off WordPress */}
-          <Link
-            href={`/${localeSegment}/blog/dlaczego-warto-porzucic-wordpress-dla-nextjs`}
-            className="card card-interactive flex h-full flex-col p-5 md:p-7"
-          >
-            <p className="eyebrow">{p.wpMigrationBadge}</p>
-            <h3 className="text-h3 mt-2">{p.wpMigrationTitle}</h3>
-            <p className="mt-3 text-base leading-relaxed text-fg-muted">{p.wpMigrationDesc}</p>
-            <p className="mt-2 text-sm text-fg-subtle">{p.wpMigrationExtra}</p>
-            <TechLine items={techLabels(p.wpMigrationTech)} className="mt-3" />
-            <div className="mt-auto pt-6">
+            <div className="pt-6">
               <Button variant="secondary" size="sm" className="w-fit" asChild>
                 <span>
-                  {p.wpMigrationCta}
+                  {p.caseStudyCta}
                   <ArrowRight className="size-4" aria-hidden />
                 </span>
               </Button>
             </div>
-          </Link>
+          </div>
+        </Link>
 
+        {/* Other projects */}
+        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Quantum OM */}
           <Link
             href={`/${localeSegment}/projekty/quantum-om`}
@@ -95,14 +80,14 @@ export function Projects() {
             </div>
           </Link>
 
-          {/* Charon — full width */}
+          {/* Charon */}
           <Link
             href={`/${localeSegment}/projekty/charon`}
-            className="card card-interactive flex h-full flex-col p-5 md:col-span-2 md:p-7"
+            className="card card-interactive flex h-full flex-col p-5 md:p-7"
           >
             <p className="eyebrow">{p.caseStudyTag}</p>
             <h3 className="text-h3 mt-2">Charon</h3>
-            <p className="mt-3 max-w-[65ch] text-base leading-relaxed text-fg-muted">{p.charonDesc}</p>
+            <p className="mt-3 text-base leading-relaxed text-fg-muted">{p.charonDesc}</p>
             <p className="mt-2 text-sm text-fg-subtle">{p.charonSubtitle}</p>
             <TechLine items={techLabels(p.charonTech)} className="mt-3" />
             <div className="mt-auto pt-6">
