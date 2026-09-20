@@ -831,6 +831,9 @@ const UI_PL = {
     errorRequired: "To pole jest potrzebne.",
     errorEmail: "Proszę sprawdzić poprawność adresu.",
     errorSend: "Nie udało się wysłać. Proszę spróbować ponownie za chwilę.",
+    errorSendBusy: "Za dużo prób pod rząd. Proszę spróbować ponownie za kilka minut.",
+    errorSendUnavailable:
+      "Wysyłka poczty jest chwilowo niedostępna. Proszę napisać na lukasz@baluniak.com — zgłoszenie nie przepadnie.",
     doneTitle: "Gotowe — zgłoszenie wysłane",
     doneBody:
       "Podsumowanie trafiło na podany adres. Przeczytam je i odezwę się w ciągu 24 godzin z propozycją realizacji.",
@@ -880,6 +883,9 @@ const UI_EN: KreatorCopy = {
     errorRequired: "This one is needed.",
     errorEmail: "Check that the address is right.",
     errorSend: "Sending failed. Please try again in a moment.",
+    errorSendBusy: "Too many attempts in a row. Please try again in a few minutes.",
+    errorSendUnavailable:
+      "Mail sending is temporarily unavailable. Please write to lukasz@baluniak.com — your enquiry will not be lost.",
     doneTitle: "Done — your enquiry is on its way",
     doneBody:
       "The summary has landed in your inbox. I'll read it and come back within 24 hours with how I'd approach it.",

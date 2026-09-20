@@ -13,7 +13,7 @@ const FROM = "Łukasz Bałuniak <lukasz@baluniak.com>";
 const OWNER_EMAIL = "lukasz@baluniak.com";
 
 const bodySchema = z.object({
-  lang: z.enum(["PL", "EN"]),
+  lang: z.enum(["PL", "EN", "DE"]),
   serviceId: z.enum([
     "website",
     "shop",
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
   const limit = rateLimit(clientKey(req, "kreator-submit"), 5, 10 * 60_000);
   if (!limit.ok) {
     return NextResponse.json(
-      { error: "Too many requests" },
+      { error: "Too many requests", code: "rate-limited" },
       { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
     );
   }
@@ -76,13 +76,13 @@ export async function POST(req: Request) {
   try {
     parsed = bodySchema.parse(await req.json());
   } catch {
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return NextResponse.json({ error: "Bad request", code: "invalid" }, { status: 400 });
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error("[kreator/submit] RESEND_API_KEY is not set");
-    return NextResponse.json({ error: "Mail transport unavailable" }, { status: 503 });
+    return NextResponse.json({ error: "Mail transport unavailable", code: "transport" }, { status: 503 });
   }
 
   const order: OrderPayload = {
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
 
     if (owner.error) {
       console.error("[kreator/submit] owner email failed:", owner.error);
-      return NextResponse.json({ error: "Send failed" }, { status: 502 });
+      return NextResponse.json({ error: "Send failed", code: "transport" }, { status: 502 });
     }
 
     const confirmation = await resend.emails.send({
@@ -128,6 +128,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, confirmationSent: true });
   } catch (err) {
     console.error("[kreator/submit]", err);
-    return NextResponse.json({ error: "Send failed" }, { status: 500 });
+    return NextResponse.json({ error: "Send failed", code: "transport" }, { status: 500 });
   }
 }

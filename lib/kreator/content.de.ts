@@ -416,6 +416,9 @@ export const UI_DE = {
   errorRequired: "Dieses Feld wird gebraucht.",
   errorEmail: "Bitte prüfen, ob die Adresse stimmt.",
   errorSend: "Senden fehlgeschlagen. Bitte gleich noch einmal versuchen.",
+  errorSendBusy: "Zu viele Versuche hintereinander. Bitte in einigen Minuten erneut versuchen.",
+  errorSendUnavailable:
+    "Der Mailversand ist vorübergehend nicht verfügbar. Bitte schreiben Sie an lukasz@baluniak.com — Ihre Anfrage geht nicht verloren.",
   doneTitle: "Fertig — die Anfrage ist unterwegs",
   doneBody:
     "Die Zusammenfassung liegt in Ihrem Postfach. Ich lese sie und melde mich innerhalb von 24 Stunden mit einem Vorschlag zur Umsetzung.",
