@@ -169,13 +169,20 @@ export default function CharonCaseStudyPage() {
                 variants={itemVariants}
                 className={cn("card overflow-hidden p-3", shot.wide && "sm:col-span-2")}
               >
+                {/*
+                  Screenshots of dense UI text: never scaled above their own
+                  pixels, and served untouched. Next's optimiser re-encodes
+                  them lossily, which smears thin type on a dark background —
+                  and these files are already small and correctly sized.
+                */}
                 <Image
                   src={shot.src}
                   alt={c[shot.caption]}
                   width={shot.width}
                   height={shot.height}
-                  className="h-auto w-full rounded-md border border-border"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
+                  unoptimized
+                  style={{ maxWidth: shot.width }}
+                  className="mx-auto h-auto w-full rounded-md border border-border"
                 />
                 <figcaption className="px-1 pb-1 pt-3 text-sm leading-relaxed text-fg-subtle">
                   {c[shot.caption]}
