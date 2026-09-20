@@ -593,6 +593,8 @@ export const DE = {
     successHint: "Bitte unten im Kalender einen Termin wählen.",
     guarantee: "Garantierte Antwort innerhalb von 12 Stunden oder ein kostenloses Beratungsgespräch.",
     calendarTitle: "Termin direkt buchen",
+    calendarToggleLead: "Lieber sprechen?",
+    calendarToggleButton: "Termin wählen",
     calendarLoadError: "Der Kalender konnte nicht geladen werden. Schreiben Sie mir direkt an",
     errorName: "Bitte Name oder Firma angeben",
     errorEmail: "Bitte eine gültige E-Mail-Adresse angeben",
@@ -698,6 +700,7 @@ export const DE = {
     certUrl: "https://cdn.umiejetnoscijutra.pl/certificates/f60d74f1-5530-481d-8cc0-b1e5d661cf11",
     contactTitle: "Kontakt",
     contactLead: "Am schnellsten per E-Mail. Antwort innerhalb von 24 Stunden.",
+    bookCallCta: "Kurzes Gespräch buchen",
     clientsLink: "Auf der Suche nach Umsetzung für Ihr Unternehmen? Zum Angebot",
   },
   seo: {

@@ -596,6 +596,8 @@ export const translations = {
       successHint: "Termin można zarezerwować w kalendarzu poniżej.",
       guarantee: "Gwarantowana odpowiedź w 12h lub darmowa konsultacja.",
       calendarTitle: "Zarezerwuj termin bezpośrednio",
+      calendarToggleLead: "Wolisz porozmawiać?",
+      calendarToggleButton: "Wybierz termin",
       calendarLoadError: "Kalendarz nie mógł zostać załadowany. Kontakt bezpośredni:",
       errorName: "Proszę podać imię lub nazwę firmy",
       errorEmail: "Proszę podać poprawny adres e-mail",
@@ -701,6 +703,7 @@ export const translations = {
       certUrl: "https://cdn.umiejetnoscijutra.pl/certificates/f60d74f1-5530-481d-8cc0-b1e5d661cf11",
       contactTitle: "Kontakt",
       contactLead: "Najszybciej mailem. Odpowiadam w ciągu 24 godzin.",
+      bookCallCta: "Umów krótką rozmowę",
       clientsLink: "Potrzebna realizacja dla firmy? Zobacz ofertę",
     },
     seo: {
@@ -1310,6 +1313,8 @@ export const translations = {
       successHint: "Go to the calendar below and book a slot.",
       guarantee: "Guaranteed response within 12h or a free consultation.",
       calendarTitle: "Book a slot directly",
+      calendarToggleLead: "Prefer to talk it through?",
+      calendarToggleButton: "Pick a slot",
       calendarLoadError: "Calendar could not be loaded. Contact me directly at",
       errorName: "Please enter your name or company",
       errorEmail: "Please enter a valid email",
@@ -1415,6 +1420,7 @@ export const translations = {
       certUrl: "https://cdn.umiejetnoscijutra.pl/certificates/f60d74f1-5530-481d-8cc0-b1e5d661cf11",
       contactTitle: "Contact",
       contactLead: "Email is fastest. I reply within 24 hours.",
+      bookCallCta: "Book a short call",
       clientsLink: "Looking for someone to build for your business? See the services",
     },
     seo: {

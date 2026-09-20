@@ -29,6 +29,10 @@ function getProjectTypeOptions(w: Record<string, string>): { value: ProjectType;
 export function ContactSection() {
     const { dict, lang } = useLanguage();
     const [submitted, setSubmitted] = useState(false);
+    // The calendar is the rarer path, so it costs nothing until someone asks
+    // for it — which also keeps the third-party frame off the home page for
+    // everyone who just fills in the form.
+    const [calendarOpen, setCalendarOpen] = useState(false);
     const calRef = useRef<HTMLDivElement>(null);
     const fp = dict.formPlaceholders;
     const w = dict.wspolpraca;
@@ -74,7 +78,12 @@ export function ContactSection() {
             setSubmitted(true);
             track("generate_lead", { form: "contact", project_type: data.projectType });
             reset({ name: "", email: "", projectType: undefined, message: "" });
-            calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            // The confirmation invites them to book a time, so the calendar
+            // had better be open by the time they get there.
+            setCalendarOpen(true);
+            requestAnimationFrame(() => {
+                calRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
         } else {
             alert(json.error ?? w.sendError ?? "Błąd wysyłania.");
         }
@@ -85,8 +94,7 @@ export function ContactSection() {
             <div className="container-page">
                 <SectionHeading title={w.pageTitle} lead={w.pageSubtitle} />
 
-                {/* Mobile: the form first, the calendar below it */}
-                <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
+                <div className="mx-auto mt-10 w-full max-w-2xl">
                     <div className="min-w-0">
                         <div className="card overflow-hidden">
                             <div className="border-b border-border px-5 py-4 md:px-7">
@@ -193,19 +201,38 @@ export function ContactSection() {
                         </div>
                     </div>
 
-                    <div ref={calRef} className="min-w-0 flex-1">
-                        <div className="card relative overflow-visible">
-                            <div className="flex items-center gap-2.5 border-b border-border px-5 py-4 md:px-7">
-                                <Calendar className="size-5 text-accent" strokeWidth={1.5} aria-hidden />
-                                <span className="text-base font-semibold text-fg">{w.calendarTitle}</span>
+                    <div ref={calRef} className="mt-6 min-w-0">
+                        {calendarOpen ? (
+                            <div className="card relative overflow-visible">
+                                <div className="flex items-center gap-2.5 border-b border-border px-5 py-4 md:px-7">
+                                    <Calendar className="size-5 text-accent" strokeWidth={1.5} aria-hidden />
+                                    <span className="text-base font-semibold text-fg">{w.calendarTitle}</span>
+                                </div>
+                                <div className="relative min-h-[700px] w-full">
+                                    <CalEmbed
+                                        fallbackMessage={w.calendarLoadError}
+                                        fallbackEmail={dict.footer.email}
+                                    />
+                                </div>
                             </div>
-                            <div className="relative min-h-[700px] w-full">
-                                <CalEmbed
-                                    fallbackMessage={w.calendarLoadError}
-                                    fallbackEmail={dict.footer.email}
-                                />
+                        ) : (
+                            <div className="card flex flex-col items-center gap-4 p-5 text-center sm:flex-row sm:justify-between sm:p-6 sm:text-left">
+                                <p className="text-base text-fg-muted">{w.calendarToggleLead}</p>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="w-full sm:w-auto"
+                                    onClick={() => {
+                                        setCalendarOpen(true);
+                                        track("calendar_open", { form: "contact" });
+                                    }}
+                                >
+                                    <Calendar className="size-4" strokeWidth={1.5} aria-hidden />
+                                    {w.calendarToggleButton}
+                                </Button>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

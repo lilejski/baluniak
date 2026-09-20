@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toLocale } from "@/lib/i18n";
+import { CAL_LINK, CAL_ORIGIN } from "@/lib/cal";
 
-const CAL_ORIGIN = "https://cal.com";
-const CAL_LINK = "łukasz-bałuniak-wafkto/30min";
 const PRIMARY_COLOR = "#3DCB8B";
 
 type CalEmbedProps = {

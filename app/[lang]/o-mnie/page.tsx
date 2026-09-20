@@ -7,6 +7,7 @@ import { TechLine } from "@/components/ui/tech-line";
 import { JsonLd } from "@/components/JsonLd";
 import { PrintButton } from "@/components/PrintButton";
 import { profilePageJsonLd } from "@/lib/structured-data";
+import { CAL_URL } from "@/lib/cal";
 import { translations } from "@/lib/translations";
 import { isLocale, languageAlternates, OG_LOCALE, SITE_URL, toLanguage } from "@/lib/i18n";
 
@@ -105,7 +106,15 @@ export default async function AboutMePage({ params }: Props) {
               <Github className="size-4" aria-hidden />
               GitHub
             </a>
-            <PrintButton label={page.printCta} className={ghostButton} />
+            <a
+            href={CAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ghostButton}
+          >
+            {page.bookCallCta}
+          </a>
+          <PrintButton label={page.printCta} className={ghostButton} />
           </div>
         </div>
       </header>
@@ -238,6 +247,14 @@ export default async function AboutMePage({ params }: Props) {
         <div className="mt-5 flex flex-wrap gap-3">
           <a href={`mailto:${footer.email}`} className={primaryButton}>
             {footer.email}
+          </a>
+          <a
+            href={CAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ghostButton}
+          >
+            {page.bookCallCta}
           </a>
           <PrintButton label={page.printCta} className={ghostButton} />
         </div>
