@@ -7,6 +7,7 @@
  */
 
 import { SITE_URL, type Locale } from "@/lib/i18n";
+import { PHONE_E164 } from "@/lib/contact";
 
 const PERSON_ID = `${SITE_URL}/#person`;
 
@@ -65,6 +66,7 @@ function person(lang: Lang) {
     ...PERSON_CORE,
     image: `${SITE_URL}/og-baluniak.png`,
     jobTitle: JOB_TITLE[lang],
+    telephone: PHONE_E164,
     knowsAbout: KNOWS_ABOUT[lang],
     sameAs: PROFILES,
   };

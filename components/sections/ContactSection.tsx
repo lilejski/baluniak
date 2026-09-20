@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { CalEmbed } from "@/components/CalEmbed";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 
@@ -280,6 +281,17 @@ export function ContactSection() {
                             </div>
                         )}
                     </div>
+
+                    <p className="mt-6 text-center text-base text-fg-muted">
+                        {w.phoneLead}{" "}
+                        <a
+                            href={PHONE_HREF}
+                            className="link-inline whitespace-nowrap font-mono"
+                            onClick={() => track("phone_click", { place: "contact" })}
+                        >
+                            {PHONE_DISPLAY}
+                        </a>
+                    </p>
                 </div>
             </div>
         </section>

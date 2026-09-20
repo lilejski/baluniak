@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Linkedin } from "lucide-react";
+import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/contact";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -86,6 +87,14 @@ export function Footer() {
                   className="inline-flex min-h-11 items-center text-[0.9375rem] text-fg-muted transition-colors hover:text-fg"
                 >
                   {copy.email}
+                </a>
+              </p>
+              <p>
+                <a
+                  href={PHONE_HREF}
+                  className="inline-flex min-h-11 items-center font-mono text-[0.9375rem] text-fg-muted transition-colors hover:text-fg"
+                >
+                  {PHONE_DISPLAY}
                 </a>
               </p>
             </div>

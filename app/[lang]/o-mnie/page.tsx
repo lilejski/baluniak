@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { PrintButton } from "@/components/PrintButton";
 import { profilePageJsonLd } from "@/lib/structured-data";
 import { CAL_URL } from "@/lib/cal";
+import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/contact";
 import { translations } from "@/lib/translations";
 import { isLocale, languageAlternates, OG_LOCALE, SITE_URL, toLanguage } from "@/lib/i18n";
 
@@ -247,6 +248,9 @@ export default async function AboutMePage({ params }: Props) {
         <div className="mt-5 flex flex-wrap gap-3">
           <a href={`mailto:${footer.email}`} className={primaryButton}>
             {footer.email}
+          </a>
+          <a href={PHONE_HREF} className={ghostButton}>
+            {PHONE_DISPLAY}
           </a>
           <a
             href={CAL_URL}

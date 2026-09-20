@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown, Menu, Phone } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,7 @@ import {
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/contact";
 
 const mobileMenuListVariants = {
   closed: { opacity: 0, y: 8 },
@@ -195,20 +196,33 @@ export function Navbar() {
           <div className="ml-2">
             <LanguageSwitcher />
           </div>
-          <Button asChild size="sm" className="ml-2">
-            <Link href={`/${localeSegment}#contact`}>
-              {dict.header.bookCall}
-            </Link>
+          {/*
+            The number replaces the old "book a call" anchor: it does the same
+            job — reach a person — without a scroll and without a calendar.
+          */}
+          <Button asChild size="sm" variant="secondary" className="ml-2">
+            <a href={PHONE_HREF} className="font-mono tracking-tight">
+              <Phone className="size-4" strokeWidth={1.75} aria-hidden />
+              <span className="hidden xl:inline">{PHONE_DISPLAY}</span>
+              <span className="xl:hidden">{dict.header.call}</span>
+            </a>
           </Button>
-          <Button asChild size="sm" variant="secondary" className="ml-1">
+          <Button asChild size="sm" className="ml-1">
             <Link href={`/${localeSegment}/kreator`}>
               {dict.header.cta}
             </Link>
           </Button>
         </div>
 
-        {/* Mobile: language + burger (thumb-friendly spacing) */}
+        {/* Mobile: call, language, burger (thumb-friendly spacing) */}
         <div className="flex items-center gap-2 lg:hidden">
+          <a
+            href={PHONE_HREF}
+            aria-label={`${dict.header.call} ${PHONE_DISPLAY}`}
+            className="flex size-11 items-center justify-center rounded-md border border-border text-fg transition-colors hover:bg-surface-2"
+          >
+            <Phone className="size-5" strokeWidth={1.75} aria-hidden />
+          </a>
           <LanguageSwitcher />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
