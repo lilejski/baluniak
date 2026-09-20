@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, CheckCircle } from "lucide-react";
+import { ArrowRight, Calendar, Check, CheckCircle } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { CalEmbed } from "@/components/CalEmbed";
@@ -16,7 +17,17 @@ import { track } from "@/lib/analytics";
 const PROJECT_TYPE_VALUES = ["program", "strona-internetowa", "konsultacja-ai", "audyt", "inne"] as const;
 type ProjectType = (typeof PROJECT_TYPE_VALUES)[number];
 
-function getProjectTypeOptions(w: Record<string, string>): { value: ProjectType; label: string }[] {
+/** Only the labels the select needs — the rest of the block is not all strings. */
+type ProjectTypeLabels = Record<
+    | "projectTypeMvp80"
+    | "projectTypeStronaInternetowa"
+    | "projectTypeKonsultacjaAi"
+    | "projectTypeAudyt"
+    | "projectTypeInne",
+    string
+>;
+
+function getProjectTypeOptions(w: ProjectTypeLabels): { value: ProjectType; label: string }[] {
     return [
         { value: "program", label: w.projectTypeMvp80 },
         { value: "strona-internetowa", label: w.projectTypeStronaInternetowa },
@@ -27,7 +38,7 @@ function getProjectTypeOptions(w: Record<string, string>): { value: ProjectType;
 }
 
 export function ContactSection() {
-    const { dict, lang } = useLanguage();
+    const { dict, lang, localeSegment } = useLanguage();
     const [submitted, setSubmitted] = useState(false);
     // The calendar is the rarer path, so it costs nothing until someone asks
     // for it — which also keeps the third-party frame off the home page for
@@ -95,6 +106,41 @@ export function ContactSection() {
                 <SectionHeading title={w.pageTitle} lead={w.pageSubtitle} />
 
                 <div className="mx-auto mt-10 w-full max-w-2xl">
+                    {/*
+                      The builder comes first on purpose: it is the only path
+                      that takes an enquiry end to end without me, at any hour.
+                      The form and the calendar are the fallbacks for people
+                      who would rather not click through questions.
+                    */}
+                    <div className="card border-accent/40 p-6 md:p-8">
+                        <p className="eyebrow">{w.kreatorEyebrow}</p>
+                        <h3 className="text-h3 mt-2">{w.kreatorTitle}</h3>
+                        <p className="mt-3 text-base leading-relaxed text-fg-muted">{w.kreatorLead}</p>
+                        <ul className="mt-5 space-y-2.5">
+                            {w.kreatorPoints.map((point) => (
+                                <li key={point} className="flex items-start gap-2.5 text-[0.9375rem] text-fg-muted">
+                                    <Check className="mt-0.5 size-4 shrink-0 text-accent" strokeWidth={2} aria-hidden />
+                                    {point}
+                                </li>
+                            ))}
+                        </ul>
+                        <Button asChild size="lg" className="mt-6 w-full sm:w-auto">
+                            <Link
+                                href={`/${localeSegment}/kreator`}
+                                onClick={() => track("kreator_cta", { place: "contact" })}
+                            >
+                                {w.kreatorButton}
+                                <ArrowRight className="size-4" aria-hidden />
+                            </Link>
+                        </Button>
+                    </div>
+
+                    <div className="my-8 flex items-center gap-4">
+                        <span className="h-px flex-1 bg-border" aria-hidden />
+                        <span className="text-sm text-fg-subtle">{w.orWriteInstead}</span>
+                        <span className="h-px flex-1 bg-border" aria-hidden />
+                    </div>
+
                     <div className="min-w-0">
                         <div className="card overflow-hidden">
                             <div className="border-b border-border px-5 py-4 md:px-7">

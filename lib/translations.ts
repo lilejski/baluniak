@@ -62,7 +62,7 @@ export const translations = {
       headlineEnd: ".",
       subtext:
         "Projektuję i wdrażam nowoczesne strony dla małych i średnich firm, programy do obsługi zamówień, klientów i magazynu oraz automatyzacje, które przejmują powtarzalne zadania. Wystarczy opis potrzeb — dobór rozwiązania jest po mojej stronie.",
-      ctaPrimary: "Przejdź do kreatora",
+      ctaPrimary: "Opisz projekt w 4 pytaniach",
       ctaSecondary: "Zobacz zrealizowane projekty",
       techStackTrust: "Zbudowane na sprawdzonych technologiach",
     },
@@ -98,6 +98,8 @@ export const translations = {
     },
     whyProductEngineer: {
       title: "Z czym pomagam",
+      ctaLead: "Nie wiadomo, co z tego pasuje? Cztery pytania w kreatorze i podpowiem.",
+      ctaButton: "Opisz projekt w kreatorze",
       cards: [
         {
           title: "Strona internetowa dla firmy",
@@ -578,8 +580,18 @@ export const translations = {
     },
     wspolpraca: {
       pageTitle: "Porozmawiajmy o projekcie",
-      pageSubtitle: "Termin w kalendarzu albo krótka wiadomość — odpowiadam w ciągu 24 godzin.",
+      pageSubtitle: "Najszybciej przez kreator — kilka pytań i podsumowanie trafia na maila. Odpowiadam w ciągu 24 godzin.",
       formTitle: "Formularz kontaktowy",
+      kreatorEyebrow: "Najszybsza droga",
+      kreatorTitle: "Opisz projekt w kreatorze",
+      kreatorLead: "Cztery pytania dopasowane do tego, czego firma potrzebuje. Na końcu podsumowanie zamówienia trafia na maila — i do mnie.",
+      kreatorPoints: [
+        "Cztery proste pytania, bez formularzy do wypełniania w ciemno",
+        "Podsumowanie zamówienia od razu na maila",
+        "O dowolnej porze, bez rozmowy telefonicznej",
+      ],
+      kreatorButton: "Przejdź do kreatora",
+      orWriteInstead: "albo napisz wiadomość",
       labelName: "Imię / Firma",
       labelEmail: "Email",
       labelHowCanIHelp: "W czym mogę pomóc?",
@@ -779,7 +791,7 @@ export const translations = {
       headlineEnd: ".",
       subtext:
         "I design and build modern websites for small and mid-sized companies, software for orders, customers and stock, and automation that takes over repetitive work. Describe the need — choosing the right solution is my job.",
-      ctaPrimary: "Open the order builder",
+      ctaPrimary: "Describe your project in 4 questions",
       ctaSecondary: "See the projects",
       techStackTrust: "Built on proven, modern technology",
     },
@@ -815,6 +827,8 @@ export const translations = {
     },
     whyProductEngineer: {
       title: "What I help with",
+      ctaLead: "Not sure which of these fits? Four questions in the builder and I'll tell you.",
+      ctaButton: "Describe the project in the builder",
       cards: [
         {
           title: "A website for your business",
@@ -1295,8 +1309,18 @@ export const translations = {
     },
     wspolpraca: {
       pageTitle: "Let's talk about your business",
-      pageSubtitle: "Pick a slot in the calendar or leave a short message. I reply within 24 hours.",
+      pageSubtitle: "The builder is quickest — a few questions and the summary lands in your inbox. I reply within 24 hours.",
       formTitle: "Get in touch",
+      kreatorEyebrow: "Quickest route",
+      kreatorTitle: "Describe the project in the builder",
+      kreatorLead: "Four questions shaped around what the business needs. At the end the summary of the enquiry goes to your inbox — and to mine.",
+      kreatorPoints: [
+        "Four plain questions, no form to fill in blind",
+        "A summary of the enquiry by email straight away",
+        "Any time of day, no phone call needed",
+      ],
+      kreatorButton: "Open the order builder",
+      orWriteInstead: "or write a message instead",
       labelName: "Name / Company",
       labelEmail: "Email",
       labelHowCanIHelp: "How can I help?",

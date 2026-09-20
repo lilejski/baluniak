@@ -59,7 +59,7 @@ export const DE = {
     headlineEnd: ".",
     subtext:
       "Ich entwickle moderne Websites für kleine und mittlere Unternehmen, Software für Aufträge, Kunden und Lager sowie Automatisierungen, die wiederkehrende Arbeit übernehmen. Sie beschreiben den Bedarf, die Wahl der Lösung übernehme ich.",
-    ctaPrimary: "Zum Projektassistenten",
+    ctaPrimary: "Projekt in 4 Fragen beschreiben",
     ctaSecondary: "Umgesetzte Projekte ansehen",
     techStackTrust: "Auf bewährter Technik gebaut",
   },
@@ -95,6 +95,8 @@ export const DE = {
   },
   whyProductEngineer: {
     title: "Womit ich unterstütze",
+    ctaLead: "Unklar, was davon passt? Vier Fragen im Assistenten, und ich sage es Ihnen.",
+    ctaButton: "Projekt im Assistenten beschreiben",
     cards: [
       {
         title: "Website für Unternehmen",
@@ -575,8 +577,18 @@ export const DE = {
   },
   wspolpraca: {
     pageTitle: "Sprechen wir über Ihr Projekt",
-    pageSubtitle: "Termin im Kalender wählen oder eine kurze Nachricht hinterlassen — Antwort innerhalb von 24 Stunden.",
+    pageSubtitle: "Am schnellsten über den Projektassistenten — ein paar Fragen, und die Zusammenfassung kommt per E-Mail. Antwort innerhalb von 24 Stunden.",
     formTitle: "Kontaktformular",
+    kreatorEyebrow: "Der schnellste Weg",
+    kreatorTitle: "Projekt im Assistenten beschreiben",
+    kreatorLead: "Vier Fragen, zugeschnitten auf den Bedarf des Unternehmens. Am Ende geht die Zusammenfassung der Anfrage in Ihr Postfach — und in meines.",
+    kreatorPoints: [
+      "Vier einfache Fragen, kein Formular ins Blaue hinein",
+      "Die Zusammenfassung sofort per E-Mail",
+      "Zu jeder Tageszeit, ganz ohne Telefonat",
+    ],
+    kreatorButton: "Zum Projektassistenten",
+    orWriteInstead: "oder eine Nachricht schreiben",
     labelName: "Name / Firma",
     labelEmail: "E-Mail",
     labelHowCanIHelp: "Worum geht es?",
