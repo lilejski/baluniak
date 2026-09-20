@@ -1,25 +1,30 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isLocale, type Locale } from "@/lib/i18n";
 
 const LOCALE_COOKIE = "baluniak-lang";
-const SUPPORTED_LOCALES = ["pl", "en"] as const;
 const VERCEL_IP_COUNTRY_HEADER = "x-vercel-ip-country";
 
+/** Countries served the German version by default. */
+const GERMAN_SPEAKING = new Set(["DE", "AT", "CH", "LI"]);
+
 /**
- * Geolocation-based locale: PL → /pl, non-PL or unknown → /en.
- * Cookie (explicit user choice) overrides geolocation to avoid redirect loops
- * when user has already chosen a language.
+ * Geolocation-based locale: PL → /pl, the German-speaking countries → /de,
+ * anything else → /en. The cookie (an explicit choice in the switcher) wins
+ * over geolocation, so a visitor who picked a language is never bounced back.
  */
-function getPreferredLocale(request: NextRequest): "pl" | "en" {
+function getPreferredLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
-  if (cookie === "en" || cookie === "pl") return cookie;
+  if (cookie && isLocale(cookie)) return cookie;
 
   const country = request.headers.get(VERCEL_IP_COUNTRY_HEADER)?.toUpperCase();
   if (country === "PL") return "pl";
+  if (country && GERMAN_SPEAKING.has(country)) return "de";
   if (country) return "en";
 
-  const acceptLang = request.headers.get("accept-language");
-  if (acceptLang?.toLowerCase().includes("pl")) return "pl";
+  const acceptLang = request.headers.get("accept-language")?.toLowerCase();
+  if (acceptLang?.includes("pl")) return "pl";
+  if (acceptLang?.includes("de")) return "de";
   return "en";
 }
 
@@ -40,7 +45,7 @@ export function proxy(request: NextRequest) {
   const firstSegment = segments[0]?.toLowerCase();
 
   // Already on a locale path → no redirect (prevents redirect loops)
-  if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as "pl" | "en")) {
+  if (firstSegment && isLocale(firstSegment)) {
     return NextResponse.next();
   }
 

@@ -5,7 +5,8 @@
  * needs in plain language, never what it costs.
  */
 
-export type Lang = "PL" | "EN";
+/** Mirrors the site dictionary — the builder speaks every language the site does. */
+export type Lang = import("../translations").Language;
 
 /** The service tiles a visitor starts from. */
 export type ServiceId =

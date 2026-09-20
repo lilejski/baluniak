@@ -6,8 +6,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { PostCard } from "@/components/blog/PostCard";
 import { getPostSummaries } from "@/lib/blog/posts";
 import type { PostLang } from "@/lib/blog/types";
-
-const SITE_URL = "https://baluniak.com";
+import { isLocale, languageAlternates, OG_LOCALE, SITE_URL } from "@/lib/i18n";
 
 const COPY = {
   pl: {
@@ -36,10 +35,23 @@ const COPY = {
     seoDescription:
       "Practical writing about modern websites, online shops, automation and AI for small businesses. Written to be understood.",
   },
+  de: {
+    eyebrow: "Blog",
+    title: "Wissen, das nach dem Gespräch bleibt",
+    subtitle:
+      "Klartext zu Websites, Shops und Automatisierung — ohne Verkaufsdruck. Ich schreibe über das, wonach am häufigsten gefragt wird.",
+    empty: "Die ersten Texte sind unterwegs.",
+    read: "Weiterlesen",
+    minutes: "Min. Lesezeit",
+    back: "Startseite",
+    seoTitle: "Blog — Websites, Shops und Automatisierung für kleine Unternehmen | BALUNIAK",
+    seoDescription:
+      "Praxisnahe Texte über moderne Websites, Onlineshops, Automatisierung und KI in kleinen Unternehmen. Geschrieben, um verstanden zu werden.",
+  },
 } as const;
 
 function toPostLang(lang: string): PostLang {
-  return lang === "en" ? "en" : "pl";
+  return isLocale(lang) ? lang : "pl";
 }
 
 export async function generateMetadata({
@@ -55,14 +67,14 @@ export async function generateMetadata({
     description: copy.seoDescription,
     alternates: {
       canonical,
-      languages: { pl: `${SITE_URL}/pl/blog`, en: `${SITE_URL}/en/blog` },
+      languages: languageAlternates("/blog"),
     },
     openGraph: {
       title: copy.seoTitle,
       description: copy.seoDescription,
       url: canonical,
       siteName: "BALUNIAK.COM",
-      locale: lang === "pl" ? "pl_PL" : "en_US",
+      locale: OG_LOCALE[toPostLang(lang)],
       type: "website",
     },
     robots: { index: true, follow: true },

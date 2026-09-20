@@ -90,9 +90,13 @@ export function captureAttribution(): void {
  * into something readable, because "l.facebook.com" in an inbox at 7am is not
  * an answer to "where did this come from".
  */
-export function describeChannel(a: Attribution | null | undefined, lang: "PL" | "EN" = "PL"): string {
-  const direct = lang === "PL" ? "Wejście bezpośrednie" : "Direct visit";
-  const unknown = lang === "PL" ? "Nieznane" : "Unknown";
+export function describeChannel(
+  a: Attribution | null | undefined,
+  lang: "PL" | "EN" | "DE" = "PL"
+): string {
+  const label = <T extends Record<"PL" | "EN" | "DE", string>>(set: T) => set[lang];
+  const direct = label({ PL: "Wejście bezpośrednie", EN: "Direct visit", DE: "Direkter Einstieg" });
+  const unknown = label({ PL: "Nieznane", EN: "Unknown", DE: "Unbekannt" });
   if (!a) return unknown;
 
   if (a.source) {
@@ -102,7 +106,7 @@ export function describeChannel(a: Attribution | null | undefined, lang: "PL" | 
     return parts.join(" · ");
   }
 
-  if (a.clickId) return lang === "PL" ? "Kliknięcie w reklamę" : "Ad click";
+  if (a.clickId) return label({ PL: "Kliknięcie w reklamę", EN: "Ad click", DE: "Anzeigenklick" });
 
   if (a.referrer) {
     let host = a.referrer;
@@ -112,8 +116,9 @@ export function describeChannel(a: Attribution | null | undefined, lang: "PL" | 
       /* keep the raw value */
     }
     const known: Record<string, string> = {
-      "google.com": lang === "PL" ? "Google (organicznie)" : "Google (organic)",
-      "google.pl": lang === "PL" ? "Google (organicznie)" : "Google (organic)",
+      "google.com": label({ PL: "Google (organicznie)", EN: "Google (organic)", DE: "Google (organisch)" }),
+      "google.pl": label({ PL: "Google (organicznie)", EN: "Google (organic)", DE: "Google (organisch)" }),
+      "google.de": label({ PL: "Google (organicznie)", EN: "Google (organic)", DE: "Google (organisch)" }),
       "bing.com": "Bing",
       "duckduckgo.com": "DuckDuckGo",
       "facebook.com": "Facebook",

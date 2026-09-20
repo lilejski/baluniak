@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DATE_LOCALE } from "@/lib/i18n";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { PostSummary } from "@/lib/blog/types";
@@ -20,7 +21,7 @@ export function PostCard({
   const published = new Date(post.date);
   const dateLabel = Number.isNaN(published.getTime())
     ? post.date
-    : published.toLocaleDateString(post.lang === "pl" ? "pl-PL" : "en-GB", {
+    : published.toLocaleDateString(DATE_LOCALE[post.lang], {
         year: "numeric",
         month: "long",
         day: "numeric",

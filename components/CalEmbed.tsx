@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toLocale } from "@/lib/i18n";
 
 const CAL_ORIGIN = "https://cal.com";
 const CAL_LINK = "łukasz-bałuniak-wafkto/30min";
@@ -28,7 +29,7 @@ function CalEmbedFallback({ message, email }: { message: string; email: string }
 
 export function CalEmbed({ fallbackMessage, fallbackEmail }: CalEmbedProps) {
   const { lang } = useLanguage();
-  const calLocale = lang === "PL" ? "pl" : "en";
+  const calLocale = toLocale(lang);
 
   const [mounted, setMounted] = useState(false);
   const [loadError, setLoadError] = useState(false);

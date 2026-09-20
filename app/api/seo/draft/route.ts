@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { chooseTopic, draftArticle } from "@/lib/seo/draft";
 import { contentBranchName, hasToken, openContentPullRequest } from "@/lib/seo/github";
+import { LOCALES } from "@/lib/i18n";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 /**
- * Drafts the next article in both languages and opens a pull request.
+ * Drafts the next article in every language and opens a pull request.
  *
  * Triggered by Vercel Cron on a schedule, or by hand with the shared secret.
  * It never publishes: the draft arrives as a PR with `draft: true` in its
@@ -49,7 +50,8 @@ export async function GET(req: Request) {
       });
     }
 
-    const [pl, en] = await Promise.all([draftArticle(topic, "pl"), draftArticle(topic, "en")]);
+    const articles = await Promise.all(LOCALES.map((lang) => draftArticle(topic, lang)));
+    const [pl] = articles;
 
     if (dryRun) {
       // Returns the files verbatim so a draft can be read before anything is
@@ -58,7 +60,7 @@ export async function GET(req: Request) {
         drafted: true,
         dryRun: true,
         topic: { source: topic.source, translationKey: topic.translationKey },
-        articles: [pl, en].map((article) => ({
+        articles: articles.map((article) => ({
           lang: article.lang,
           slug: article.slug,
           title: article.title,
@@ -84,18 +86,14 @@ export async function GET(req: Request) {
         origin,
         ``,
         `## Co zawiera`,
-        `- \`${pl.path}\``,
-        `- \`${en.path}\``,
+        ...articles.map((article) => `- \`${article.path}\``),
         ``,
         `## Zanim scalisz`,
-        `Oba pliki mają **\`draft: true\`** — są niewidoczne w listingu i w mapie witryny, i mają noindex. Przeczytaj, popraw co trzeba, a potem zmień na \`draft: false\`, żeby opublikować.`,
+        `Wszystkie pliki mają **\`draft: true\`** — są niewidoczne w listingu i w mapie witryny, i mają noindex. Przeczytaj, popraw co trzeba, a potem zmień na \`draft: false\`, żeby opublikować.`,
         ``,
         `Warto sprawdzić: czy nie ma żargonu, czy nie pojawiły się wymyślone liczby i czy linki wewnętrzne prowadzą tam, gdzie powinny.`,
       ].join("\n"),
-      files: [
-        { path: pl.path, content: pl.content },
-        { path: en.path, content: en.content },
-      ],
+      files: articles.map((article) => ({ path: article.path, content: article.content })),
     });
 
     return NextResponse.json({

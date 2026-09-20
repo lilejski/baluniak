@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Post, PostFrontmatter, PostLang, PostSummary } from "./types";
+import { LOCALES } from "@/lib/i18n";
 
 const CONTENT_ROOT = path.join(process.cwd(), "content", "blog");
 
@@ -117,14 +118,25 @@ export function getPost(lang: PostLang, slug: string): Post | null {
   return getAllPosts(lang, { includeDrafts: true }).find((post) => post.slug === slug) ?? null;
 }
 
-/** The same article in the other language, for hreflang and the switcher. */
-export function getTranslation(post: Post): Post | null {
-  const other: PostLang = post.lang === "pl" ? "en" : "pl";
+/** The same article in one specific language. */
+export function getTranslationIn(post: Post, lang: PostLang): Post | null {
+  if (lang === post.lang) return post;
   return (
-    getAllPosts(other, { includeDrafts: true }).find(
+    getAllPosts(lang, { includeDrafts: true }).find(
       (candidate) => candidate.translationKey === post.translationKey
     ) ?? null
   );
+}
+
+/**
+ * The same article in every other language, for hreflang and the switcher.
+ * A post may exist in one, two or all three — the pipeline drafts the set
+ * together, but a hand-written piece need not be translated at all.
+ */
+export function getTranslations(post: Post): Post[] {
+  return LOCALES.filter((lang) => lang !== post.lang)
+    .map((lang) => getTranslationIn(post, lang))
+    .filter((candidate): candidate is Post => candidate !== null);
 }
 
 /**

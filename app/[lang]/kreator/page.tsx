@@ -13,6 +13,7 @@ import type {
   ContactDetails,
   KreatorAnswer,
   KreatorQuestion,
+  Lang,
   NextStep,
   ServiceId,
 } from "@/lib/kreator/types";
@@ -24,6 +25,20 @@ type Stage = "service" | "question" | "review" | "done";
 
 /** A question paired with what the visitor answered, so Back costs nothing. */
 type HistoryEntry = { question: KreatorQuestion; answer: KreatorAnswer };
+
+/** Carries the server's reason for a failed send, so the message can fit it. */
+class SubmitError extends Error {
+  constructor(readonly code?: "rate-limited" | "transport" | "invalid") {
+    super("submit failed");
+  }
+}
+
+/** Label for whatever the visitor adds beyond the questions. */
+const EXTRA_NOTE_LABEL: Record<Lang, string> = {
+  PL: "Dodatkowe uwagi",
+  EN: "Anything else",
+  DE: "Ergänzende Hinweise",
+};
 
 export default function KreatorPage() {
   const { lang, localeSegment } = useLanguage();
@@ -143,7 +158,7 @@ export default function KreatorPage() {
           ...answers,
           {
             questionId: "extra",
-            question: lang === "PL" ? "Dodatkowe uwagi" : "Anything else",
+            question: EXTRA_NOTE_LABEL[lang],
             selected: [],
             note: extraNote,
           },
@@ -166,16 +181,30 @@ export default function KreatorPage() {
       const data = (await res.json().catch(() => ({}))) as {
         success?: boolean;
         confirmationSent?: boolean;
+        code?: "rate-limited" | "transport" | "invalid";
       };
-      if (!res.ok || !data.success) throw new Error("submit failed");
+      if (!res.ok || !data.success) {
+        // The reason matters to the visitor: "try again" is useless advice
+        // when the mail transport is down, and wrong when they simply sent
+        // too many in a row.
+        console.error("[kreator] submit failed", res.status, data.code ?? "unknown");
+        throw new SubmitError(data.code);
+      }
       setConfirmationSent(data.confirmationSent !== false);
       setStage("done");
       // GA4's recommended lead event, so it can be marked as a key event as-is.
       track("generate_lead", { form: "kreator", service: serviceId });
       scrollTop();
-    } catch {
-      setSendError(copy.errorSend);
-      track("kreator_submit_error", { service: serviceId });
+    } catch (err) {
+      const code = err instanceof SubmitError ? err.code : undefined;
+      setSendError(
+        code === "rate-limited"
+          ? copy.errorSendBusy
+          : code === "transport"
+          ? copy.errorSendUnavailable
+          : copy.errorSend
+      );
+      track("kreator_submit_error", { service: serviceId, reason: code ?? "unknown" });
     } finally {
       setSending(false);
     }

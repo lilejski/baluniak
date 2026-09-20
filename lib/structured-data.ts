@@ -6,10 +6,47 @@
  * which they were confusing with other people's.
  */
 
-const SITE_URL = "https://baluniak.com";
+import { SITE_URL, type Locale } from "@/lib/i18n";
+
 const PERSON_ID = `${SITE_URL}/#person`;
 
-type Lang = "pl" | "en";
+type Lang = Locale;
+
+const JOB_TITLE: Record<Lang, string> = {
+  pl: "Programista — strony internetowe, programy dla firm i automatyzacje",
+  en: "Developer — websites, business software and automation",
+  de: "Entwickler — Websites, Unternehmenssoftware und Automatisierung",
+};
+
+const KNOWS_ABOUT: Record<Lang, string[]> = {
+  pl: [
+    "strony internetowe dla firm",
+    "programy do zarządzania firmą",
+    "automatyzacja procesów w firmie",
+    "wdrożenie AI w firmie",
+    "chatboty dla firm",
+    "Next.js",
+    "TypeScript",
+  ],
+  en: [
+    "websites for small businesses",
+    "custom business software",
+    "business process automation",
+    "AI for small businesses",
+    "chatbots for business",
+    "Next.js",
+    "TypeScript",
+  ],
+  de: [
+    "Websites für kleine Unternehmen",
+    "individuelle Unternehmenssoftware",
+    "Automatisierung von Geschäftsprozessen",
+    "KI für kleine Unternehmen",
+    "Chatbots für Unternehmen",
+    "Next.js",
+    "TypeScript",
+  ],
+};
 
 const PROFILES = [
   "https://www.linkedin.com/in/%C5%82ukasz-ba%C5%82uniak-64734a256/",
@@ -24,32 +61,11 @@ const PERSON_CORE = {
 } as const;
 
 function person(lang: Lang) {
-  const isPl = lang === "pl";
   return {
     ...PERSON_CORE,
     image: `${SITE_URL}/og-baluniak.png`,
-    jobTitle: isPl
-      ? "Programista — strony internetowe, programy dla firm i automatyzacje"
-      : "Developer — websites, business software and automation",
-    knowsAbout: isPl
-      ? [
-          "strony internetowe dla firm",
-          "programy do zarządzania firmą",
-          "automatyzacja procesów w firmie",
-          "wdrożenie AI w firmie",
-          "chatboty dla firm",
-          "Next.js",
-          "TypeScript",
-        ]
-      : [
-          "websites for small businesses",
-          "custom business software",
-          "business process automation",
-          "AI for small businesses",
-          "chatbots for business",
-          "Next.js",
-          "TypeScript",
-        ],
+    jobTitle: JOB_TITLE[lang],
+    knowsAbout: KNOWS_ABOUT[lang],
     sameAs: PROFILES,
   };
 }
