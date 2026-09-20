@@ -7,6 +7,7 @@
  */
 
 import { describeChannel } from "../attribution";
+import { DATE_LOCALE, toLocale } from "@/lib/i18n";
 import type { KreatorAnswer, OrderPayload } from "./types";
 
 const BRAND = "#059669";
@@ -90,14 +91,14 @@ function shell(inner: string, preheader: string): string {
 
 const COPY = {
   PL: {
-    clientSubject: (s: string) => `Twoje zamówienie: ${s}`,
-    preheader: "Mam Twoje zgłoszenie. Odezwę się w ciągu 24 godzin.",
-    hello: (name: string) => `Cześć ${name},`,
-    intro: "dziękuję za zgłoszenie. Poniżej masz to, co od Ciebie zrozumiałem.",
-    summaryTitle: "Twoje zamówienie",
+    clientSubject: (s: string) => `Zgłoszenie: ${s}`,
+    preheader: "Zgłoszenie dotarło. Odpowiedź w ciągu 24 godzin.",
+    hello: (name: string) => `Dzień dobry, ${name},`,
+    intro: "dziękuję za zgłoszenie. Poniżej podsumowanie tego, jak je rozumiem.",
+    summaryTitle: "Zakres zgłoszenia",
     answersTitle: "Co ustaliliśmy",
     nextTitle: "Co dalej",
-    next: "Przeczytam wszystko spokojnie i odezwę się do Ciebie w ciągu 24 godzin z propozycją, jak to zrobić. Jeśli coś w podsumowaniu się nie zgadza, po prostu odpisz na tego maila.",
+    next: "Przeczytam wszystko spokojnie i odezwę się w ciągu 24 godzin z propozycją realizacji. Jeśli coś w podsumowaniu się nie zgadza, wystarczy odpisać na tę wiadomość.",
     signature: "Pozdrawiam,<br><strong>Łukasz Bałuniak</strong>",
     ownerSubject: (s: string, n: string) => `Nowe zamówienie: ${s} — ${n}`,
     ownerTitle: "Nowe zamówienie z Kreatora",
@@ -140,6 +141,31 @@ const COPY = {
     channelLanding: "Landed on",
     channelNoData: "No data — storage was blocked, or the visit predates the tracking.",
   },
+  DE: {
+    clientSubject: (s: string) => `Ihre Anfrage: ${s}`,
+    preheader: "Ihre Anfrage ist da. Ich melde mich innerhalb von 24 Stunden.",
+    hello: (name: string) => `Guten Tag, ${name},`,
+    intro: "vielen Dank für Ihre Anfrage. Nachfolgend, wie ich sie verstanden habe.",
+    summaryTitle: "Ihre Anfrage",
+    answersTitle: "Was wir festgehalten haben",
+    nextTitle: "Wie es weitergeht",
+    next: "Ich sehe mir alles in Ruhe an und melde mich innerhalb von 24 Stunden mit einem Vorschlag zur Umsetzung. Sollte in der Zusammenfassung etwas nicht stimmen, genügt eine Antwort auf diese E-Mail.",
+    signature: "Mit freundlichen Grüßen,<br><strong>Łukasz Bałuniak</strong>",
+    ownerSubject: (s: string, n: string) => `Neue Anfrage: ${s} — ${n}`,
+    ownerTitle: "Neue Anfrage aus dem Projektassistenten",
+    contactTitle: "Kontakt",
+    serviceTitle: "Gewählter Weg",
+    aiTitle: "Zusammenfassung",
+    labelName: "Name / Firma",
+    labelEmail: "E-Mail",
+    labelPhone: "Telefon",
+    labelCompany: "Firma",
+    sentAt: "Gesendet",
+    channelTitle: "Herkunft",
+    channelFirstSeen: "Erster Besuch",
+    channelLanding: "Einstieg auf",
+    channelNoData: "Keine Daten — die Speicherung war blockiert oder der Besuch liegt vor der Messung.",
+  },
 } as const;
 
 /** The line that answers "which channel produced this" at a glance. */
@@ -154,7 +180,7 @@ function channelBlock(order: OrderPayload): string {
   const details: string[] = [];
   const firstSeen = new Date(a.firstSeen);
   if (!Number.isNaN(firstSeen.getTime())) {
-    const when = firstSeen.toLocaleString(order.lang === "PL" ? "pl-PL" : "en-GB", {
+    const when = firstSeen.toLocaleString(DATE_LOCALE[toLocale(order.lang)], {
       dateStyle: "medium",
       timeStyle: "short",
     });
@@ -234,7 +260,7 @@ export function ownerEmailHtml(order: OrderPayload): string {
       )}</div>`
     : "";
 
-  const sentAt = new Date().toLocaleString(order.lang === "PL" ? "pl-PL" : "en-GB", {
+  const sentAt = new Date().toLocaleString(DATE_LOCALE[toLocale(order.lang)], {
     dateStyle: "medium",
     timeStyle: "short",
   });

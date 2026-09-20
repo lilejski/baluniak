@@ -30,32 +30,57 @@ function contactEmailHtml(body: SendContactBody): string {
 <head><meta charset="utf-8"></head>
 <body style="margin:0;font-family:system-ui,sans-serif;background:#18181b;color:#e4e4e7;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;padding:24px;">
-    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Fast-Track: Nowa wiadomość</td></tr>
+    <tr><td style="padding:0 0 16px;font-size:18px;font-weight:700;color:#10b981;">Nowa wiadomość z formularza</td></tr>
     <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Nadawca</td></tr>
     <tr><td style="padding:4px 0 16px;font-size:14px;"><strong>${name}</strong> &lt;${email}&gt;</td></tr>
     <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Temat</td></tr>
     <tr><td style="padding:4px 0 16px;font-size:14px;">${subject}</td></tr>
     <tr><td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;color:#71717a;">Wiadomość</td></tr>
     <tr><td style="padding:4px 0 16px;font-size:14px;line-height:1.6;">${message}</td></tr>
-    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Wysłano z formularza Fast-Track · baluniak.com</td></tr>
+    <tr><td style="padding:24px 0 0;font-size:12px;color:#71717a;">Wysłano z formularza kontaktowego · baluniak.com</td></tr>
   </table>
 </body>
 </html>
   `.trim();
 }
 
-function confirmationEmailHtml(lang: "PL" | "EN"): string {
-  const text = lang === "EN"
-    ? {
-        title: "Message Received",
-        body: "Thank you for contacting me. I've received your message and will get back to you within 24 hours.",
-        footer: "Best regards,<br>Łukasz Baluniak"
-      }
-    : {
-        title: "Wiadomość otrzymana",
-        body: "Dziękuję za kontakt. Otrzymałem Twoją wiadomość i wrócę z odpowiedzią w ciągu 24h.",
-        footer: "Pozdrawiam,<br>Łukasz Baluniak"
-      };
+type ConfirmationLang = "PL" | "EN" | "DE";
+
+const CONFIRMATION_COPY: Record<ConfirmationLang, { subject: string; title: string; body: string; footer: string }> = {
+  PL: {
+    subject: "Potwierdzenie otrzymania zgłoszenia",
+    title: "Wiadomość otrzymana",
+    body: "Dziękuję za kontakt. Wiadomość dotarła — odpowiedź wyślę w ciągu 24 godzin.",
+    footer: "Pozdrawiam,<br>Łukasz Bałuniak",
+  },
+  EN: {
+    subject: "Confirmation: message received",
+    title: "Message received",
+    body: "Thank you for getting in touch. Your message has arrived and I will reply within 24 hours.",
+    footer: "Best regards,<br>Łukasz Bałuniak",
+  },
+  DE: {
+    subject: "Bestätigung: Nachricht erhalten",
+    title: "Nachricht erhalten",
+    body: "Vielen Dank für Ihre Nachricht. Sie ist angekommen, und ich antworte innerhalb von 24 Stunden.",
+    footer: "Mit freundlichen Grüßen,<br>Łukasz Bałuniak",
+  },
+};
+
+/**
+ * Which language to confirm in. The form does not ask, so the top-level
+ * domain of the address is the only hint there is — imperfect, but better
+ * than replying to a .de address in Polish.
+ */
+function confirmationLang(email: string): ConfirmationLang {
+  const domain = email.split("@")[1]?.toLowerCase() ?? "";
+  if (/\.(pl)$/.test(domain)) return "PL";
+  if (/\.(de|at|ch)$/.test(domain)) return "DE";
+  return "EN";
+}
+
+function confirmationEmailHtml(lang: ConfirmationLang): string {
+  const text = CONFIRMATION_COPY[lang];
 
   return `
 <!DOCTYPE html>
@@ -100,8 +125,7 @@ export async function POST(req: Request) {
 
     const resend = new Resend(apiKey);
 
-    // Detect language from email domain or default to PL
-    const lang: "PL" | "EN" = email.includes(".pl") || email.includes("pl.") ? "PL" : "EN";
+    const lang = confirmationLang(email);
 
     // Send TWO emails in parallel: admin notification + client confirmation
     const [adminResult, clientResult] = await Promise.all([
@@ -115,7 +139,7 @@ export async function POST(req: Request) {
       resend.emails.send({
         from: FROM,
         to: email,
-        subject: lang === "EN" ? "Confirmation: Message Received" : "Potwierdzenie otrzymania zgłoszenia",
+        subject: CONFIRMATION_COPY[lang].subject,
         html: confirmationEmailHtml(lang),
       }),
     ]);

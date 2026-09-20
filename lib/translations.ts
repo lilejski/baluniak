@@ -1,9 +1,12 @@
 /**
- * PL/EN translation dictionary for the entire app.
+ * PL/EN/DE translation dictionary for the entire app.
+ * German lives in translations.de.ts so this file stays readable.
  * Use with LanguageContext: const { t, lang } = useLanguage(); t('header.cta')
  */
 
-export type Language = "PL" | "EN";
+import { DE } from "./translations.de";
+
+export type Language = "PL" | "EN" | "DE";
 
 export const translations = {
   PL: {
@@ -16,17 +19,17 @@ export const translations = {
       navCharon: "Charon",
       navBlog: "Blog",
       cta: "Zamów projekt",
-      bookCall: "Umów Rozmowę",
+      bookCall: "Umów rozmowę",
       menu: "Menu",
       openMenu: "Otwórz menu",
       home: "Strona główna",
       navAria: "Nawigacja",
     },
     footer: {
-      preCtaHeader: "Potrzebujesz strony lub aplikacji?",
-      preCtaSubtext: "Nie trać na to miesięcy. Nowoczesna strona albo system skrojony pod to, jak naprawdę pracujesz.",
-      preCtaButton: "Opisz, czego potrzebujesz",
-      finalNudge: "Twój pomysł zasługuje na coś więcej niż tylko arkusz w Excelu.",
+      preCtaHeader: "Potrzebna strona internetowa albo program dla firmy?",
+      preCtaSubtext: "Nowoczesna strona albo system dopasowany do tego, jak naprawdę pracuje firma — bez miesięcy oczekiwania.",
+      preCtaButton: "Przejdź do kreatora",
+      finalNudge: "Dobry pomysł zasługuje na coś więcej niż arkusz w Excelu.",
       ctaLabel: "Przejdź do kreatora zamówienia",
       brandTagline: "Strony internetowe, programy dla firm i automatyzacje — prosto do celu.",
       productEngineerTagline: "Łukasz Bałuniak — strony internetowe, programy dla firm, automatyzacje i AI",
@@ -55,19 +58,19 @@ export const translations = {
     hero: {
       badge: "Łukasz Bałuniak · Strony internetowe · Programy dla firm · Automatyzacje i AI",
       headline: "Strony internetowe, programy i automatyzacje,",
-      headlineAccent: "które pracują na Twoją firmę",
+      headlineAccent: "które pracują na wynik firmy",
       headlineEnd: ".",
       subtext:
-        "Robię nowoczesne strony dla małych firm, programy do obsługi zamówień, klientów czy magazynu oraz automatyzacje, które zdejmują z Ciebie powtarzalną robotę. Mówisz, czego potrzebujesz, a ja dobieram rozwiązanie.",
-      ctaPrimary: "Opisz, czego potrzebujesz",
-      ctaSecondary: "Zobacz, co już zbudowałem",
+        "Projektuję i wdrażam nowoczesne strony dla małych i średnich firm, programy do obsługi zamówień, klientów i magazynu oraz automatyzacje, które przejmują powtarzalne zadania. Wystarczy opis potrzeb — dobór rozwiązania jest po mojej stronie.",
+      ctaPrimary: "Przejdź do kreatora",
+      ctaSecondary: "Zobacz zrealizowane projekty",
       techStackTrust: "Zbudowane na sprawdzonych technologiach",
     },
     about: {
       bridgeTitle: "Poznajmy się",
       roleTitle: "BAŁUNIAK ŁUKASZ",
       headline: "Jedna osoba od pomysłu do działającego rozwiązania.",
-      subheadline: "Nie przekazuję Cię między handlowcem, grafikiem i programistą. Rozmawiasz ze mną od początku do końca.",
+      subheadline: "Bez przekazywania między handlowcem, grafikiem i programistą — kontakt od pierwszej rozmowy do wdrożenia pozostaje bezpośredni.",
       proofTitle: "Potwierdzone umiejętności",
       proofDesc: "Certyfikat Google — Umiejętności Jutra AI",
       proofCta: "Pokaż certyfikat",
@@ -83,18 +86,18 @@ export const translations = {
           id: "ai",
           label: "AI",
           title: "Sztuczna inteligencja w firmie",
-          body: "Sprawdzam, co w Twojej firmie da się zautomatyzować — chatbot dla klientów, opisy produktów, porządkowanie dokumentów — i wdrażam tylko to, co ma sens.",
+          body: "Sprawdzam, co w firmie da się zautomatyzować — chatbot dla klientów, opisy produktów, porządkowanie dokumentów — i wdrażam tylko to, co ma sens.",
         },
         {
           id: "ux",
           label: "Na bieżąco",
           title: "Znam nowe narzędzia, zanim staną się modą",
-          body: "Narzędzia AI zmieniają się co miesiąc. Śledzę je za Ciebie i podpowiadam tylko te, które realnie oszczędzą Ci czas albo pieniądze.",
+          body: "Narzędzia AI zmieniają się co miesiąc. Śledzę je na bieżąco i rekomenduję tylko te, które realnie oszczędzają czas albo pieniądze.",
         },
       ],
     },
     whyProductEngineer: {
-      title: "Z czym mogę Ci pomóc",
+      title: "Z czym pomagam",
       cards: [
         {
           title: "Strona internetowa dla firmy",
@@ -102,17 +105,17 @@ export const translations = {
         },
         {
           title: "Program szyty na miarę",
-          description: "Masz dość Excela i kartek? Zbuduję program do zamówień, klientów, magazynu albo rezerwacji — dopasowany do tego, jak naprawdę pracuje Twoja firma.",
+          description: "Excel i kartki przestają wystarczać? Buduję program do zamówień, klientów, magazynu albo rezerwacji — dopasowany do tego, jak naprawdę pracuje firma.",
         },
         {
           title: "Automatyzacja i AI",
-          description: "Automatyzacja procesów w firmie, chatbot dla klientów, automatyczne opisy i dokumenty. Komputer robi powtarzalną robotę, a Ty zajmujesz się firmą.",
+          description: "Automatyzacja procesów w firmie, chatbot dla klientów, automatyczne opisy i dokumenty. Komputer przejmuje powtarzalne zadania, właściciel zajmuje się firmą.",
         },
       ],
     },
     modularStack: {
-      heading: "Jak pracuję: sprawdzone elementy, rozwiązanie pod Twoją firmę.",
-      subtext: "Nie wymyślam koła od nowa. Składam rozwiązanie z pewnych klocków i skupiam się na tym, co wyjątkowe w Twojej firmie.",
+      heading: "Jak pracuję: sprawdzone elementy, rozwiązanie dopasowane do firmy.",
+      subtext: "Nie wymyślam koła od nowa. Rozwiązanie powstaje z pewnych elementów, a praca idzie w to, co w danej firmie wyjątkowe.",
       blocks: [
         {
           title: "Szybka strona",
@@ -130,20 +133,20 @@ export const translations = {
           title: "Płatności",
           subtitle: "Sprzedaż",
           tech: "BLIK, karty, przelewy",
-          description: "Klient płaci online, a Ty dostajesz powiadomienie i fakturę bez ręcznego przepisywania.",
+          description: "Klient płaci online, powiadomienie i faktura trafiają dalej bez ręcznego przepisywania.",
         },
         {
           title: "Bez własnego serwera",
           subtitle: "Spokój",
           tech: "Bezpieczna chmura",
-          description: "Nie musisz niczego instalować ani pilnować. Strona działa, a aktualizacje biorę na siebie.",
+          description: "Nic do instalowania, nic do pilnowania. Strona działa, aktualizacje biorę na siebie.",
         },
       ],
     },
     formPlaceholders: {
-      namePlaceholder: "Twoje imię lub nazwa firmy",
+      namePlaceholder: "Imię i nazwisko lub nazwa firmy",
       emailPlaceholder: "jan@firma.pl",
-      messagePlaceholder: "Opisz w 2–3 zdaniach, nad czym chcesz pracować.",
+      messagePlaceholder: "Proszę opisać w 2–3 zdaniach zakres projektu.",
     },
     projects: {
       sectionTitle: "Projekty",
@@ -280,7 +283,7 @@ export const translations = {
       archiveNote: "Wszystkie zdjęcia na tej stronie pochodzą z działającego systemu.",
       forSaleBadge: "Projekt do przejęcia",
       forSaleTitle: "Projekt jest do kupienia",
-      forSaleBody: "System jest skończony i sprawdzony w boju — działał komercyjnie i miał płacących użytkowników. Jeśli chcesz mieć własną platformę tego typu, są dwie drogi: możesz przejąć dokładnie ten projekt razem z kodem, architekturą i integracjami, albo zamówić budowę nowej wersji, zaprojektowanej od zera pod Twoją branżę, markę i model rozliczeń.",
+      forSaleBody: "System jest skończony i sprawdzony w boju — działał komercyjnie i miał płacących użytkowników. Dla własnej platformy tego typu są dwie drogi: przejęcie dokładnie tego projektu razem z kodem, architekturą i integracjami albo budowa nowej wersji, zaprojektowanej od zera pod konkretną branżę, markę i model rozliczeń.",
       forSaleCta: "Porozmawiajmy o przejęciu",
     },
     quantumOmPage: {
@@ -471,7 +474,7 @@ export const translations = {
       problemPoints: [
         {
           title: "Integratory marketplace",
-          desc: "Rozwiązania w rodzaju BaseLinkera świetnie synchronizują oferty, ale zakładają, że masz już opisany i wyceniony produkt. Nie pomagają zdecydować, co kupić, ani nie tworzą treści.",
+          desc: "Rozwiązania w rodzaju BaseLinkera świetnie synchronizują oferty, ale zakładają produkt już opisany i wyceniony. Nie pomagają zdecydować, co kupić, ani nie tworzą treści.",
         },
         {
           title: "Systemy WMS/ERP",
@@ -495,7 +498,7 @@ export const translations = {
         },
         {
           title: "Kreator ofert z AI",
-          desc: "Dla każdej sztuki AI generuje tytuł, opis „jako osoba prywatna” zamiast korporacyjnego bełkotu, tagi i kategorię. Dobiera zdjęcia producenta oraz Twoje własne i proponuje trzypoziomową wycenę: szybką, rekomendowaną i maksymalną, opartą o cenę rynkową.",
+          desc: "Dla każdej sztuki AI generuje tytuł, opis „jako osoba prywatna” zamiast korporacyjnego bełkotu, tagi i kategorię. Dobiera zdjęcia producenta oraz własne i proponuje trzypoziomową wycenę: szybką, rekomendowaną i maksymalną, opartą o cenę rynkową.",
         },
         {
           title: "Katalog publiczny",
@@ -507,7 +510,7 @@ export const translations = {
         },
         {
           title: "Raporty operacyjne",
-          desc: "Wartość towaru na wejściu kontra Twoje ceny, ile sztuk siedzi w kolejce, co jest „do wyjaśnienia”, co odłożone „dla siebie”, liczniki statusów.",
+          desc: "Wartość towaru na wejściu kontra ceny wystawienia, ile sztuk siedzi w kolejce, co jest „do wyjaśnienia”, co odłożone „dla siebie”, liczniki statusów.",
         },
       ],
       edgeTitle: "Jak konkuruje z płatnymi systemami",
@@ -569,9 +572,9 @@ export const translations = {
       caseStudyTag: "Case study",
     },
     wspolpraca: {
-      pageTitle: "Porozmawiajmy o Twojej firmie",
-      pageSubtitle: "Wybierz termin w kalendarzu albo zostaw krótką wiadomość. Odpowiadam w ciągu 24 godzin.",
-      formTitle: "Napisz do mnie",
+      pageTitle: "Porozmawiajmy o projekcie",
+      pageSubtitle: "Termin w kalendarzu albo krótka wiadomość — odpowiadam w ciągu 24 godzin.",
+      formTitle: "Formularz kontaktowy",
       labelName: "Imię / Firma",
       labelEmail: "Email",
       labelHowCanIHelp: "W czym mogę pomóc?",
@@ -581,19 +584,19 @@ export const translations = {
       projectTypeKonsultacjaAi: "Automatyzacja lub AI",
       projectTypeAudyt: "Sprawdzenie i przyspieszenie strony",
       projectTypeInne: "Inne",
-      labelMessage: "Krótki opis wyzwania",
+      labelMessage: "Krótki opis projektu",
       submitButton: "Wyślij i przejdź do kalendarza",
       submitting: "Wysyłanie…",
       successTitle: "Zgłoszenie wysłane.",
-      successHint: "Przejdź do kalendarza poniżej i zarezerwuj termin.",
+      successHint: "Termin można zarezerwować w kalendarzu poniżej.",
       guarantee: "Gwarantowana odpowiedź w 12h lub darmowa konsultacja.",
       calendarTitle: "Zarezerwuj termin bezpośrednio",
-      calendarLoadError: "Kalendarz nie mógł zostać załadowany. Napisz do mnie bezpośrednio na",
-      errorName: "Podaj imię lub firmę",
-      errorEmail: "Podaj poprawny email",
-      errorProjectType: "Wybierz rodzaj współpracy",
-      errorMessage: "Opisz krótko wyzwanie",
-      sendError: "Błąd wysyłania. Spróbuj ponownie lub napisz bezpośrednio.",
+      calendarLoadError: "Kalendarz nie mógł zostać załadowany. Kontakt bezpośredni:",
+      errorName: "Proszę podać imię lub nazwę firmy",
+      errorEmail: "Proszę podać poprawny adres e-mail",
+      errorProjectType: "Proszę wybrać rodzaj współpracy",
+      errorMessage: "Proszę krótko opisać projekt",
+      sendError: "Nie udało się wysłać. Proszę spróbować ponownie lub napisać bezpośrednio.",
     },
     aboutPage: {
       metaTitle: "Łukasz Bałuniak — Full-stack developer (Next.js, TypeScript, AI) | O mnie",
@@ -693,14 +696,14 @@ export const translations = {
       certUrl: "https://cdn.umiejetnoscijutra.pl/certificates/f60d74f1-5530-481d-8cc0-b1e5d661cf11",
       contactTitle: "Kontakt",
       contactLead: "Najszybciej mailem. Odpowiadam w ciągu 24 godzin.",
-      clientsLink: "Szukasz wykonawcy dla swojej firmy? Zobacz ofertę",
+      clientsLink: "Potrzebna realizacja dla firmy? Zobacz ofertę",
     },
     seo: {
       homeTitle: "Strony internetowe, programy i automatyzacje dla firm | Łukasz Bałuniak",
       homeDescription: "Nowoczesna strona internetowa dla firmy, program do obsługi zamówień czy magazynu, automatyzacja procesów i wdrożenie AI dla małych firm.",
       homeKeywords: "strona internetowa dla firmy, strona internetowa dla małej firmy, nowoczesna strona internetowa, program do zarządzania firmą, aplikacja dla firmy, automatyzacja procesów w firmie, chatbot dla firm, wdrożenie ai w firmie, Łukasz Bałuniak",
       kreatorTitle: "Zamów stronę, sklep lub system | Kreator zamówienia | BALUNIAK",
-      kreatorDescription: "Odpowiedz na kilka prostych pytań, a przygotuję podsumowanie Twojego zamówienia i odezwę się w ciągu 24 godzin. Strony, sklepy, systemy, automatyzacje i wdrożenia AI.",
+      kreatorDescription: "Kilka prostych pytań, a w odpowiedzi podsumowanie zgłoszenia i kontakt w ciągu 24 godzin. Strony, sklepy, systemy, automatyzacje i wdrożenia AI.",
       fotarobotaTitle: "Fotarobota – profesjonalne zdjęcia produktów dzięki AI | Case Study | BALUNIAK",
       fotarobotaDescription: "Case study: serwis, który zamienia zwykłe zdjęcia produktów w profesjonalne ujęcia do sklepu. Od pomysłu do płacących klientów w 2 tygodnie.",
       quantumOmTitle: "Quantum OM – wieloagentowy bot tradingowy AI | Case Study | BALUNIAK",
@@ -725,17 +728,17 @@ export const translations = {
       navCharon: "Charon",
       navBlog: "Blog",
       cta: "Start a project",
-      bookCall: "Book a Call",
+      bookCall: "Book a call",
       menu: "Menu",
       openMenu: "Open menu",
       home: "Home",
       navAria: "Navigation",
     },
     footer: {
-      preCtaHeader: "Need a website or an app?",
-      preCtaSubtext: "Don't spend months on it. A modern site, or a system built for how you actually work.",
-      preCtaButton: "Tell me what you need",
-      finalNudge: "Your idea deserves more than a spreadsheet.",
+      preCtaHeader: "Looking for a website or business software?",
+      preCtaSubtext: "A modern site, or a system built around the way the business actually works.",
+      preCtaButton: "Open the order builder",
+      finalNudge: "A good idea deserves more than a spreadsheet.",
       ctaLabel: "Go to the order builder",
       brandTagline: "Websites, business software and automation — straight to the point.",
       productEngineerTagline: "Łukasz Bałuniak — websites, business software, automation and AI",
@@ -764,19 +767,19 @@ export const translations = {
     hero: {
       badge: "Łukasz Bałuniak · Websites · Business software · Automation & AI",
       headline: "Websites, business software and automation",
-      headlineAccent: "that work for your company",
+      headlineAccent: "that work towards the result",
       headlineEnd: ".",
       subtext:
-        "I build modern websites for small businesses, software for handling orders, customers or stock, and automation that takes repetitive work off your plate. You tell me what you need, and I pick the right solution.",
-      ctaPrimary: "Tell me what you need",
-      ctaSecondary: "See what I've built",
+        "I design and build modern websites for small and mid-sized companies, software for orders, customers and stock, and automation that takes over repetitive work. Describe the need — choosing the right solution is my job.",
+      ctaPrimary: "Open the order builder",
+      ctaSecondary: "See the projects",
       techStackTrust: "Built on proven, modern technology",
     },
     about: {
       bridgeTitle: "Let's meet",
       roleTitle: "BAŁUNIAK ŁUKASZ",
       headline: "One person from idea to a working solution.",
-      subheadline: "No passing you between a salesperson, a designer and a developer. You talk to me from start to finish.",
+      subheadline: "No handovers between a salesperson, a designer and a developer — one point of contact from the first call to launch.",
       proofTitle: "Verified skills",
       proofDesc: "Google Certificate — AI Skills for the Future",
       proofCta: "View certificate",
@@ -792,36 +795,36 @@ export const translations = {
           id: "ai",
           label: "AI",
           title: "Artificial intelligence at work",
-          body: "I look at what in your business can be automated — a chatbot for customers, product descriptions, sorting documents — and only implement what makes sense.",
+          body: "I look at what can be automated in the business — a chatbot for customers, product descriptions, sorting documents — and only implement what makes sense.",
         },
         {
           id: "ux",
           label: "Up to date",
           title: "I know the new tools before they're a trend",
-          body: "AI tools change every month. I keep track of them for you and only suggest the ones that genuinely save you time or money.",
+          body: "AI tools change every month. I keep track of them and only recommend the ones that genuinely save time or money.",
         },
       ],
     },
     whyProductEngineer: {
-      title: "What I can help you with",
+      title: "What I help with",
       cards: [
         {
           title: "A website for your business",
           description: "A modern site that loads fast, looks good on a phone and can be found on Google. For a construction firm, a law office, a clinic or a workshop.",
         },
         {
-          title: "Software built around you",
-          description: "Tired of spreadsheets and scraps of paper? I'll build software for orders, customers, stock or bookings — shaped around how your business actually works.",
+          title: "Software built to fit",
+          description: "When spreadsheets and scraps of paper stop being enough: software for orders, customers, stock or bookings — shaped around how the business actually works.",
         },
         {
           title: "Automation and AI",
-          description: "Business process automation, a chatbot for customers, automatic descriptions and documents. The computer does the repetitive work, and you run the business.",
+          description: "Business process automation, a chatbot for customers, automatic descriptions and documents. The computer takes the repetitive work, the owner runs the business.",
         },
       ],
     },
     modularStack: {
-      heading: "How I work: proven parts, a solution built for your business.",
-      subtext: "I don't reinvent the wheel. I put the solution together from reliable parts and focus on what makes your business different.",
+      heading: "How I work: proven parts, a solution shaped to the business.",
+      subtext: "No reinventing the wheel. The solution is built from reliable parts, and the work goes into whatever makes this business different.",
       blocks: [
         {
           title: "Fast website",
@@ -839,20 +842,20 @@ export const translations = {
           title: "Payments",
           subtitle: "Sales",
           tech: "Cards, transfers, wallets",
-          description: "Customers pay online, and you get a notification and an invoice with nothing retyped by hand.",
+          description: "Customers pay online, and the notification and invoice follow with nothing retyped by hand.",
         },
         {
-          title: "No server of your own",
+          title: "No server to run",
           subtitle: "Peace of mind",
           tech: "Secure cloud",
-          description: "Nothing to install or look after. The site runs, and I take care of the updates.",
+          description: "Nothing to install, nothing to watch over. The site runs, and I take care of the updates.",
         },
       ],
     },
     formPlaceholders: {
-      namePlaceholder: "Your name or company name",
-      emailPlaceholder: "you@company.com",
-      messagePlaceholder: "Briefly describe your idea...",
+      namePlaceholder: "Name or company name",
+      emailPlaceholder: "name@company.com",
+      messagePlaceholder: "Two or three sentences on the scope of the project.",
     },
     projects: {
       sectionTitle: "Projects",
@@ -1406,7 +1409,7 @@ export const translations = {
     },
     seo: {
       homeTitle: "Websites, business software and automation | Łukasz Bałuniak",
-      homeDescription: "A modern website for your business, software for orders or stock, business process automation and AI for small businesses.",
+      homeDescription: "A modern website for a business, software for orders or stock, process automation and AI for small and mid-sized companies.",
       homeKeywords: "website for small business, business website, custom business software, business process automation, ai automation for small business, chatbot for business, Łukasz Bałuniak",
       kreatorTitle: "Order a website, shop or system | Order builder | BALUNIAK",
       kreatorDescription: "Answer a few plain questions and I'll put together a summary of your order and reply within 24 hours. Websites, shops, systems, automation and AI.",
@@ -1424,6 +1427,7 @@ export const translations = {
       pageSubtitle: "Scripts (e.g. full Fotarobota site) and single solutions. Coming soon: AI training access.",
     },
   },
+  DE,
 } as const;
 
 export type TranslationKey = keyof (typeof translations)["PL"];
@@ -1457,3 +1461,20 @@ export function t(lang: Language, path: string): string {
 }
 
 export const STORAGE_KEY_LANG = "baluniak-lang";
+
+/**
+ * Compile-time guard: every language must carry every key Polish does.
+ * Without it a missing German key only shows up as `undefined` on the page.
+ */
+type DeepShape<T> = {
+  [K in keyof T]: T[K] extends readonly unknown[]
+    ? unknown
+    : T[K] extends object
+    ? DeepShape<T[K]>
+    : unknown;
+};
+const _shapeCheck: DeepShape<(typeof translations)["PL"]>[] = [
+  translations.EN,
+  translations.DE,
+];
+void _shapeCheck;

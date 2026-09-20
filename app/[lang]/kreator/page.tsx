@@ -13,6 +13,7 @@ import type {
   ContactDetails,
   KreatorAnswer,
   KreatorQuestion,
+  Lang,
   NextStep,
   ServiceId,
 } from "@/lib/kreator/types";
@@ -24,6 +25,13 @@ type Stage = "service" | "question" | "review" | "done";
 
 /** A question paired with what the visitor answered, so Back costs nothing. */
 type HistoryEntry = { question: KreatorQuestion; answer: KreatorAnswer };
+
+/** Label for whatever the visitor adds beyond the questions. */
+const EXTRA_NOTE_LABEL: Record<Lang, string> = {
+  PL: "Dodatkowe uwagi",
+  EN: "Anything else",
+  DE: "Ergänzende Hinweise",
+};
 
 export default function KreatorPage() {
   const { lang, localeSegment } = useLanguage();
@@ -143,7 +151,7 @@ export default function KreatorPage() {
           ...answers,
           {
             questionId: "extra",
-            question: lang === "PL" ? "Dodatkowe uwagi" : "Anything else",
+            question: EXTRA_NOTE_LABEL[lang],
             selected: [],
             note: extraNote,
           },

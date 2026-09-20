@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { caseStudyJsonLd } from "@/lib/structured-data";
 import { translations } from "@/lib/translations";
-
-const SITE_URL = "https://baluniak.com";
+import { isLocale, languageAlternates, OG_LOCALE, SITE_URL, toLanguage } from "@/lib/i18n";
 
 export async function generateMetadata({
   params,
@@ -11,22 +10,22 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const isPl = lang === "pl";
-  const t = translations[isPl ? "PL" : "EN"].seo;
+  const locale = isLocale(lang) ? lang : "pl";
+  const t = translations[toLanguage(locale)].seo;
   const canonical = `${SITE_URL}/${lang}/projekty/charon`;
   return {
     title: t.charonTitle,
     description: t.charonDescription,
     alternates: {
       canonical,
-      languages: { pl: `${SITE_URL}/pl/projekty/charon`, en: `${SITE_URL}/en/projekty/charon` },
+      languages: languageAlternates("/projekty/charon"),
     },
     openGraph: {
       title: t.charonTitle,
       description: t.charonDescription,
       url: canonical,
       siteName: "BALUNIAK.COM",
-      locale: isPl ? "pl_PL" : "en_US",
+      locale: OG_LOCALE[locale],
       type: "article",
     },
     robots: { index: true, follow: true },
@@ -41,15 +40,15 @@ export default async function CharonLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const isPl = lang === "pl";
+  const locale = isLocale(lang) ? lang : "pl";
   return (
     <>
       <JsonLd
         data={caseStudyJsonLd({
-          lang: isPl ? "pl" : "en",
+          lang: locale,
           slug: "charon",
           name: "Charon",
-          description: translations[isPl ? "PL" : "EN"].seo.charonDescription,
+          description: translations[toLanguage(locale)].seo.charonDescription,
           category: "BusinessApplication",
         })}
       />

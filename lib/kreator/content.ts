@@ -1,5 +1,5 @@
 /**
- * All Kreator copy, PL and EN, in one place.
+ * All Kreator copy, PL and EN, in one place — German lives in content.de.ts.
  *
  * Deliberately kept out of lib/translations.ts: this is a self-contained
  * feature with structured content (services, scripted questions), and that
@@ -13,6 +13,7 @@
  */
 
 import type { KreatorQuestion, Lang, Service, ServiceId } from "./types";
+import { CLOSING_QUESTION_DE, SCRIPT_DE, SERVICES_DE, UI_DE } from "./content.de";
 
 // ─── Services ────────────────────────────────────────────────────────────────
 
@@ -117,6 +118,7 @@ export const SERVICES: Record<Lang, Service[]> = {
       icon: "Compass",
     },
   ],
+  DE: SERVICES_DE,
 };
 
 export function getService(lang: Lang, id: ServiceId): Service | undefined {
@@ -133,8 +135,8 @@ const SCRIPT_PL: Script = {
   website: [
     {
       id: "trade",
-      title: "Czym zajmuje się Twoja firma?",
-      hint: "Wybierz najbliższe albo napisz po swojemu.",
+      title: "Czym zajmuje się firma?",
+      hint: "Proszę wybrać najbliższe albo opisać po swojemu.",
       multi: false,
       options: [
         { id: "services", label: "Usługi u klienta", hint: "remonty, instalacje, transport" },
@@ -146,8 +148,8 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "goal",
-      title: "Co ta strona ma dla Ciebie robić?",
-      hint: "Możesz zaznaczyć kilka rzeczy.",
+      title: "Co ta strona ma realnie robić?",
+      hint: "Można zaznaczyć kilka odpowiedzi.",
       multi: true,
       options: [
         { id: "calls", label: "Przynosić telefony i zapytania" },
@@ -159,7 +161,7 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "materials",
-      title: "Masz już jakieś materiały?",
+      title: "Czy są już jakieś materiały?",
       hint: "Logo, zdjęcia, teksty — cokolwiek.",
       multi: false,
       options: [
@@ -173,7 +175,7 @@ const SCRIPT_PL: Script = {
   shop: [
     {
       id: "what",
-      title: "Co chcesz sprzedawać?",
+      title: "Co ma być sprzedawane?",
       multi: false,
       options: [
         { id: "physical", label: "Rzeczy, które trzeba wysłać" },
@@ -185,7 +187,7 @@ const SCRIPT_PL: Script = {
     {
       id: "size",
       title: "Ile mniej więcej produktów?",
-      hint: "Wystarczy oko.",
+      hint: "Wystarczy przybliżona liczba.",
       multi: false,
       options: [
         { id: "few", label: "Kilka" },
@@ -196,7 +198,7 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "today",
-      title: "Sprzedajesz już gdzieś teraz?",
+      title: "Czy sprzedaż już gdzieś się odbywa?",
       multi: true,
       options: [
         { id: "allegro", label: "Na Allegro lub podobnych" },
@@ -211,7 +213,7 @@ const SCRIPT_PL: Script = {
     {
       id: "purpose",
       title: "Co ma robić to narzędzie?",
-      hint: "Zaznacz, co pasuje, albo opisz własnymi słowami.",
+      hint: "Proszę zaznaczyć, co pasuje, albo opisać własnymi słowami.",
       multi: true,
       options: [
         { id: "orders", label: "Ogarniać zamówienia i klientów" },
@@ -234,7 +236,7 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "current",
-      title: "Jak radzisz sobie z tym dzisiaj?",
+      title: "Jak wygląda to dzisiaj?",
       multi: false,
       options: [
         { id: "excel", label: "Excel, zeszyt i kartki" },
@@ -247,8 +249,8 @@ const SCRIPT_PL: Script = {
   ai: [
     {
       id: "relieve",
-      title: "Co chcesz z siebie zdjąć?",
-      hint: "Możesz zaznaczyć kilka rzeczy.",
+      title: "Co powinno zniknąć z listy obowiązków?",
+      hint: "Można zaznaczyć kilka odpowiedzi.",
       multi: true,
       options: [
         { id: "answers", label: "Odpowiadanie na te same pytania klientów" },
@@ -284,8 +286,8 @@ const SCRIPT_PL: Script = {
   automation: [
     {
       id: "manual",
-      title: "Co dziś klikasz ręcznie, choć nie powinieneś?",
-      hint: "Możesz zaznaczyć kilka rzeczy.",
+      title: "Co dziś robi się ręcznie, choć nie powinno?",
+      hint: "Można zaznaczyć kilka odpowiedzi.",
       multi: true,
       options: [
         { id: "copy", label: "Przepisywanie danych z jednego miejsca w drugie" },
@@ -297,7 +299,7 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "tools",
-      title: "Z czego korzystasz na co dzień?",
+      title: "Z czego firma korzysta na co dzień?",
       multi: true,
       options: [
         { id: "excel", label: "Excel albo Arkusze Google" },
@@ -322,7 +324,7 @@ const SCRIPT_PL: Script = {
   audit: [
     {
       id: "pain",
-      title: "Co Cię najbardziej uwiera?",
+      title: "Co przeszkadza najbardziej?",
       multi: true,
       options: [
         { id: "slow", label: "Strona wczytuje się wolno" },
@@ -335,7 +337,7 @@ const SCRIPT_PL: Script = {
     {
       id: "platform",
       title: "Na czym stoi obecna strona?",
-      hint: "Jeśli nie wiesz, spokojnie — zaznacz ostatnią opcję.",
+      hint: "Brak pewności nie jest problemem — wtedy ostatnia opcja.",
       multi: false,
       options: [
         { id: "wordpress", label: "WordPress" },
@@ -347,7 +349,7 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "access",
-      title: "Masz dostęp do strony?",
+      title: "Czy jest dostęp do strony?",
       hint: "Chodzi o hasła do panelu albo do serwera.",
       multi: false,
       options: [
@@ -361,7 +363,7 @@ const SCRIPT_PL: Script = {
   migration: [
     {
       id: "pain",
-      title: "Co Cię wkurza w obecnej stronie?",
+      title: "Co przeszkadza w obecnej stronie?",
       multi: true,
       options: [
         { id: "slow", label: "Muli i długo się wczytuje" },
@@ -397,8 +399,8 @@ const SCRIPT_PL: Script = {
   unsure: [
     {
       id: "why",
-      title: "Co Cię do mnie sprowadza?",
-      hint: "Wybierz najbliższe albo po prostu opisz sytuację.",
+      title: "Co jest powodem kontaktu?",
+      hint: "Proszę wybrać najbliższe albo po prostu opisać sytuację.",
       multi: true,
       options: [
         { id: "clients", label: "Chcę mieć więcej klientów" },
@@ -410,7 +412,7 @@ const SCRIPT_PL: Script = {
     },
     {
       id: "state",
-      title: "Masz już cokolwiek w internecie?",
+      title: "Czy firma ma już cokolwiek w internecie?",
       multi: false,
       options: [
         { id: "site", label: "Mam stronę" },
@@ -743,8 +745,8 @@ const SCRIPT_EN: Script = {
 const CLOSING_QUESTION: Record<Lang, KreatorQuestion> = {
   PL: {
     id: "timing",
-    title: "Kiedy chciałbyś to mieć?",
-    hint: "Bez zobowiązań — chodzi tylko o to, żebym wiedział, jak to ustawić.",
+    title: "Na kiedy to ma być gotowe?",
+    hint: "Bez zobowiązań — to tylko wskazówka do planowania.",
     multi: false,
     options: [
       { id: "asap", label: "Najchętniej od zaraz" },
@@ -753,6 +755,7 @@ const CLOSING_QUESTION: Record<Lang, KreatorQuestion> = {
       { id: "looking", label: "Na razie się rozglądam" },
     ],
   },
+  DE: CLOSING_QUESTION_DE,
   EN: {
     id: "timing",
     title: "When would you like this ready?",
@@ -767,7 +770,7 @@ const CLOSING_QUESTION: Record<Lang, KreatorQuestion> = {
   },
 };
 
-export const SCRIPT: Record<Lang, Script> = { PL: SCRIPT_PL, EN: SCRIPT_EN };
+export const SCRIPT: Record<Lang, Script> = { PL: SCRIPT_PL, EN: SCRIPT_EN, DE: SCRIPT_DE };
 
 /** Total number of questions a scripted run asks. */
 export const SCRIPT_LENGTH = 4;
@@ -791,28 +794,28 @@ export function scriptedQuestion(
 
 const UI_PL = {
     eyebrow: "Kreator zamówienia",
-    title: "Powiedz, czego potrzebujesz",
+    title: "Kilka pytań o projekt",
     subtitle:
-      "Kilka prostych pytań. Na końcu dostaniesz podsumowanie na maila, a ja odezwę się z propozycją.",
+      "Kilka prostych pytań. Na koniec podsumowanie trafi na maila, a ja odezwę się z propozycją.",
     pickService: "Od czego zaczynamy?",
-    pickServiceHint: "Wybierz to, co najbardziej pasuje. Zawsze można zmienić zdanie.",
+    pickServiceHint: "Proszę wybrać najbliższą opcję. Zawsze można zmienić zdanie.",
     stepOf: "Pytanie {current} z {total}",
     back: "Wstecz",
     next: "Dalej",
     skip: "Pomiń to pytanie",
-    chooseAtLeastOne: "Zaznacz coś albo opisz własnymi słowami.",
+    chooseAtLeastOne: "Proszę zaznaczyć opcję albo opisać własnymi słowami.",
     ownWordsToggle: "Chodzi mi o coś innego — opiszę to sam",
     ownWordsToggleOpen: "Schowaj własny opis",
-    ownWordsPlaceholder: "Napisz własnymi słowami, o co Ci chodzi…",
-    ownWordsHint: "Pisz zwyczajnie, tak jak byś tłumaczył znajomemu.",
+    ownWordsPlaceholder: "Opis własnymi słowami…",
+    ownWordsHint: "Zwyczajnym językiem, bez technicznych określeń.",
     thinking: "Zastanawiam się nad kolejnym pytaniem…",
     summaryTitle: "Tak to zrozumiałem",
-    summaryHint: "Przeczytaj i popraw, jeśli coś nie gra.",
+    summaryHint: "Proszę sprawdzić i poprawić, jeśli coś się nie zgadza.",
     summaryEdit: "Chcę coś dopowiedzieć",
     summaryEditPlaceholder: "Co jeszcze powinienem wiedzieć?",
-    yourAnswers: "Twoje odpowiedzi",
+    yourAnswers: "Udzielone odpowiedzi",
     contactTitle: "Gdzie wysłać podsumowanie?",
-    contactHint: "Dostaniesz kopię na maila. Ja dostanę drugą i odezwę się w ciągu 24 godzin.",
+    contactHint: "Kopia trafi na podany adres, druga przychodzi do mnie. Odezwę się w ciągu 24 godzin.",
     nameLabel: "Imię lub nazwa firmy",
     namePlaceholder: "Jan Kowalski",
     emailLabel: "Adres email",
@@ -822,16 +825,16 @@ const UI_PL = {
     phonePlaceholder: "600 100 200",
     companyLabel: "Firma",
     companyPlaceholder: "Nazwa firmy",
-    submit: "Wyślij zamówienie",
+    submit: "Wyślij zgłoszenie",
     submitting: "Wysyłam…",
     startOver: "Zacznij od nowa",
     errorRequired: "To pole jest potrzebne.",
-    errorEmail: "Sprawdź, czy adres jest poprawny.",
-    errorSend: "Nie udało się wysłać. Spróbuj jeszcze raz za chwilę.",
-    doneTitle: "Gotowe — zamówienie wysłane",
+    errorEmail: "Proszę sprawdzić poprawność adresu.",
+    errorSend: "Nie udało się wysłać. Proszę spróbować ponownie za chwilę.",
+    doneTitle: "Gotowe — zgłoszenie wysłane",
     doneBody:
-      "Podsumowanie poleciało na Twojego maila. Przeczytam je i odezwę się w ciągu 24 godzin z propozycją, jak to zrobić.",
-    doneMeta: "Jeśli mail nie dotarł w kilka minut, zajrzyj do folderu ze spamem.",
+      "Podsumowanie trafiło na podany adres. Przeczytam je i odezwę się w ciągu 24 godzin z propozycją realizacji.",
+    doneMeta: "Jeśli wiadomość nie dotrze w kilka minut, warto zajrzeć do folderu ze spamem.",
     changeService: "Zmień",
 };
 
@@ -840,9 +843,9 @@ export type KreatorCopy = typeof UI_PL;
 
 const UI_EN: KreatorCopy = {
     eyebrow: "Order builder",
-    title: "Tell me what you need",
+    title: "A few questions about the project",
     subtitle:
-      "A few plain questions. At the end you get a summary by email, and I come back to you with a proposal.",
+      "A few plain questions. At the end a summary goes out by email, and I come back with a proposal.",
     pickService: "Where do we start?",
     pickServiceHint: "Pick whatever fits best. You can always change your mind.",
     stepOf: "Question {current} of {total}",
@@ -853,7 +856,7 @@ const UI_EN: KreatorCopy = {
     ownWordsToggle: "I mean something else — let me describe it",
     ownWordsToggleOpen: "Hide my own description",
     ownWordsPlaceholder: "Describe in your own words what you have in mind…",
-    ownWordsHint: "Write it plainly, the way you'd explain it to a friend.",
+    ownWordsHint: "Plain words are fine — no technical terms needed.",
     thinking: "Working out the next question…",
     summaryTitle: "Here's what I understood",
     summaryHint: "Read it over and correct me if anything is off.",
@@ -871,17 +874,17 @@ const UI_EN: KreatorCopy = {
     phonePlaceholder: "+44 7700 900000",
     companyLabel: "Company",
     companyPlaceholder: "Company name",
-    submit: "Send my order",
+    submit: "Send the enquiry",
     submitting: "Sending…",
     startOver: "Start over",
     errorRequired: "This one is needed.",
     errorEmail: "Check that the address is right.",
     errorSend: "Sending failed. Please try again in a moment.",
-    doneTitle: "Done — your order is on its way",
+    doneTitle: "Done — your enquiry is on its way",
     doneBody:
       "The summary has landed in your inbox. I'll read it and come back within 24 hours with how I'd approach it.",
     doneMeta: "If nothing arrives within a few minutes, have a look in your spam folder.",
     changeService: "Change",
 };
 
-export const UI: Record<Lang, KreatorCopy> = { PL: UI_PL, EN: UI_EN };
+export const UI: Record<Lang, KreatorCopy> = { PL: UI_PL, EN: UI_EN, DE: UI_DE };

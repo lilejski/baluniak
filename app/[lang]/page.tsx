@@ -7,12 +7,13 @@ import { ModularStack } from "@/components/sections/ModularStack";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { JsonLd } from "@/components/JsonLd";
 import { personJsonLd } from "@/lib/structured-data";
+import { isLocale } from "@/lib/i18n";
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   return (
     <>
-      <JsonLd data={personJsonLd(lang === "en" ? "en" : "pl")} />
+      <JsonLd data={personJsonLd(isLocale(lang) ? lang : "pl")} />
       <HeroSection />
       <TechStackTrust />
       <ModularStack />

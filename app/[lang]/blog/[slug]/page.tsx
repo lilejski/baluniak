@@ -6,10 +6,9 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PostBody } from "@/components/blog/PostBody";
 import { PostCard } from "@/components/blog/PostCard";
-import { getAllPosts, getPost, getRelatedPosts, getTranslation } from "@/lib/blog/posts";
+import { getAllPosts, getPost, getRelatedPosts, getTranslationIn, getTranslations } from "@/lib/blog/posts";
 import type { PostLang } from "@/lib/blog/types";
-
-const SITE_URL = "https://baluniak.com";
+import { DATE_LOCALE, isLocale, LOCALES, OG_LOCALE, SITE_URL } from "@/lib/i18n";
 
 const COPY = {
   pl: {
@@ -30,15 +29,24 @@ const COPY = {
     ctaBody: "Describe it in your own words — a few plain questions, no commitment.",
     ctaButton: "Open the order builder",
   },
+  de: {
+    back: "Alle Beiträge",
+    minutes: "Min. Lesezeit",
+    read: "Weiterlesen",
+    related: "Passend dazu",
+    ctaTitle: "Steht bei Ihnen etwas Ähnliches an?",
+    ctaBody: "Beschreiben Sie es in eigenen Worten — ein paar einfache Fragen, unverbindlich.",
+    ctaButton: "Zum Projektassistenten",
+  },
 } as const;
 
 function toPostLang(lang: string): PostLang {
-  return lang === "en" ? "en" : "pl";
+  return isLocale(lang) ? lang : "pl";
 }
 
 /** Pre-render every published article at build time. */
 export function generateStaticParams() {
-  return (["pl", "en"] as const).flatMap((lang) =>
+  return LOCALES.flatMap((lang) =>
     getAllPosts(lang).map((post) => ({ lang, slug: post.slug }))
   );
 }
@@ -53,9 +61,8 @@ export async function generateMetadata({
   if (!post) return {};
 
   const canonical = `${SITE_URL}/${lang}/blog/${post.slug}`;
-  const translation = getTranslation(post);
   const languages: Record<string, string> = { [post.lang]: canonical };
-  if (translation) {
+  for (const translation of getTranslations(post)) {
     languages[translation.lang] = `${SITE_URL}/${translation.lang}/blog/${translation.slug}`;
   }
 
@@ -68,7 +75,7 @@ export async function generateMetadata({
       description: post.description,
       url: canonical,
       siteName: "BALUNIAK.COM",
-      locale: post.lang === "pl" ? "pl_PL" : "en_US",
+      locale: OG_LOCALE[post.lang],
       type: "article",
       publishedTime: post.date,
       tags: post.tags,
@@ -89,14 +96,15 @@ export default async function BlogPostPage({
   const post = getPost(postLang, slug);
 
   if (!post) {
-    // The slug may simply belong to the other language — someone swapped the
+    // The slug may simply belong to another language — someone swapped the
     // locale in the address bar, or followed an old link. Send them to the
     // article they meant instead of a dead end: the translation when one
     // exists, otherwise the version that does.
-    const otherLang = postLang === "pl" ? "en" : "pl";
-    const foreign = getPost(otherLang, slug);
-    if (foreign) {
-      const translated = getTranslation(foreign);
+    for (const otherLang of LOCALES) {
+      if (otherLang === postLang) continue;
+      const foreign = getPost(otherLang, slug);
+      if (!foreign) continue;
+      const translated = getTranslationIn(foreign, postLang);
       redirect(
         translated
           ? `/${lang}/blog/${translated.slug}`
@@ -111,7 +119,7 @@ export default async function BlogPostPage({
   const published = new Date(post.date);
   const dateLabel = Number.isNaN(published.getTime())
     ? post.date
-    : published.toLocaleDateString(postLang === "pl" ? "pl-PL" : "en-GB", {
+    : published.toLocaleDateString(DATE_LOCALE[postLang], {
         year: "numeric",
         month: "long",
         day: "numeric",

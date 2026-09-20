@@ -8,8 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { PrintButton } from "@/components/PrintButton";
 import { profilePageJsonLd } from "@/lib/structured-data";
 import { translations } from "@/lib/translations";
-
-const SITE_URL = "https://baluniak.com";
+import { isLocale, languageAlternates, OG_LOCALE, SITE_URL, toLanguage } from "@/lib/i18n";
 
 /** Case-study routes; the site itself has none. */
 const CASE_STUDY_PATHS: Partial<Record<string, string>> = {
@@ -26,7 +25,7 @@ const SOURCE_URLS: Partial<Record<string, string>> = {
 type Props = { params: Promise<{ lang: string }> };
 
 function copyFor(lang: string) {
-  const dict = translations[lang === "en" ? "EN" : "PL"];
+  const dict = translations[toLanguage(lang)];
   return { page: dict.aboutPage, footer: dict.footer };
 }
 
@@ -39,14 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: page.metaDescription,
     alternates: {
       canonical,
-      languages: { pl: `${SITE_URL}/pl/o-mnie`, en: `${SITE_URL}/en/o-mnie` },
+      languages: languageAlternates("/o-mnie"),
     },
     openGraph: {
       title: page.metaTitle,
       description: page.metaDescription,
       url: canonical,
       siteName: "BALUNIAK.COM",
-      locale: lang === "en" ? "en_US" : "pl_PL",
+      locale: OG_LOCALE[isLocale(lang) ? lang : "pl"],
       type: "profile",
       images: [`${SITE_URL}/og-baluniak.png`],
     },
@@ -65,7 +64,7 @@ const primaryButton = buttonVariants({ size: "sm" });
  */
 export default async function AboutMePage({ params }: Props) {
   const { lang } = await params;
-  const segment = lang === "en" ? "en" : "pl";
+  const segment = isLocale(lang) ? lang : "pl";
   const { page, footer } = copyFor(lang);
   const linkedinLabel = decodeURI(footer.linkedinUrl).replace(/^https:\/\/www\./, "").replace(/\/$/, "");
   const githubLabel = footer.githubUrl.replace(/^https:\/\//, "");

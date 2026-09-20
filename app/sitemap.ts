@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog/posts";
+import { languageAlternates, LOCALES, SITE_URL } from "@/lib/i18n";
 
-const SITE_URL = "https://baluniak.com";
-const LANGS = ["pl", "en"] as const;
+const LANGS = LOCALES;
 
 /**
- * Every indexable URL, in both languages, with the alternates spelled out so
- * Google treats the PL and EN versions as one page in two languages rather
- * than as duplicates competing with each other.
+ * Every indexable URL, in all three languages, with the alternates spelled out
+ * so Google treats the PL, EN and DE versions as one page in three languages
+ * rather than as duplicates competing with each other.
  */
 
 /** Static routes, as paths relative to the locale segment. */
@@ -22,10 +22,6 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: Metadata
   { path: "/sklep", priority: 0.5, changeFrequency: "monthly" },
 ];
 
-function alternatesFor(path: string): Record<string, string> {
-  return Object.fromEntries(LANGS.map((lang) => [lang, `${SITE_URL}/${lang}${path}`]));
-}
-
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
@@ -35,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
-      alternates: { languages: alternatesFor(route.path) },
+      alternates: { languages: languageAlternates(route.path) },
     }))
   );
 

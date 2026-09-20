@@ -1,15 +1,12 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { Language } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
 function FlagPL({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 16"
-      className={className}
-      aria-hidden
-    >
+    <svg viewBox="0 0 24 16" className={className} aria-hidden>
       <rect width="24" height="8" fill="#fff" />
       <rect y="8" width="24" height="8" fill="#dc143c" />
     </svg>
@@ -29,7 +26,24 @@ function FlagUK({ className }: { className?: string }) {
   );
 }
 
+function FlagDE({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 16" className={className} aria-hidden>
+      <rect width="24" height="5.34" fill="#000" />
+      <rect y="5.34" width="24" height="5.33" fill="#dd0000" />
+      <rect y="10.67" width="24" height="5.33" fill="#ffce00" />
+    </svg>
+  );
+}
+
 const flagSize = "w-5 h-3.5";
+
+/** One entry per language the site speaks, in the order they are shown. */
+const OPTIONS: { lang: Language; label: string; Flag: typeof FlagPL }[] = [
+  { lang: "PL", label: "Polski", Flag: FlagPL },
+  { lang: "EN", label: "English", Flag: FlagUK },
+  { lang: "DE", label: "Deutsch", Flag: FlagDE },
+];
 
 export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
   const { lang, setLang } = useLanguage();
@@ -43,38 +57,25 @@ export function LanguageSwitcher({ inSheet = false }: { inSheet?: boolean }) {
       role="group"
       aria-label="Language"
     >
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setLang("PL");
-        }}
-        className={cn(
-          buttonBase,
-          lang === "PL" ? "bg-surface-2" : "opacity-55 hover:bg-surface-2 hover:opacity-100"
-        )}
-        aria-label="Polski"
-        aria-pressed={lang === "PL"}
-      >
-        <FlagPL className={cn("rounded-[2px]", flagSize)} />
-      </button>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setLang("EN");
-        }}
-        className={cn(
-          buttonBase,
-          lang === "EN" ? "bg-surface-2" : "opacity-55 hover:bg-surface-2 hover:opacity-100"
-        )}
-        aria-label="English"
-        aria-pressed={lang === "EN"}
-      >
-        <FlagUK className={cn("rounded-[2px]", flagSize)} />
-      </button>
+      {OPTIONS.map(({ lang: option, label, Flag }) => (
+        <button
+          key={option}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setLang(option);
+          }}
+          className={cn(
+            buttonBase,
+            lang === option ? "bg-surface-2" : "opacity-55 hover:bg-surface-2 hover:opacity-100"
+          )}
+          aria-label={label}
+          aria-pressed={lang === option}
+        >
+          <Flag className={cn("rounded-[2px]", flagSize)} />
+        </button>
+      ))}
     </div>
   );
 }

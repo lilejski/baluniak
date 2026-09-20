@@ -10,7 +10,10 @@
  * should never be able to execute code just by being committed.
  */
 
-export type PostLang = "pl" | "en";
+import type { Locale } from "@/lib/i18n";
+
+/** Posts exist in every language the site speaks. */
+export type PostLang = Locale;
 
 export type PostFrontmatter = {
   title: string;
@@ -19,7 +22,7 @@ export type PostFrontmatter = {
   slug: string;
   /** ISO date, YYYY-MM-DD. */
   date: string;
-  /** Ties the PL and EN versions of one article together, for hreflang. */
+  /** Ties the PL, EN and DE versions of one article together, for hreflang. */
   translationKey: string;
   tags: string[];
   /** Hidden from listings and sitemap, still reachable by direct URL. */

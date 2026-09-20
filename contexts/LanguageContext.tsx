@@ -17,22 +17,19 @@ import {
   STORAGE_KEY_LANG,
   t as tRaw,
 } from "@/lib/translations";
+import { isLocale, toLanguage, toLocale, type Locale } from "@/lib/i18n";
 
 type LanguageContextValue = {
   lang: Language;
   setLang: (next: Language) => void;
   t: (path: string) => string;
   dict: (typeof translations)[Language];
-  /** URL segment for current language (pl | en). Use for Link hrefs. */
-  localeSegment: string;
+  /** URL segment for current language (pl | en | de). Use for Link hrefs. */
+  localeSegment: Locale;
   mounted: boolean;
 };
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
-
-function langToSegment(lang: Language): "pl" | "en" {
-  return lang === "PL" ? "pl" : "en";
-}
 
 /** A store that never changes — only its server and client snapshots differ. */
 const subscribeNoop = () => () => {};
@@ -56,11 +53,11 @@ export function LanguageProvider({
   // without syncing state in an effect. Local state only bridges the moment
   // between clicking the switcher and the navigation landing.
   const segment = pathname?.split("/")[1]?.toLowerCase();
-  const lang: Language = segment === "pl" ? "PL" : segment === "en" ? "EN" : langState;
+  const lang: Language = segment && isLocale(segment) ? toLanguage(segment) : langState;
 
   useEffect(() => {
     if (!mounted || typeof document === "undefined") return;
-    document.documentElement.lang = lang === "PL" ? "pl" : "en";
+    document.documentElement.lang = toLocale(lang);
   }, [lang, mounted]);
 
   const setLang = useCallback(
@@ -69,11 +66,11 @@ export function LanguageProvider({
       setLangState(next);
       try {
         localStorage.setItem(STORAGE_KEY_LANG, next);
-        document.cookie = `${STORAGE_KEY_LANG}=${langToSegment(next)};path=/;max-age=31536000`;
+        document.cookie = `${STORAGE_KEY_LANG}=${toLocale(next)};path=/;max-age=31536000`;
       } catch {
         // ignore
       }
-      const segment = langToSegment(next);
+      const segment = toLocale(next);
 
       // Prefer the page's own declared alternate. Swapping just the locale
       // prefix assumes the rest of the path is identical in both languages,
@@ -96,7 +93,7 @@ export function LanguageProvider({
       }
 
       if (!newPath) {
-        const rest = pathname?.replace(/^\/(pl|en)/, "") || "";
+        const rest = pathname?.replace(/^\/(pl|en|de)/, "") || "";
         newPath = `/${segment}${rest}`;
       }
 
@@ -122,7 +119,7 @@ export function LanguageProvider({
       setLang,
       t,
       dict,
-      localeSegment: langToSegment(effectiveLang),
+      localeSegment: toLocale(effectiveLang),
       mounted,
     }),
     [effectiveLang, setLang, t, dict, mounted]
