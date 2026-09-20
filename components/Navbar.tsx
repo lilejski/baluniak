@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronDown, Menu } from "lucide-react";
@@ -51,6 +51,26 @@ const activeLink = "text-fg underline decoration-accent decoration-2 underline-o
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+
+  // The Projects menu opens on hover, because a pointer already over it has
+  // said what it wants. The small closing delay covers the gap between the
+  // trigger and the panel, so crossing it does not slam the menu shut.
+  const [projectsOpen, setProjectsOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  };
+  const openProjects = () => {
+    cancelClose();
+    setProjectsOpen(true);
+  };
+  const closeProjectsSoon = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setProjectsOpen(false), 140);
+  };
+  useEffect(() => cancelClose, []);
   const { dict, localeSegment } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
@@ -105,8 +125,16 @@ export function Navbar() {
 
         {/* Desktop: projects menu + links + language + book a call (primary) + order (secondary) */}
         <div className="hidden items-center gap-1 lg:flex">
-          <DropdownMenu.Root modal={false}>
+          <DropdownMenu.Root modal={false} open={projectsOpen} onOpenChange={setProjectsOpen}>
             <DropdownMenu.Trigger
+              onMouseEnter={openProjects}
+              onMouseLeave={closeProjectsSoon}
+              // Radix toggles on pointer-down. With hover driving the menu that
+              // would close it the moment the pointer arrives, so mouse presses
+              // are ignored here — touch still needs the tap to open it.
+              onPointerDown={(event) => {
+                if (event.pointerType !== "touch") event.preventDefault();
+              }}
               className={cn(
                 desktopLink,
                 "group inline-flex items-center gap-1 outline-none",
@@ -123,9 +151,11 @@ export function Navbar() {
               <DropdownMenu.Content
                 align="start"
                 sideOffset={10}
+                onMouseEnter={openProjects}
+                onMouseLeave={closeProjectsSoon}
                 className="card z-[60] min-w-60 p-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
               >
-                <DropdownMenu.Item asChild>
+                <DropdownMenu.Item asChild onSelect={() => setProjectsOpen(false)}>
                   <Link
                     href={projectsHref}
                     className="flex min-h-10 items-center rounded-sm px-3 text-[0.9375rem] text-fg-muted outline-none data-[highlighted]:bg-surface-2 data-[highlighted]:text-fg"
@@ -135,7 +165,7 @@ export function Navbar() {
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className="my-1.5 h-px bg-border" />
                 {projectItems.map(({ label, href, active }) => (
-                  <DropdownMenu.Item key={href} asChild>
+                  <DropdownMenu.Item key={href} asChild onSelect={() => setProjectsOpen(false)}>
                     <Link
                       href={href}
                       aria-current={active ? "page" : undefined}

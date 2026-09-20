@@ -458,6 +458,11 @@ export const DE = {
     legalDesc: "Reines Forschungsprojekt als Labor für Multi-Agenten-KI, nicht als kommerzielle oder finanzielle Dienstleistung vertrieben.",
   },
   charonPage: {
+    galleryTitle: "Wie es von innen aussieht",
+    galleryLead: "Aufnahmen aus dem laufenden System, ohne Nachhilfe.",
+    galleryDashboard: "Das Dashboard: Manifestwert gegen die eigenen Preise, die Marge, die Warteschlange zum Einstellen und ein Zähler je Status.",
+    galleryScanner: "Der Startbildschirm: wie viel Ware da ist und die Annahme einer neuen Palette. Hier beginnt der Weg jedes Stücks.",
+    galleryCatalog: "Der Katalog fertiger Artikel — Fotos, Preise und der Hinweis, wo das Stück eingestellt ist.",
     heroTitle: "Charon: Software mit KI, die Ware von der Palette bis zum fertigen Inserat führt",
     heroSubline: "Eigenes Lager- und Verkaufssystem für den Ein-Personen-Handel — vom Palettenmanifest bis zur fertigen Anzeige.",
     heroSubtext: "Preisfindung, Verkaufstexte und Katalogisierung mit KI.",

@@ -2,6 +2,7 @@
 
 import type { ComponentType } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import {
@@ -21,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TechLine } from "@/components/ui/tech-line";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 const containerVariants = {
   hidden: {},
@@ -57,12 +59,20 @@ const edgeIcons: ComponentType<{ className?: string; strokeWidth?: number }>[] =
   Smartphone,
 ];
 
+/** Screenshots of the running system, with their natural dimensions. */
+const SHOTS = [
+  { src: "/charon-preview.webp", width: 790, height: 454, caption: "galleryDashboard", wide: true },
+  { src: "/charon-scanner.webp", width: 517, height: 519, caption: "galleryScanner", wide: false },
+  { src: "/charon-katalog.webp", width: 778, height: 674, caption: "galleryCatalog", wide: false },
+] as const;
+
 export default function CharonCaseStudyPage() {
   const { dict, localeSegment } = useLanguage();
   const c = dict.charonPage;
   const f = dict.fotarobotaPage; // shared "back to projects" label
 
   const overviewRef = useRef<HTMLElement>(null);
+  const galleryRef = useRef<HTMLElement>(null);
   const problemRef = useRef<HTMLElement>(null);
   const flowRef = useRef<HTMLElement>(null);
   const edgeRef = useRef<HTMLElement>(null);
@@ -70,6 +80,7 @@ export default function CharonCaseStudyPage() {
   const challengesRef = useRef<HTMLElement>(null);
 
   const overviewInView = useInView(overviewRef, { once: true, amount: 0.15 });
+  const galleryInView = useInView(galleryRef, { once: true, amount: 0.1 });
   const problemInView = useInView(problemRef, { once: true, amount: 0.15 });
   const flowInView = useInView(flowRef, { once: true, amount: 0.1 });
   const edgeInView = useInView(edgeRef, { once: true, amount: 0.1 });
@@ -134,6 +145,43 @@ export default function CharonCaseStudyPage() {
             <motion.p variants={itemVariants} className="text-base leading-relaxed text-fg-muted">
               {c.overviewP2}
             </motion.p>
+          </div>
+        </motion.section>
+
+        {/* What it looks like */}
+        <motion.section
+          ref={galleryRef}
+          initial="hidden"
+          animate={galleryInView ? "visible" : "hidden"}
+          variants={containerVariants}
+          className="mb-20"
+        >
+          <motion.h2 variants={itemVariants} className="text-h2 mb-4">
+            {c.galleryTitle}
+          </motion.h2>
+          <motion.p variants={itemVariants} className="mb-8 text-base text-fg-muted">
+            {c.galleryLead}
+          </motion.p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {SHOTS.map((shot) => (
+              <motion.figure
+                key={shot.src}
+                variants={itemVariants}
+                className={cn("card overflow-hidden p-3", shot.wide && "sm:col-span-2")}
+              >
+                <Image
+                  src={shot.src}
+                  alt={c[shot.caption]}
+                  width={shot.width}
+                  height={shot.height}
+                  className="h-auto w-full rounded-md border border-border"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
+                />
+                <figcaption className="px-1 pb-1 pt-3 text-sm leading-relaxed text-fg-subtle">
+                  {c[shot.caption]}
+                </figcaption>
+              </motion.figure>
+            ))}
           </div>
         </motion.section>
 

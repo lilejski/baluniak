@@ -461,6 +461,11 @@ export const translations = {
       legalDesc: "Projekt wyłącznie badawczy formujący laboratorium Multi-Agent AI, niedystrybuowany jako usługa komercyjna ani finansowa w Polsce.",
     },
     charonPage: {
+      galleryTitle: "Jak to wygląda w środku",
+      galleryLead: "Zrzuty z działającego systemu, bez upiększania.",
+      galleryDashboard: "Panel: wartość z manifestu kontra własne ceny, marża, kolejka do wystawienia i liczniki statusów.",
+      galleryScanner: "Ekran startowy: licznik towaru i przyjęcie nowej palety. Stąd zaczyna się droga każdej sztuki.",
+      galleryCatalog: "Katalog gotowych sztuk — zdjęcia, ceny i oznaczenie, gdzie towar jest wystawiony.",
       heroTitle: "Charon: program z AI, który prowadzi towar od palety do gotowego ogłoszenia",
       heroSubline: "Autorski system klasy WMS/ERP dla jednoosobowego resellingu — od manifestu palety po gotową aukcję.",
       heroSubtext: "Wycena, opisy sprzedażowe i katalogowanie oparte na AI.",
@@ -1170,6 +1175,11 @@ export const translations = {
       legalDesc: "This is purely an experimental research initiative forming a Multi-Agent laboratory, not distributed as a commercial or financial service under current regulations.",
     },
     charonPage: {
+      galleryTitle: "What it looks like inside",
+      galleryLead: "Screens from the running system, nothing staged.",
+      galleryDashboard: "The dashboard: manifest value against my own prices, the margin, the queue waiting to be listed and a counter per status.",
+      galleryScanner: "The start screen: how much stock is in, and taking in a new pallet. Every item's journey begins here.",
+      galleryCatalog: "The catalogue of finished items — photos, prices and where each one is listed.",
       heroTitle: "Charon: AI software that takes stock from pallet to finished listing",
       heroSubline: "A custom WMS/ERP-class system for one-person reselling — from the pallet manifest to a live listing.",
       heroSubtext: "AI-driven pricing, sales copy and cataloguing.",

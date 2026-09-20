@@ -65,6 +65,15 @@ export function Projects() {
             href={`/${localeSegment}/projekty/quantum-om`}
             className="card card-interactive flex h-full flex-col p-5 md:p-7"
           >
+            <div className="relative mb-5 aspect-video w-full overflow-hidden rounded-md border border-border">
+              <Image
+                src="/quantum-om-preview.webp"
+                alt="Quantum OM — command center"
+                fill
+                className="object-cover object-top"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
             <p className="eyebrow">{p.caseStudyTag}</p>
             <h3 className="text-h3 mt-2">Quantum OM</h3>
             <p className="mt-3 text-base leading-relaxed text-fg-muted">{p.quantumOmDesc}</p>
@@ -85,6 +94,15 @@ export function Projects() {
             href={`/${localeSegment}/projekty/charon`}
             className="card card-interactive flex h-full flex-col p-5 md:p-7"
           >
+            <div className="relative mb-5 aspect-video w-full overflow-hidden rounded-md border border-border">
+              <Image
+                src="/charon-preview.webp"
+                alt="Charon — panel"
+                fill
+                className="object-cover object-top"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
             <p className="eyebrow">{p.caseStudyTag}</p>
             <h3 className="text-h3 mt-2">Charon</h3>
             <p className="mt-3 text-base leading-relaxed text-fg-muted">{p.charonDesc}</p>
