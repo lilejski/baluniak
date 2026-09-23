@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { chooseTopic, draftArticle } from "@/lib/seo/draft";
 import { contentBranchName, hasToken, openContentPullRequest } from "@/lib/seo/github";
 import { LOCALES } from "@/lib/i18n";
+import { notifyOwner } from "@/lib/seo/notify";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -15,16 +16,31 @@ export const dynamic = "force-dynamic";
  * frontmatter, so even if it were merged untouched it would carry noindex and
  * stay out of listings and the sitemap until a human says otherwise.
  */
+/**
+ * Who may run this.
+ *
+ * Vercel Cron authenticates with `Authorization: Bearer $CRON_SECRET`, and
+ * only when that variable exists in the project. There is no
+ * `x-vercel-cron-secret` header — checking for one is why every scheduled
+ * run answered 401 and the blog quietly stopped growing.
+ *
+ * SEO_REPORT_SECRET stays accepted so the endpoint can still be triggered by
+ * hand without touching the cron's own secret.
+ */
 function authorise(req: Request): boolean {
-  const secret = process.env.SEO_REPORT_SECRET;
-  if (!secret) return false;
-  if (req.headers.get("authorization") === `Bearer ${secret}`) return true;
-  // Vercel Cron authenticates with its own header.
-  return req.headers.get("x-vercel-cron-secret") === secret;
+  const header = req.headers.get("authorization");
+  if (!header) return false;
+  const accepted = [process.env.CRON_SECRET, process.env.SEO_REPORT_SECRET].filter(
+    (secret): secret is string => Boolean(secret)
+  );
+  return accepted.some((secret) => header === `Bearer ${secret}`);
 }
 
 export async function GET(req: Request) {
   if (!authorise(req)) {
+    // Naming the caller turns the next silent 401 into one log line that
+    // says whether it was the cron, a scanner, or me with a stale secret.
+    console.warn("[seo/draft] unauthorised call from", req.headers.get("user-agent") ?? "unknown");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,10 +60,16 @@ export async function GET(req: Request) {
     if (!topic) {
       // Not a failure: the backlog is drained and Search Console has nothing
       // new to say. Silence is the correct output.
-      return NextResponse.json({
-        drafted: false,
-        reason: "Brak tematów — kolejka pusta, a dane z GSC nie wskazują nic nowego.",
-      });
+      const reason = "Brak tematów — kolejka pusta, a dane z GSC nie wskazują nic nowego.";
+      if (!dryRun) {
+        await notifyOwner(
+          "SEO: w tym tygodniu bez artykułu",
+          `${reason}
+
+Dopisz nowe tematy w content/topics.ts albo poczekaj, aż Search Console uzbiera dość danych, żeby typować samodzielnie.`
+        );
+      }
+      return NextResponse.json({ drafted: false, reason });
     }
 
     const articles = await Promise.all(LOCALES.map((lang) => draftArticle(topic, lang)));
@@ -96,6 +118,20 @@ export async function GET(req: Request) {
       files: articles.map((article) => ({ path: article.path, content: article.content })),
     });
 
+    await notifyOwner(
+      `SEO: nowy artykuł czeka na akceptację — ${pl.title}`,
+      [
+        origin,
+        "",
+        `Pull request: ${url}`,
+        "",
+        "Pliki w PR:",
+        ...articles.map((article) => `- ${article.path}`),
+        "",
+        "Wszystkie mają draft: true — dopóki tego nie zmienisz, są niewidoczne dla Google i w listingu bloga.",
+      ].join("\n")
+    );
+
     return NextResponse.json({
       drafted: true,
       topic: { source: topic.source, translationKey: topic.translationKey },
@@ -103,9 +139,17 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     console.error("[seo/draft]", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message.slice(0, 300) : "Draft failed" },
-      { status: 500 }
-    );
+    const message = err instanceof Error ? err.message.slice(0, 300) : "Draft failed";
+    if (!dryRun) {
+      await notifyOwner(
+        "SEO: przebieg się nie udał",
+        `Cotygodniowy automat treści przerwał pracę.
+
+${message}
+
+Nic nie zostało opublikowane ani wysłane na GitHuba.`
+      );
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
