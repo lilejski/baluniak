@@ -31,11 +31,14 @@ function getPreferredLocale(request: NextRequest): Locale {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip API, static assets, and Next internals (no redirect)
+  // Skip API, static assets, standalone game routes, and Next internals (no redirect)
   if (
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon") ||
+    pathname === "/spaceshoota" ||
+    pathname.startsWith("/spaceshoota/") ||
+    pathname.startsWith("/games/") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();

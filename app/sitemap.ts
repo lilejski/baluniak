@@ -45,5 +45,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   );
 
-  return [...staticEntries, ...postEntries];
+  return [
+    ...staticEntries,
+    ...postEntries,
+    {
+      url: `${SITE_URL}/spaceshoota`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    },
+  ];
 }
