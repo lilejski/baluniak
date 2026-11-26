@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Gamepad2, Maximize2, Minimize2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Download, Gamepad2, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 
 export function SpaceShootaPlayer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,6 +51,16 @@ export function SpaceShootaPlayer() {
             <span className="hidden rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider text-cyan-300 sm:inline-block">
               WEB DEMO
             </span>
+            <a
+              href="/games/spaceshoota/SupaShootav5.apk"
+              download="SupaShootav5.apk"
+              title="Pobierz SupaShootav5.apk (Android)"
+              aria-label="Pobierz APK SupaShootav5.apk"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider text-emerald-200 transition-colors hover:border-emerald-300/70 hover:bg-emerald-400/25 sm:text-[11px]"
+            >
+              <Download className="h-3 w-3 shrink-0" />
+              <span>POBIERZ APK</span>
+            </a>
           </div>
         </div>
 
